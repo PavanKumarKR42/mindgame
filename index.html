@@ -459,32 +459,35 @@
       transport: http()
     });
 
-    // Improved connect with await and error handling
-    let connectionAttempts = 0;
-    const maxAttempts = 20; // ~10s poll
-    async function ensureConnected() {
-      try {
-        if (connectionAttempts > maxAttempts) throw new Error('Connection timeout');
-        await connect(config, { connector: farcasterMiniApp() });
-        connectionAttempts++;
-        await new Promise(resolve => setTimeout(resolve, 500)); // Short delay for init
-        return getAccount(config)?.address;
-      } catch (e) {
-        console.error('Connect attempt failed:', e);
-        connectionAttempts++;
-        await new Promise(resolve => setTimeout(resolve, 500));
-        return ensureConnected(); // Retry
-      }
-    }
+    // Connect once, like reference
+    await connect(config, { connector: farcasterMiniApp() }).catch(() => {
+      console.log('Connect caught, continuing...');
+    });
 
-    let userAddress = null;
-    (async () => {
-      userAddress = await ensureConnected();
-      console.log('Final user address after polling:', userAddress);
+    // Poll for userAddress like reference, but with timeout
+    let userAddress = getAccount(config)?.address;
+    let pollInterval;
+    const pollTimeout = setTimeout(() => {
+      if (pollInterval) clearInterval(pollInterval);
+      console.log('Address poll timeout');
       if (!userAddress) {
-        showToast('❌ Failed to connect wallet. Ensure launched from Farcaster app.');
+        showToast('❌ Wallet connection timed out. Launch from Farcaster app.');
       }
-    })();
+    }, 10000); // 10s timeout
+
+    pollInterval = setInterval(() => {
+      const newAddress = getAccount(config)?.address;
+      if (newAddress && !userAddress) {
+        userAddress = newAddress;
+        console.log('User address ready:', userAddress);
+        clearInterval(pollInterval);
+        clearTimeout(pollTimeout);
+        // Trigger init if ready
+        if (message.innerText.includes('Waiting')) {
+          initGame();
+        }
+      }
+    }, 500);
 
     const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
 
@@ -540,7 +543,7 @@
         showToast(`🎉 Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}">view</a>`, 4500);
         claimModal.classList.add('hidden');
       } catch (e) {
-        console.error('Claim error:', e); // Debug
+        console.error('Claim error:', e);
         showToast('❌ Claim failed. Ensure you won (score >=5) and try again.');
       }
     };
@@ -628,20 +631,10 @@
       displaySequence();
     }
 
-    // Updated initGame with connection retry
-    let initRetries = 0;
-    const maxInitRetries = 3;
     async function initGame() {
-      if (initRetries >= maxInitRetries) {
-        showToast('❌ Max retries reached. Refresh and try again.');
-        message.innerText = "Connection issue. Restart in Farcaster.";
-        return;
-      }
-      
       if (!userAddress) {
-        initRetries++;
-        console.log(`Retry ${initRetries}: Waiting for connection...`);
-        setTimeout(initGame, 2000);
+        showToast('⚠️ Waiting for wallet connection...');
+        message.innerText = "Connecting wallet...";
         return;
       }
       
@@ -658,26 +651,23 @@
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         if (log) {
-          currentGameId = Number(BigInt(log.topics[2])); // Safe BigInt to Number
+          currentGameId = Number(BigInt(log.topics[2]));
           console.log('Game ID:', currentGameId);
           message.innerText = "";
-          initRetries = 0; // Reset
           nextRound();
         } else {
           throw new Error("No GameStarted event");
         }
       } catch (e) {
         console.error('Init error:', e);
-        initRetries++;
         if (e.message.includes('transferFrom')) {
           showToast('💡 Approve BONK spending in wallet first.');
         } else if (e.message.includes('ConnectorNotConnectedError')) {
-          showToast('🔄 Reconnecting...');
-          userAddress = await ensureConnected(); // Re-poll
+          showToast('🔄 Reconnecting wallet...');
         } else {
-          showToast(`❌ Start failed (retry ${initRetries}): ${e.shortMessage || e.message}`);
+          showToast(`❌ Start failed: ${e.shortMessage || e.message}`);
         }
-        setTimeout(() => initGame(), 3000); // Retry after delay
+        message.innerText = "Failed to start. Click restart.";
       }
     }
 
@@ -719,15 +709,15 @@
                 functionName: 'endGame',
                 args: [BigInt(currentGameId), BigInt(round)]
               });
-              console.log('End game tx sent for round:', round); // Debug
+              console.log('End game tx sent for round:', round);
             }
-            if (round >= 5 && currentGameId) { // Added currentGameId check
+            if (round >= 5 && currentGameId) {
               showClaimPopup();
             } else if (round < 5) {
               showToast(`Close! Reached round ${round}. Try for 5+ to claim.`);
             }
           } catch (e) {
-            console.error('End game error:', e); // Debug
+            console.error('End game error:', e);
             showToast('Game saved locally, but blockchain update failed.');
           }
           restartGame();
@@ -764,21 +754,14 @@
     }
 
     function showClaimPopup() {
-      if (!currentGameId) return; // Safety
+      if (!currentGameId) return;
       claimModal.classList.remove('hidden');
     }
 
     restartBtn.onclick = restartGame;
 
-    // Initial start with delay
-    setTimeout(() => {
-      if (userAddress) {
-        initGame();
-      } else {
-        showToast('🚀 Waiting for wallet connection...');
-        setTimeout(initGame, 3000); // Kick off after poll
-      }
-    }, 1500);
+    // Initial start
+    setTimeout(initGame, 1500);
 
     /* ---------- Leaderboard ---------- */
     async function loadLeaderboard() {
