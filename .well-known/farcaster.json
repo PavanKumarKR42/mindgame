@@ -9,16 +9,21 @@
     "splashImageUrl": "https://mindgame-omega.vercel.app/splash.png",
     "splashBackgroundColor": "#6200EA",
     "webhookUrl": "https://mindgame-omega.vercel.app/api/webhook",
-    "subtitle": "You memeory power brings you rewards.",
-    "primaryCategory": "games",
+    "subtitle": "Test Memory!",
     "description": "The Mind Color Sequence Game is a Simon-style memory and sequence recall game built as a Farcaster Mini App with on-chain integration on the Arbitrum network. It challenges users to remember and correctly repeat increasingly long color sequences to progress and earn a cryptocurrency reward.",
+    "primaryCategory": "games",
     "tags": [
       "games",
       "nft",
       "earn",
-      "arb",
-      "mind"
+      "mind",
+      "arb"
     ],
-    "tagline": "Earn "
-}
+    "tagline": "Earn"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjI4NDcxMywidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDBDN2FmZDk5OEY1MDY5ZkM1RTMxZWVmREM2RkZBODdlMzExYWIyM0MifQ",
+    "payload": "eyJkb21haW4iOiJtaW5kZ2FtZS1vbWVnYS52ZXJjZWwuYXBwIn0",
+    "signature": "MHhjYzAzNGUxMjk3MzUxZDMzM2Y1NTVjZWZiNjBiNGU2MDIzN2ZlYWU1YjgxYWU4OTAyNGZmNDc1OWE4Mjc0NzYxNTIyMjdjMTIyZGVkOTUzN2YzYzA5MjUzY2I1NjMxMTA3M2NkM2ViMjkyY2VkOTYzNmI4NzNkMGE0ZjVmZGFjNTFi"
+  }
 }
