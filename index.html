@@ -386,7 +386,15 @@
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
 
-    sdk.actions.ready({ disableNativeGestures: true });
+ sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
+  try {
+    await connect(config, { connector: farcasterMiniApp() });
+    console.log("✅ Connected to Farcaster wallet");
+  } catch (err) {
+    console.log("❌ Wallet connect failed:", err);
+  }
+});
+
 
     /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                         
@@ -451,10 +459,7 @@
       transport: http()
     });
 
-    // Connect once
-    await connect(config, { connector: farcasterMiniApp() }).catch(() => {
-      console.log('Connect caught, continuing...');
-    });
+   
 
     // Poll for userAddress
     let userAddress = getAccount(config)?.address;
