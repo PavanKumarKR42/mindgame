@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,51 +22,310 @@
   }' />
 
   <style>
-    /* (CSS remains the same) */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff;
-      padding: 20px; max-width: 390px; margin: 0 auto;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    .tabbar { display: flex; gap: 8px; width: 100%; margin: 12px; }
-    .tabbar button { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
-    .tabbar button.active { background: rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.5); }
-    .hidden { display: none; }
-    .game-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 30px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; }
-    h1 { text-align: center; margin-bottom: 10px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
-    .score-info { display: flex; justify-content: space-around; margin-bottom: 20px; gap: 10px; }
-    .score-box { background: rgba(255, 255, 255, 0.15); padding: 10px 15px; border-radius: 15px; text-align: center; flex: 1; border: 1px solid rgba(255, 255, 255, 0.2); }
-    .score-label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-    .score-value { font-size: 20px; font-weight: bold; margin-top: 5px; }
-    #colorDisplay { width: 100%; height: 150px; border-radius: 25px; margin-bottom: 20px; border: 3px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: rgba(0, 0, 0, 0.3); transition: all 0.3s ease; box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
-    #colorDisplay.pulse { animation: pulse 0.5s ease; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .colorBtn { height: 60px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; color: #fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
-    .colorBtn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
-    .colorBtn:active:not(:disabled) { transform: translateY(-1px); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
-    .colorBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .colorBtn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.2); opacity: 0; transition: opacity 0.3s ease; }
-    .colorBtn:hover:not(:disabled)::before { opacity: 1; }
-    .colorBtn.pressed { animation: press 0.3s ease; }
-    @keyframes press { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95); filter: brightness(1.3); } }
-    #message { text-align: center; font-size: 18px; min-height: 30px; font-weight: 600; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); margin-bottom: 20px; }
-    .btn-control { display: flex; gap: 10px; margin-top: 10px; }
-    .restart-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-    .restart-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
-    .claim-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); }
-    .claim-btn:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 14px; text-align: left; }
-    thead { background: rgba(0, 0, 0, 0.3); }
-    .center { text-align: center; }
-    .toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 10px 14px; font-weight: 600; max-width: 360px; width: calc(100% - 24px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); display: none; z-index: 9999; }
-    .toast.show { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
-    .start-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-    .start-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      padding: 20px;
+      max-width: 390px;
+      margin: 0 auto;
+    }
+    
+    .tabbar {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin: 12px;
+    }
+    
+    .tabbar button {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .tabbar button.active {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .game-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .score-info {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    
+    .score-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 15px;
+      border-radius: 15px;
+      text-align: center;
+      flex: 1;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .score-label {
+      font-size: 10px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .score-value {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    
+    #colorDisplay {
+      width: 100%;
+      height: 150px;
+      border-radius: 25px;
+      margin-bottom: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    #colorDisplay.pulse {
+      animation: pulse 0.5s ease;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .colorBtn {
+      height: 60px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .colorBtn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .colorBtn:active:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .colorBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .colorBtn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .colorBtn:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+    
+    .colorBtn.pressed {
+      animation: press 0.3s ease;
+    }
+    
+    @keyframes press {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.95); filter: brightness(1.3); }
+    }
+    
+    #message {
+      text-align: center;
+      font-size: 18px;
+      min-height: 30px;
+      font-weight: 600;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+    }
+    
+    .btn-control {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .restart-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .restart-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .claim-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    }
+    
+    .claim-btn:hover {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+    }
+
+    /* Leaderboard */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      text-align: left;
+    }
+    
+    thead {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .center {
+      text-align: center;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 600;
+      max-width: 360px;
+      width: calc(100% - 24px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 9999;
+    }
+    
+    .toast.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .start-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .start-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
@@ -90,7 +350,7 @@
         </div>
       </div>
       
-      <div id="colorDisplay">Connect Wallet to Begin</div>
+      <div id="colorDisplay">Get Ready...</div>
       
       <div class="buttons" id="buttonsContainer"></div>
       
@@ -98,7 +358,7 @@
       
       <div class="btn-control">
         <button class="start-btn" id="connectBtn">Connect Wallet</button>
-        <button class="start-btn hidden" id="startBtn">Checking Game Count...</button>
+        <button class="start-btn hidden" id="startBtn">Start Game</button>
         <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
         <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
       </div>
@@ -111,6 +371,7 @@
     <table>
       <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
       <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
+      
     </table>
   </section>
 
@@ -125,24 +386,47 @@
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
 
-    /* ---------- Config (Updated CA and Decimals) ---------- */
-    // Your Contract Address
-    const CONTRACT_ADDRESS = '0xd32a4Bd6315a6F17EE048b83245eCf9512BB52F6';
-    // BONK CA on Arbitrum (from initial search/context)
-    const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74'; 
+    /* ---------- Config (Corrected ENTRY_FEE and Approval Logic) ---------- */
+    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                        
+    const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
 
-    // Constants from the contract (200000 = 2000 * 10^2)
-    const ENTRY_FEE_RAW = 200000n; 
-    const BONK_DISPLAY_FEE = '2,000'; 
-    const BONK_DECIMALS = 2n; // The contract constants suggest 5 decimals for BONK (200000 / 10^5 = 2.0). 
-                              // BUT since the contract constant is 200000 and it represents 2000 BONK, 
-                              // the actual token must have 2 decimals (2000 * 10^2 = 200000). 
-                              // We will assume 2 decimals based on the magnitude of the constants.
+    // Correctly representing 2,000 BONK (assuming 18 decimals, which is standard)
+    const ENTRY_FEE = 2000n * 10n**18n; 
+    // We only approve the minimum fee required for one game
+    const APPROVAL_AMOUNT = ENTRY_FEE; 
+    const BONK_DISPLAY_FEE = '2,000'; // For user messages
 
-    // Contract ABI (Provided in the prompt)
-    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"ENTRY_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    const ABI = [
+      {
+        "inputs": [],
+        "name": "startGame",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}],
+        "name": "endGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}],
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}],
+        "name": "getTopPlayers",
+        "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
 
-    // Standard ERC20 ABI for allowance/approve
     const ERC20_ABI = [
       {
         "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
@@ -191,7 +475,6 @@
     /* ---------- State ---------- */
     let userAddress = null;
     let currentGameId = null;
-    let currentDailyPlays = 0;
 
     tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
@@ -214,87 +497,56 @@
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
-   /* Helper function to update the Start Button's text */
-   function updateStartButtonText(dailyPlays) {
-       if (dailyPlays < 2) {
-           startBtn.innerText = `Start Free Game (${dailyPlays + 1}/2)`;
-       } else {
-           startBtn.innerText = `Start Game (${BONK_DISPLAY_FEE} BONK)`;
-       }
-   }
+    /* ---------- Approval Logic (Simplified) ---------- */
+    async function checkAndApproveBonkSpending() {
+        if (!userAddress) return false;
 
-   /* Fetches user's daily play count and updates the button */
-   async function fetchDailyPlays(address) {
-       try {
-           const count = await readContract(config, {
-               address: CONTRACT_ADDRESS,
-               abi: ABI,
-               functionName: 'dailyPlays',
-               args: [address]
-           });
-           currentDailyPlays = Number(count);
-           updateStartButtonText(currentDailyPlays);
-       } catch (e) {
-           console.error('Failed to fetch daily plays:', e);
-           currentDailyPlays = 0;
-           updateStartButtonText(currentDailyPlays);
-       }
-   }
+        startBtn.disabled = true;
+        let originalText = startBtn.innerText;
+        startBtn.innerText = 'Checking Approval...';
+        message.innerText = "Checking BONK allowance...";
 
-   /* Checks if BONK approval is needed and executes the approval transaction if required */
-   async function checkAndApproveBonkSpending() {
-       if (!userAddress || currentDailyPlays < 2) {
-           // Free game, no approval check needed
-           return true; 
-       }
+        try {
+            // Check current allowance against the single game fee
+            const allowance = await readContract(config, {
+                address: BONK_ADDRESS,
+                abi: ERC20_ABI,
+                functionName: 'allowance',
+                args: [userAddress, CONTRACT_ADDRESS]
+            });
 
-       // Paid game logic
-       startBtn.disabled = true;
-       let originalText = startBtn.innerText;
-       startBtn.innerText = 'Checking Allowance...';
-       
-       try {
-           // Check current allowance against the single game fee
-           const allowance = await readContract(config, {
-               address: BONK_ADDRESS,
-               abi: ERC20_ABI,
-               functionName: 'allowance',
-               args: [userAddress, CONTRACT_ADDRESS]
-           });
+            if (allowance >= ENTRY_FEE) {
+                // Already approved, proceed directly
+                return true; 
+            }
 
-           if (allowance >= ENTRY_FEE_RAW) {
-               // Already approved
-               return true; 
-           }
+            // Request approval for the minimum fee (2,000 BONK)
+            startBtn.innerText = `Approving ${BONK_DISPLAY_FEE} BONK...`;
+            message.innerText = `Awaiting approval for ${BONK_DISPLAY_FEE} BONK (Gas Fee Only)...`;
+            
+            const { hash } = await writeContract(config, {
+                address: BONK_ADDRESS,
+                abi: ERC20_ABI,
+                functionName: 'approve',
+                args: [CONTRACT_ADDRESS, APPROVAL_AMOUNT]
+            });
 
-           // Request approval for the minimum fee (2,000 BONK)
-           startBtn.innerText = `Approve ${BONK_DISPLAY_FEE} BONK...`;
-           message.innerText = `Please approve BONK spending first (Gas Fee Only).`;
-           
-           const { hash } = await writeContract(config, {
-               address: BONK_ADDRESS,
-               abi: ERC20_ABI,
-               functionName: 'approve',
-               args: [CONTRACT_ADDRESS, ENTRY_FEE_RAW] // Use the raw entry fee amount
-           });
-
-           showToast(`Approval TX sent! Waiting for confirmation...`);
-           await publicClient.waitForTransactionReceipt({ hash });
-           
-           showToast("BONK spending approved! Preparing game...");
-           message.innerText = "Approval successful! Now starting game...";
-           return true;
-
-       } catch (e) {
-           console.error('BONK approval failed:', e);
-           showToast(`Approval failed: ${e.shortMessage || "User rejected/network error"}`);
-           message.innerText = "Approval failed. You must approve BONK to play paid games.";
-           return false;
-       } finally {
-           startBtn.disabled = false;
-           startBtn.innerText = originalText;
-       }
-   }
+            showToast(`Approval TX sent! Waiting for confirmation...`);
+            
+            await publicClient.waitForTransactionReceipt({ hash });
+            
+            showToast("BONK spending approved successfully! Starting game.");
+            return true;
+        } catch (e) {
+            console.error('BONK approval failed:', e);
+            showToast(`BONK Approval failed: ${e.shortMessage || e.message}`);
+            message.innerText = "Approval failed. Cannot start game.";
+            return false;
+        } finally {
+            startBtn.disabled = false;
+            startBtn.innerText = originalText;
+        }
+    }
 
     /* ---------- Initialize SDK and Wallet ---------- */
     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
@@ -321,14 +573,11 @@
 
         if (userAddress) {
           showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-          
-           // Fetch daily plays and update UI
-          await fetchDailyPlays(userAddress);
+          console.log("Wallet connected:", userAddress);
 
           connectBtn.classList.add('hidden');
           startBtn.classList.remove('hidden');
-          colorDisplay.innerText = "Get Ready...";
-          message.innerText = "Wallet connected. Ready to play!";
+          message.innerText = "Wallet connected. Click 'Start Game' to play your first free game!";
         } else {
           throw new Error("No address returned");
         }
@@ -340,6 +589,7 @@
         message.innerText = "Connection failed. Try again.";
       }
     };
+
 
     claimBtn.onclick = async () => {
       if (!currentGameId) {
@@ -355,10 +605,11 @@
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
-        showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 5k BONK';
+        claimBtn.innerText = 'Claim 5k BONK'
+        return;
       } catch (e) {
         console.error('Claim error:', e);
         showToast('Claim failed. Ensure you won (score >=5) and try again.');
@@ -367,7 +618,7 @@
       }
     };
 
-    /* ---------- Game Logic (Remains mostly the same) ---------- */
+    /* ---------- Game Logic ---------- */
     const colors = [
       {name: "red", hex: "#e74c3c"},
       {name: "blue", hex: "#3498db"},
@@ -447,17 +698,14 @@
         return;
       }
 
-     // STEP 1: If it's a paid game, check and approve BONK spending first.
-     if (currentDailyPlays >= 2) {
-         if (!await checkAndApproveBonkSpending()) {
-           return; // Approval failed or user rejected
-         }
-     } else {
-       message.innerText = `Starting Free Game... Please confirm gas transaction.`;
-     }
+      // **STEP 1: Check and Approve the minimum 2k BONK fee**
+      if (!await checkAndApproveBonkSpending()) {
+        message.innerText = "Approval of BONK is required to start the game. Please try again.";
+        return;
+      }
       
-      // STEP 2: Start Game transaction
-      
+      // **STEP 2: Start Game transaction**
+      message.innerText = "Starting Game...";
       updateButtons(false);
       startBtn.disabled = true;
       
@@ -468,41 +716,27 @@
           functionName: 'startGame',
           args: []
         });
-        
-       showToast(`Game Start TX sent! Waiting for confirmation...`);
-
+        console.log('Start tx hash:', hash);
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
-        
-       if (log) {
+        if (log) {
           currentGameId = Number(BigInt(log.topics[2]));
-          message.innerText = "Game started successfully! Watch for the sequence.";
+          console.log('Game ID:', currentGameId);
+          message.innerText = "Game started! Play your first free game.";
           startBtn.classList.add('hidden');
           restartBtn.classList.remove('hidden');
           claimBtn.classList.add('hidden');
           nextRound();
-           
-           // Update local game count and button text
-           currentDailyPlays++;
-           updateStartButtonText(currentDailyPlays);
         } else {
-          throw new Error("No GameStarted event found in transaction receipt.");
+          throw new Error("No GameStarted event");
         }
-
       } catch (e) {
         console.error('Init error:', e);
-        // Specific check for insufficient funds if it's a paid game and they haven't approved/don't have BONK
-        if (currentDailyPlays >= 2 && e.message && (e.message.includes('transferFrom failed') || e.message.includes('insufficient funds'))) {
-          showToast(`Start Failed: Check your BONK balance or allowance!`);
-          message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
-        } else {
-          showToast(`Start Failed: ${e.shortMessage || e.message}`);
-          message.innerText = "Transaction failed. Please check your wallet and try again.";
-        }
-        
-       startBtn.disabled = false;
-       startBtn.classList.remove('hidden');
-       restartBtn.classList.add('hidden');
+        showToast(`Failed to start game: ${e.shortMessage || e.message}`);
+        message.innerText = "Failed to start. Please check your wallet and try again.";
+        startBtn.disabled = false;
+        startBtn.classList.remove('hidden');
+        restartBtn.classList.add('hidden');
       }
     }
 
@@ -586,13 +820,6 @@
       claimBtn.classList.add('hidden');
       startBtn.classList.remove('hidden');
       startBtn.disabled = false;
-     
-     // Re-fetch or rely on locally updated dailyPlays to set button text
-     if (userAddress) {
-         fetchDailyPlays(userAddress);
-     } else {
-         updateStartButtonText(currentDailyPlays);
-     }
     }
 
     restartBtn.onclick = restartGame;
@@ -634,3 +861,4 @@
   </script>
 </body>
 </html>
+```
