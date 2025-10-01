@@ -459,10 +459,32 @@
       transport: http()
     });
 
-    await connect(config, { connector: farcasterMiniApp() }).catch(() => {});
+    // Improved connect with await and error handling
+    let connectionAttempts = 0;
+    const maxAttempts = 20; // ~10s poll
+    async function ensureConnected() {
+      try {
+        if (connectionAttempts > maxAttempts) throw new Error('Connection timeout');
+        await connect(config, { connector: farcasterMiniApp() });
+        connectionAttempts++;
+        await new Promise(resolve => setTimeout(resolve, 500)); // Short delay for init
+        return getAccount(config)?.address;
+      } catch (e) {
+        console.error('Connect attempt failed:', e);
+        connectionAttempts++;
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return ensureConnected(); // Retry
+      }
+    }
 
-    const account = getAccount(config);
-    const userAddress = account.address;
+    let userAddress = null;
+    (async () => {
+      userAddress = await ensureConnected();
+      console.log('Final user address after polling:', userAddress);
+      if (!userAddress) {
+        showToast('❌ Failed to connect wallet. Ensure launched from Farcaster app.');
+      }
+    })();
 
     const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
 
@@ -497,8 +519,17 @@
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
+    // Add close modal on outside click
+    claimModal.onclick = (e) => {
+      if (e.target === claimModal) claimModal.classList.add('hidden');
+    };
+
     claimGameBtn.onclick = async () => {
-      if (!currentGameId) return;
+      if (!currentGameId) {
+        showToast('No active game to claim. Play and win first!');
+        claimModal.classList.add('hidden');
+        return;
+      }
       try {
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
@@ -509,7 +540,8 @@
         showToast(`🎉 Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}">view</a>`, 4500);
         claimModal.classList.add('hidden');
       } catch (e) {
-        showToast('❌ Claim failed.');
+        console.error('Claim error:', e); // Debug
+        showToast('❌ Claim failed. Ensure you won (score >=5) and try again.');
       }
     };
 
@@ -596,8 +628,24 @@
       displaySequence();
     }
 
+    // Updated initGame with connection retry
+    let initRetries = 0;
+    const maxInitRetries = 3;
     async function initGame() {
-      message.innerText = "Connecting & Starting Game...";
+      if (initRetries >= maxInitRetries) {
+        showToast('❌ Max retries reached. Refresh and try again.');
+        message.innerText = "Connection issue. Restart in Farcaster.";
+        return;
+      }
+      
+      if (!userAddress) {
+        initRetries++;
+        console.log(`Retry ${initRetries}: Waiting for connection...`);
+        setTimeout(initGame, 2000);
+        return;
+      }
+      
+      message.innerText = "Starting Game...";
       updateButtons(false);
       try {
         const { hash } = await writeContract(config, {
@@ -606,28 +654,38 @@
           functionName: 'startGame',
           args: []
         });
+        console.log('Start tx hash:', hash);
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         if (log) {
-          currentGameId = Number(log.topics[2]);
+          currentGameId = Number(BigInt(log.topics[2])); // Safe BigInt to Number
+          console.log('Game ID:', currentGameId);
           message.innerText = "";
+          initRetries = 0; // Reset
           nextRound();
         } else {
-          throw new Error("No game started event");
+          throw new Error("No GameStarted event");
         }
       } catch (e) {
-        console.error(e);
+        console.error('Init error:', e);
+        initRetries++;
         if (e.message.includes('transferFrom')) {
-          showToast('💡 Please approve the contract to spend your BONK tokens first.');
+          showToast('💡 Approve BONK spending in wallet first.');
+        } else if (e.message.includes('ConnectorNotConnectedError')) {
+          showToast('🔄 Reconnecting...');
+          userAddress = await ensureConnected(); // Re-poll
         } else {
-          showToast('❌ Failed to start game. Try again.');
+          showToast(`❌ Start failed (retry ${initRetries}): ${e.shortMessage || e.message}`);
         }
-        message.innerText = "Failed to start. Click restart.";
+        setTimeout(() => initGame(), 3000); // Retry after delay
       }
     }
 
     function handleUserInput(colorName, btn) {
-      if (displaying || !buttonsEnabled) return;
+      if (displaying || !buttonsEnabled || !userAddress) {
+        showToast('⚠️ Wallet not connected. Launch from Farcaster.');
+        return;
+      }
       
       btn.classList.add('pressed');
       setTimeout(() => btn.classList.remove('pressed'), 300);
@@ -654,17 +712,23 @@
           colorDisplay.innerText = "Get Ready...";
           message.innerText = "";
           try {
-            await writeContract(config, {
-              address: CONTRACT_ADDRESS,
-              abi: ABI,
-              functionName: 'endGame',
-              args: [BigInt(currentGameId), BigInt(round)]
-            });
-            if (round >= 5) {
+            if (currentGameId) {
+              await writeContract(config, {
+                address: CONTRACT_ADDRESS,
+                abi: ABI,
+                functionName: 'endGame',
+                args: [BigInt(currentGameId), BigInt(round)]
+              });
+              console.log('End game tx sent for round:', round); // Debug
+            }
+            if (round >= 5 && currentGameId) { // Added currentGameId check
               showClaimPopup();
+            } else if (round < 5) {
+              showToast(`Close! Reached round ${round}. Try for 5+ to claim.`);
             }
           } catch (e) {
-            console.error('End game failed:', e);
+            console.error('End game error:', e); // Debug
+            showToast('Game saved locally, but blockchain update failed.');
           }
           restartGame();
         }, 2500);
@@ -700,18 +764,30 @@
     }
 
     function showClaimPopup() {
+      if (!currentGameId) return; // Safety
       claimModal.classList.remove('hidden');
     }
 
     restartBtn.onclick = restartGame;
 
-    // Initial start
-    setTimeout(initGame, 1000);
+    // Initial start with delay
+    setTimeout(() => {
+      if (userAddress) {
+        initGame();
+      } else {
+        showToast('🚀 Waiting for wallet connection...');
+        setTimeout(initGame, 3000); // Kick off after poll
+      }
+    }, 1500);
 
     /* ---------- Leaderboard ---------- */
     async function loadLeaderboard() {
       const tbody = document.getElementById('leaderboardBody');
       tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
+      if (!userAddress) {
+        tbody.innerHTML = '<tr><td colspan="3" class="center">Connect wallet to load.</td></tr>';
+        return;
+      }
       try {
         const [players, scores] = await readContract(config, {
           address: CONTRACT_ADDRESS,
