@@ -357,7 +357,6 @@
    
       <div class="btn-control">
         <button class="start-btn" id="connectBtn">Connect Wallet</button>
-        <button class="start-btn hidden" id="approveBtn">Approve BONK (Gas Only)</button> 
         <button class="start-btn hidden" id="startBtn">Start Game</button>
         <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
         <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
@@ -371,6 +370,7 @@
     <table>
       <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
       <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
+   
     </table>
   </section>
 
@@ -385,19 +385,16 @@
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
 
-    /* ---------- Config ---------- */
-    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                                      
+    /* ---------- Config (Corrected ENTRY_FEE and Approval Logic) ---------- */
+    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                                     
     const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
-    const ENTRY_FEE = 200000n;
-    const APPROVAL_AMOUNT = 1000000000000n; // Approve a large amount to prevent re-approvals
-sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
+
+    // Correctly representing 2,000 BONK (assuming 18 decimals, which is standard)
+    const ENTRY_FEE = 2000n * 10n**18n; 
+    // We only approve the minimum fee required for one game
+    const APPROVAL_AMOUNT = ENTRY_FEE; 
+    const BONK_DISPLAY_FEE = '2,000'; // For user messages
+
     const ABI = [
       {
         "inputs": [],
@@ -468,7 +465,6 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
     const restartBtn = document.getElementById('restartBtn');
     const startBtn = document.getElementById('startBtn');
     const connectBtn = document.getElementById('connectBtn');
-    const approveBtn = document.getElementById('approveBtn'); // NEW REF
     const colorDisplay = document.getElementById('colorDisplay');
     const buttonsContainer = document.getElementById('buttonsContainer');
     const message = document.getElementById('message');
@@ -500,16 +496,17 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
-    /* ---------- Approval Logic ---------- */
-    async function approveBonkSpending() {
+    /* ---------- Approval Logic (Simplified) ---------- */
+    async function checkAndApproveBonkSpending() {
         if (!userAddress) return false;
 
-        approveBtn.disabled = true;
-        approveBtn.innerText = 'Checking...';
-        message.innerText = "Checking BONK approval...";
+        startBtn.disabled = true;
+        let originalText = startBtn.innerText;
+        startBtn.innerText = 'Checking Approval...';
+        message.innerText = "Checking BONK allowance...";
 
         try {
-            // Check current allowance (Checking against ENTRY_FEE is sufficient)
+            // Check current allowance against the single game fee
             const allowance = await readContract(config, {
                 address: BONK_ADDRESS,
                 abi: ERC20_ABI,
@@ -518,46 +515,47 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
             });
 
             if (allowance >= ENTRY_FEE) {
-                showToast("BONK spending is approved!");
-                approveBtn.classList.add('hidden');
-                startBtn.classList.remove('hidden');
-                message.innerText = "Ready to play!";
-                return true; // Already approved
+                // Already approved, proceed directly
+                return true; 
             }
 
-            // Request approval if insufficient
-            approveBtn.innerText = "Approve in Wallet...";
-            message.innerText = "Awaiting BONK approval transaction (Gas Fee Only)...";
+            // Request approval for the minimum fee (2,000 BONK)
+            startBtn.innerText = `Approving ${BONK_DISPLAY_FEE} BONK...`;
+            message.innerText = `Awaiting approval for ${BONK_DISPLAY_FEE} BONK (Gas Fee Only)...`;
             
             const { hash } = await writeContract(config, {
                 address: BONK_ADDRESS,
                 abi: ERC20_ABI,
                 functionName: 'approve',
-                args: [CONTRACT_ADDRESS, APPROVAL_AMOUNT] // Approving a large amount
+                args: [CONTRACT_ADDRESS, APPROVAL_AMOUNT]
             });
 
-            showToast(`Approval TX sent! Waiting for confirmation...`, 5000);
+            showToast(`Approval TX sent! Waiting for confirmation...`);
             
             await publicClient.waitForTransactionReceipt({ hash });
             
-            showToast("BONK spending approved successfully! Click 'Start Game'.", 4000);
-            approveBtn.classList.add('hidden');
-            startBtn.classList.remove('hidden');
-            message.innerText = "Approval success! Click 'Start Game' to play.";
+            showToast("BONK spending approved successfully! Starting game.");
             return true;
         } catch (e) {
             console.error('BONK approval failed:', e);
-            showToast(`BONK Approval failed. Please try again.`);
-            message.innerText = "Approval failed. Try again.";
+            showToast(`BONK Approval failed: ${e.shortMessage || e.message}`);
+            message.innerText = "Approval failed. Cannot start game.";
             return false;
         } finally {
-            approveBtn.disabled = false;
-            approveBtn.innerText = 'Approve BONK (Gas Only)';
+            startBtn.disabled = false;
+            startBtn.innerText = originalText;
         }
     }
 
     /* ---------- Initialize SDK and Wallet ---------- */
-    
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
     connectBtn.onclick = async () => {
       try {
@@ -577,9 +575,8 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
           console.log("Wallet connected:", userAddress);
 
           connectBtn.classList.add('hidden');
-          // Show the new Approve button
-          approveBtn.classList.remove('hidden'); 
-          message.innerText = "Wallet connected. Please approve BONK spending (Gas Only).";
+          startBtn.classList.remove('hidden');
+          message.innerText = "Wallet connected. Click 'Start Game' to play your first free game!";
         } else {
           throw new Error("No address returned");
         }
@@ -592,7 +589,6 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       }
     };
 
-    approveBtn.onclick = approveBonkSpending;
 
     claimBtn.onclick = async () => {
       if (!currentGameId) {
@@ -700,12 +696,13 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
         return;
       }
 
-      // Crucial check: Ensure BONK is approved before starting
-      if (!await approveBonkSpending()) {
-        message.innerText = "Approval is required to start the game.";
+      // **STEP 1: Check and Approve the minimum 2k BONK fee**
+      if (!await checkAndApproveBonkSpending()) {
+        message.innerText = "Approval of BONK is required to start the game. Please try again.";
         return;
       }
    
+      // **STEP 2: Start Game transaction**
       message.innerText = "Starting Game...";
       updateButtons(false);
       startBtn.disabled = true;
@@ -723,7 +720,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
         if (log) {
           currentGameId = Number(BigInt(log.topics[2]));
           console.log('Game ID:', currentGameId);
-          message.innerText = "";
+          message.innerText = "Game started! Play your first free game.";
           startBtn.classList.add('hidden');
           restartBtn.classList.remove('hidden');
           claimBtn.classList.add('hidden');
@@ -734,7 +731,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       } catch (e) {
         console.error('Init error:', e);
         showToast(`Failed to start game: ${e.shortMessage || e.message}`);
-        message.innerText = "Failed to start. Please ensure you have approved BONK, and try again.";
+        message.innerText = "Failed to start. Please check your wallet and try again.";
         startBtn.disabled = false;
         startBtn.classList.remove('hidden');
         restartBtn.classList.add('hidden');
@@ -814,7 +811,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       currentGameId = null;
       colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
       colorDisplay.innerText = "Get Ready...";
-      message.innerText = "";
+      message.innerText = "Ready for your next game!";
       roundDisplay.innerText = "1";
       updateButtons(false);
       restartBtn.classList.add('hidden');
@@ -857,7 +854,6 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
     claimBtn.classList.add('hidden');
     restartBtn.classList.add('hidden');
     startBtn.classList.add('hidden');
-    approveBtn.classList.add('hidden'); // Ensure this is hidden initially
     updateButtons(false);
     message.innerText = "Connect your wallet to begin";
   </script>
