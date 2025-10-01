@@ -391,30 +391,35 @@
 const connectBtn = document.getElementById('connectBtn');
 
 sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-  console.log("✅ Farcaster environment ready");
+  console.log("✅ Farcaster MiniApp ready");
 
   connectBtn.onclick = async () => {
     try {
-      await connect(config, { connector: farcasterMiniApp() });
+      // Connect using Farcaster wallet on Arb
+      await connect(config, {
+        connector: farcasterMiniApp(),
+        chainId: arbitrum.id
+      });
+
+      // Get connected account
       userAddress = getAccount(config)?.address;
 
       if (userAddress) {
-        showToast(`✅ Wallet connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-        console.log("Connected:", userAddress);
+        showToast(`✅ Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+        console.log("Wallet connected:", userAddress);
 
         connectBtn.classList.add('hidden');
         startBtn.classList.remove('hidden');
         message.innerText = "Ready to play!";
       } else {
-        showToast("❌ No wallet found. Please open in Warpcast.");
+        showToast("❌ No wallet address returned.");
       }
     } catch (err) {
       console.error("❌ Wallet connect failed:", err);
-      showToast("❌ Connect failed. Make sure you opened this in Warpcast.");
+      showToast("❌ Connect failed. Make sure you opened this Mini App in Warpcast.");
     }
   };
 });
-
 
 
 
