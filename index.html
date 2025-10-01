@@ -134,10 +134,7 @@
     // Constants from the contract (200000 = 2000 * 10^2)
     const ENTRY_FEE_RAW = 200000n; 
     const BONK_DISPLAY_FEE = '2,000'; 
-    const BONK_DECIMALS = 2n; // The contract constants suggest 5 decimals for BONK (200000 / 10^5 = 2.0). 
-                              // BUT since the contract constant is 200000 and it represents 2000 BONK, 
-                              // the actual token must have 2 decimals (2000 * 10^2 = 200000). 
-                              // We will assume 2 decimals based on the magnitude of the constants.
+    const BONK_DECIMALS = 2n;
 
     // Contract ABI (Provided in the prompt)
     const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"ENTRY_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
@@ -313,24 +310,24 @@
         message.innerText = "Connecting wallet...";
 
         await connect(config, {
-          connector: farcasterMiniApp(),
-          chainId: arbitrum.id
+        connector: farcasterMiniApp(),
+        chainId: arbitrum.id
         });
 
         userAddress = getAccount(config)?.address;
 
         if (userAddress) {
-          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-          
-           // Fetch daily plays and update UI
-          await fetchDailyPlays(userAddress);
+        showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+        
+         // Fetch daily plays and update UI
+        await fetchDailyPlays(userAddress);
 
-          connectBtn.classList.add('hidden');
-          startBtn.classList.remove('hidden');
-          colorDisplay.innerText = "Get Ready...";
-          message.innerText = "Wallet connected. Ready to play!";
+        connectBtn.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+        colorDisplay.innerText = "Get Ready...";
+        message.innerText = "Wallet connected. Ready to play!";
         } else {
-          throw new Error("No address returned");
+        throw new Error("No address returned");
         }
       } catch (err) {
         console.error("Wallet connect failed:", err);
@@ -350,10 +347,10 @@
         claimBtn.disabled = true;
         claimBtn.innerText = 'Claiming...';
         const { hash } = await writeContract(config, {
-          address: CONTRACT_ADDRESS,
-          abi: ABI,
-          functionName: 'claim',
-          args: [BigInt(currentGameId)]
+        address: CONTRACT_ADDRESS,
+        abi: ABI,
+        functionName: 'claim',
+        args: [BigInt(currentGameId)]
         });
         showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         claimBtn.classList.add('hidden');
@@ -441,6 +438,10 @@
       displaySequence();
     }
 
+    /*       The corrected initGame function:
+      This version adds a crucial check for log.topics.length and log.topics[2]
+      before converting to BigInt, preventing the "cannot convert undefined to a BigInt" error. 
+    */
     async function initGame() {
       if (!userAddress) {
         showToast("Please connect your wallet first!");
@@ -456,17 +457,15 @@
        message.innerText = `Starting Free Game... Please confirm gas transaction.`;
      }
       
-      // STEP 2: Start Game transaction
-      
       updateButtons(false);
       startBtn.disabled = true;
       
       try {
         const { hash } = await writeContract(config, {
-          address: CONTRACT_ADDRESS,
-          abi: ABI,
-          functionName: 'startGame',
-          args: []
+        address: CONTRACT_ADDRESS,
+        abi: ABI,
+        functionName: 'startGame',
+        args: []
         });
         
        showToast(`Game Start TX sent! Waiting for confirmation...`);
@@ -474,30 +473,37 @@
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         
-       if (log) {
-          currentGameId = Number(BigInt(log.topics[2]));
-          message.innerText = "Game started successfully! Watch for the sequence.";
-          startBtn.classList.add('hidden');
-          restartBtn.classList.remove('hidden');
-          claimBtn.classList.add('hidden');
-          nextRound();
-           
-           // Update local game count and button text
-           currentDailyPlays++;
-           updateStartButtonText(currentDailyPlays);
+       // 🚀 FIX: Ensure log is found AND has at least 3 topics (0, 1, 2)
+       if (log && log.topics.length > 2) {
+          // Extract gameId from the third topic (index 2)
+        currentGameId = Number(BigInt(log.topics[2])); 
+        
+        message.innerText = "Game started successfully! Watch for the sequence.";
+        startBtn.classList.add('hidden');
+        restartBtn.classList.remove('hidden');
+        claimBtn.classList.add('hidden');
+        nextRound();
+        
+         // Update local game count and button text
+         currentDailyPlays++;
+         updateStartButtonText(currentDailyPlays);
         } else {
-          throw new Error("No GameStarted event found in transaction receipt.");
+          // Log not found, or topics are missing the gameId
+          throw new Error("Contract event not found or malformed log data.");
         }
 
       } catch (e) {
         console.error('Init error:', e);
-        // Specific check for insufficient funds if it's a paid game and they haven't approved/don't have BONK
+        // Handle common transaction errors
         if (currentDailyPlays >= 2 && e.message && (e.message.includes('transferFrom failed') || e.message.includes('insufficient funds'))) {
-          showToast(`Start Failed: Check your BONK balance or allowance!`);
-          message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
+        showToast(`Start Failed: Check your BONK balance or allowance!`);
+        message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
+        } else if (e.message && e.message.includes('User rejected')) {
+            showToast(`Start Failed: User rejected the transaction.`);
+            message.innerText = "Transaction rejected by wallet.";
         } else {
-          showToast(`Start Failed: ${e.shortMessage || e.message}`);
-          message.innerText = "Transaction failed. Please check your wallet and try again.";
+        showToast(`Start Failed: ${e.shortMessage || e.message}`);
+        message.innerText = "Transaction failed. Please check your wallet and try again.";
         }
         
        startBtn.disabled = false;
@@ -604,25 +610,28 @@
       tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
       try {
         const [players, scores] = await readContract(config, {
-          address: CONTRACT_ADDRESS,
-          abi: ABI,
-          functionName: 'getTopPlayers',
-          args: [10n]
+        address: CONTRACT_ADDRESS,
+        abi: ABI,
+        functionName: 'getTopPlayers',
+        args: [10n]
         });
         tbody.innerHTML = '';
         if (!players || players.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
-          return;
+        tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
+        return;
         }
         for (let i = 0; i < players.length; i++) {
-          const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
-          tbody.appendChild(tr);
+        const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
+        tbody.appendChild(tr);
         }
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
       }
+
+
+
     }
 
     // Initial setup
