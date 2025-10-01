@@ -358,10 +358,12 @@
       <div id="message"></div>
       
       <div class="btn-control">
-        <button class="start-btn" id="startBtn">Start Game</button>
+        <button class="start-btn" id="connectBtn">🔗 Connect Wallet</button>
+        <button class="start-btn hidden" id="startBtn">Start Game</button>
         <button class="restart-btn hidden" id="restartBtn">🔄 Restart Game</button>
         <button class="claim-btn hidden" id="claimBtn">🎉 Claim 5k BONK</button>
       </div>
+
     </div>
   </section>
 
@@ -386,17 +388,33 @@
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
 
-sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
+const connectBtn = document.getElementById('connectBtn');
+
+sdk.actions.ready({ disableNativeGestures: true }).then(() => {
   console.log("✅ Farcaster environment ready");
 
-  try {
-    await connect(config, { connector: farcasterMiniApp() });
-    const acct = getAccount(config);
-    console.log("Connected:", acct);
-  } catch (err) {
-    console.error("❌ Wallet connect failed:", err);
-  }
+  connectBtn.onclick = async () => {
+    try {
+      await connect(config, { connector: farcasterMiniApp() });
+      userAddress = getAccount(config)?.address;
+
+      if (userAddress) {
+        showToast(`✅ Wallet connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+        console.log("Connected:", userAddress);
+
+        connectBtn.classList.add('hidden');
+        startBtn.classList.remove('hidden');
+        message.innerText = "Ready to play!";
+      } else {
+        showToast("❌ No wallet found. Please open in Warpcast.");
+      }
+    } catch (err) {
+      console.error("❌ Wallet connect failed:", err);
+      showToast("❌ Connect failed. Make sure you opened this in Warpcast.");
+    }
+  };
 });
+
 
 
 
