@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=390, initial-scale=1.0" />
   <title>Mind Color Sequence Game</title>
 
-  <!-- Farcaster Mini App Metadata -->
   <meta name="fc:miniapp" content='{
     "version":"1",
     "imageUrl":"https://mindgame-omega.vercel.app/icon.png",
@@ -326,6 +325,24 @@
       background: rgba(255, 255, 255, 0.3);
       transform: translateY(-2px);
     }
+
+    .approve-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .approve-btn:hover {
+      background: linear-gradient(135deg, #e67e22, #d35400);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
@@ -335,7 +352,6 @@
     <button id="tabLbBtn">Leaderboard</button>
   </div>
 
-  <!-- Play Tab -->
   <section id="playTab">
     <div class="game-container">
       <h1>Mind Color Sequence</h1>
@@ -359,6 +375,7 @@
       
       <div class="btn-control">
         <button class="start-btn" id="connectBtn">Connect Wallet</button>
+        <button class="approve-btn hidden" id="approveBtn">Approve BONK</button>
         <button class="start-btn hidden" id="startBtn">Start Game</button>
         <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
         <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
@@ -367,7 +384,6 @@
     </div>
   </section>
 
-  <!-- Leaderboard Tab -->
   <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
     <h3>Top 10 High Scores</h3>
     <table>
@@ -376,79 +392,39 @@
     </table>
   </section>
 
-  <!-- Toast -->
   <div id="toast" class="toast"></div>
 
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
     import {
-      createConfig, connect, readContract, writeContract, getAccount
+      createConfig, connect, readContract, writeContract, getAccount, http, getPublicClient
     } from 'https://esm.sh/@wagmi/core';
     import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
-    import { createPublicClient, http } from 'https://esm.sh/viem';
+    import { waitForTransactionReceipt } from 'https://esm.sh/viem';
 
     /* ---------- Config ---------- */
-    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                         
+    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';
     const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
-    const ENTRY_FEE = 200000n;
+    const ENTRY_FEE = 200000n; // 200,000 wei, assuming 18 decimals for BONK (adjust if BONK has different decimals)
+    const MAX_APPROVAL = 2n**256n - 1n; // Approving max amount to avoid re-approving
 
     const ABI = [
-      {
-        "inputs": [],
-        "name": "startGame",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}],
-        "name": "endGame",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}],
-        "name": "claim",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}],
-        "name": "getTopPlayers",
-        "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
-        "stateMutability": "view",
-        "type": "function"
-      }
+      {"inputs": [], "name": "startGame", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}], "name": "endGame", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}], "name": "claim", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}], "name": "getTopPlayers", "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}], "stateMutability": "view", "type": "function"}
     ];
 
     const ERC20_ABI = [
-      {
-        "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-        "name": "approve",
-        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}],
-        "name": "allowance",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "view",
-        "type": "function"
-      }
+      {"inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}], "name": "approve", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}], "name": "allowance", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}
     ];
 
     const config = createConfig({
       chains: [arbitrum],
+      connectors: [farcasterMiniApp()], // Use farcasterMiniApp connector
       transports: { [arbitrum.id]: http() }
-    });
-
-    const publicClient = createPublicClient({
-      chain: arbitrum,
-      transport: http()
     });
 
     const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
@@ -463,6 +439,7 @@
     const restartBtn = document.getElementById('restartBtn');
     const startBtn = document.getElementById('startBtn');
     const connectBtn = document.getElementById('connectBtn');
+    const approveBtn = document.getElementById('approveBtn'); // New ref
     const colorDisplay = document.getElementById('colorDisplay');
     const buttonsContainer = document.getElementById('buttonsContainer');
     const message = document.getElementById('message');
@@ -472,37 +449,105 @@
     /* ---------- State ---------- */
     let userAddress = null;
     let currentGameId = null;
+    let isApproved = false;
 
-    tabPlayBtn.onclick = () => {
-      playTab.classList.remove('hidden');
-      leaderboardTab.classList.add('hidden');
-      tabPlayBtn.classList.add('active');
-      tabLbBtn.classList.remove('active');
-    };
-
-    tabLbBtn.onclick = () => {
-      leaderboardTab.classList.remove('hidden');
-      playTab.classList.add('hidden');
-      tabLbBtn.classList.add('active');
-      tabPlayBtn.classList.remove('active');
-      loadLeaderboard();
-    };
-
+    // Helper functions
     function showToast(html, ms = 3500) {
       toastEl.innerHTML = html;
       toastEl.classList.add('show');
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
+    function updateConnectButtons(connected, approved) {
+      if (connected) {
+        connectBtn.classList.add('hidden');
+        if (approved) {
+          approveBtn.classList.add('hidden');
+          startBtn.classList.remove('hidden');
+          message.innerText = "Ready to play! Press 'Start Game'";
+        } else {
+          startBtn.classList.add('hidden');
+          approveBtn.classList.remove('hidden');
+          message.innerText = "Approve BONK to pay the entry fee.";
+        }
+      } else {
+        connectBtn.classList.remove('hidden');
+        approveBtn.classList.add('hidden');
+        startBtn.classList.add('hidden');
+      }
+    }
+
+    async function checkAllowance() {
+      if (!userAddress) return false;
+      try {
+        const allowance = await readContract(config, {
+          address: BONK_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [userAddress, CONTRACT_ADDRESS]
+        });
+        isApproved = allowance >= ENTRY_FEE;
+        return isApproved;
+      } catch (e) {
+        console.error('Allowance check failed:', e);
+        showToast('Failed to check BONK allowance.');
+        return false;
+      }
+    }
+
+    async function handleApprove() {
+      if (!userAddress) {
+        showToast("Please connect your wallet first!");
+        return;
+      }
+      try {
+        approveBtn.disabled = true;
+        approveBtn.innerText = 'Approving...';
+        message.innerText = "Please confirm the transaction in your wallet.";
+
+        const { hash } = await writeContract(config, {
+          address: BONK_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [CONTRACT_ADDRESS, MAX_APPROVAL]
+        });
+        
+        await waitForTransactionReceipt(getPublicClient(config), { hash });
+
+        isApproved = true;
+        showToast(`BONK Approved! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #ffd166; text-decoration: underline;">View TX</a>`);
+        updateConnectButtons(true, true);
+      } catch (e) {
+        console.error('Approve failed:', e);
+        showToast(`Approval failed: ${e.shortMessage || 'Transaction rejected.'}`);
+        approveBtn.disabled = false;
+        approveBtn.innerText = 'Approve BONK';
+        message.innerText = "Approval failed. Try again.";
+      }
+    }
+
     /* ---------- Initialize SDK and Wallet ---------- */
-    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
+    async function initWallet() {
+      await sdk.actions.ready({ disableNativeGestures: true }).catch(err => {
+        console.error("SDK ready error:", err);
+        showToast("Failed to initialize. Try reloading.");
+      });
+
+      try {
+        const account = await connect(config, { chainId: arbitrum.id });
+        userAddress = account.address;
+        if (userAddress) {
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          await checkAllowance();
+          updateConnectButtons(true, isApproved);
+        } else {
+          throw new Error("No address returned");
+        }
+      } catch (err) {
+        console.log("Auto-connect failed, showing connect button.");
+        updateConnectButtons(false, false);
+      }
+    }
 
     connectBtn.onclick = async () => {
       try {
@@ -510,20 +555,14 @@
         connectBtn.innerText = 'Connecting...';
         message.innerText = "Connecting wallet...";
 
-        await connect(config, {
-          connector: farcasterMiniApp(),
-          chainId: arbitrum.id
-        });
+        await connect(config, { connector: farcasterMiniApp(), chainId: arbitrum.id });
 
         userAddress = getAccount(config)?.address;
 
         if (userAddress) {
           showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-          console.log("Wallet connected:", userAddress);
-
-          connectBtn.classList.add('hidden');
-          startBtn.classList.remove('hidden');
-          message.innerText = "Ready to play!";
+          await checkAllowance();
+          updateConnectButtons(true, isApproved);
         } else {
           throw new Error("No address returned");
         }
@@ -535,6 +574,8 @@
         message.innerText = "Connection failed. Try again.";
       }
     };
+    
+    approveBtn.onclick = handleApprove;
 
     claimBtn.onclick = async () => {
       if (!currentGameId) {
@@ -544,19 +585,23 @@
       try {
         claimBtn.disabled = true;
         claimBtn.innerText = 'Claiming...';
+        message.innerText = "Confirm the claim transaction in your wallet.";
+
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
+
+        await waitForTransactionReceipt(getPublicClient(config), { hash });
+
         showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         claimBtn.classList.add('hidden');
-        claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 5k BONK';
       } catch (e) {
         console.error('Claim error:', e);
-        showToast('Claim failed. Ensure you won (score >=5) and try again.');
+        showToast(`Claim failed: ${e.shortMessage || 'Transaction rejected.'} Ensure you won (score >=5) and try again.`);
+      } finally {
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
       }
@@ -637,12 +682,12 @@
     }
 
     async function initGame() {
-      if (!userAddress) {
-        showToast("Please connect your wallet first!");
+      if (!userAddress || !isApproved) {
+        showToast("Please connect wallet and approve BONK first!");
         return;
       }
       
-      message.innerText = "Starting Game...";
+      message.innerText = "Starting Game (Tx in wallet)...";
       updateButtons(false);
       startBtn.disabled = true;
       
@@ -654,32 +699,33 @@
           args: []
         });
         console.log('Start tx hash:', hash);
-        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        // Wait for the transaction to be mined
+        const receipt = await waitForTransactionReceipt(getPublicClient(config), { hash });
+        
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         if (log) {
           currentGameId = Number(BigInt(log.topics[2]));
           console.log('Game ID:', currentGameId);
+          showToast(`Game Started! Tx: ${hash.slice(0, 6)}...`, 3000);
+          
           message.innerText = "";
           startBtn.classList.add('hidden');
           restartBtn.classList.remove('hidden');
           claimBtn.classList.add('hidden');
           nextRound();
         } else {
-          throw new Error("No GameStarted event");
+          throw new Error("No GameStarted event found in transaction receipt.");
         }
       } catch (e) {
-        console.error('Init error:', e);
-        if (e.message.includes('transferFrom')) {
-          showToast('Approve BONK spending in wallet first.');
-        } else {
-          showToast(`Start failed: ${e.shortMessage || e.message}`);
-        }
+        console.error('Init game error:', e);
+        showToast(`Start failed: ${e.shortMessage || 'Transaction failed.'}`);
         message.innerText = "Failed to start. Try again.";
         startBtn.disabled = false;
       }
     }
 
-    function handleUserInput(colorName, btn) {
+    async function handleUserInput(colorName, btn) {
       if (displaying || !buttonsEnabled) return;
       
       btn.classList.add('pressed');
@@ -689,6 +735,7 @@
       const currentIndex = userSequence.length - 1;
       
       if (userSequence[currentIndex] !== sequence[currentIndex]) {
+        // Game Over Logic
         updateButtons(false);
         colorDisplay.style.backgroundColor = "#e74c3c";
         colorDisplay.innerText = "Wrong!";
@@ -701,6 +748,7 @@
           message.innerText += ` New Best: ${round}!`;
         }
         
+        // Post Game Logic
         sequence = [];
         setTimeout(async () => {
           colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
@@ -708,14 +756,19 @@
           message.innerText = "";
           try {
             if (currentGameId) {
-              await writeContract(config, {
+              // End game transaction
+              message.innerText = "Submitting score (Tx in wallet)...";
+              const { hash } = await writeContract(config, {
                 address: CONTRACT_ADDRESS,
                 abi: ABI,
                 functionName: 'endGame',
                 args: [BigInt(currentGameId), BigInt(round)]
               });
+              await waitForTransactionReceipt(getPublicClient(config), { hash });
+              message.innerText = "";
               console.log('End game tx sent for round:', round);
             }
+
             if (round >= 5 && currentGameId) {
               claimBtn.classList.remove('hidden');
               showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
@@ -724,13 +777,14 @@
             }
           } catch (e) {
             console.error('End game error:', e);
-            showToast('Game saved locally, but blockchain update failed.');
+            showToast(`Score submission failed: ${e.shortMessage || 'Transaction failed.'}`);
           }
         }, 2500);
         return;
       }
       
       if (userSequence.length === sequence.length) {
+        // Correct Sequence Logic
         updateButtons(false);
         colorDisplay.style.backgroundColor = "#2ecc71";
         colorDisplay.innerText = "Correct!";
@@ -757,8 +811,7 @@
       updateButtons(false);
       restartBtn.classList.add('hidden');
       claimBtn.classList.add('hidden');
-      startBtn.classList.remove('hidden');
-      startBtn.disabled = false;
+      updateConnectButtons(!!userAddress, isApproved); // Show approve/start button
     }
 
     restartBtn.onclick = restartGame;
@@ -788,15 +841,29 @@
         }
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
+        console.error('Leaderboard load failed:', e);
       }
     }
 
+    // Tab Bar Logic
+    tabPlayBtn.onclick = () => {
+      playTab.classList.remove('hidden');
+      leaderboardTab.classList.add('hidden');
+      tabPlayBtn.classList.add('active');
+      tabLbBtn.classList.remove('active');
+    };
+
+    tabLbBtn.onclick = () => {
+      leaderboardTab.classList.remove('hidden');
+      playTab.classList.add('hidden');
+      tabLbBtn.classList.add('active');
+      tabPlayBtn.classList.remove('active');
+      loadLeaderboard();
+    };
+
     // Initial setup
-    claimBtn.classList.add('hidden');
-    restartBtn.classList.add('hidden');
-    startBtn.classList.add('hidden');
-    updateButtons(false);
-    message.innerText = "Connect your wallet to begin";
+    initWallet(); 
+    updateButtons(false); // Game buttons are disabled initially
   </script>
 </body>
 </html>
