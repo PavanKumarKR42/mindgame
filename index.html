@@ -1,734 +1,869 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=390, initial-scale=1.0" />
-    <title>Simple Mind Color Sequence Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=390, initial-scale=1.0" />
+  <title>Mind Color Sequence Game</title>
 
-    <meta name="fc:miniapp" content='{
-        "version":"1",
-        "imageUrl":"https://mindgame-omega.vercel.app/icon.png",
-        "button":{
-            "title":"Memory Game",
-            "action":{
-                "type":"launch_frame",
-                "name":"Mind Color Sequence",
-                "url":"https://mindgame-omega.vercel.app/",
-                "splashImageUrl":"https://mindgame-omega.vercel.app/splash.png",
-                "splashBackgroundColor":"#333333"
-            }
-        }
-    }' />
+  <meta name="fc:miniapp" content='{
+    "version":"1",
+    "imageUrl":"https://mindgame-omega.vercel.app/icon.png",
+    "button":{
+      "title":"Memory Game",
+      "action":{
+        "type":"launch_frame",
+        "name":"Mind Color Sequence",
+        "url":"https://mindgame-omega.vercel.app/",
+        "splashImageUrl":"https://mindgame-omega.vercel.app/splash.png",
+        "splashBackgroundColor":"#667eea"
+      }
+    }
+  }' />
 
-    <style>
-        /* Base Reset and Essential Layout */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      padding: 20px;
+      max-width: 390px;
+      margin: 0 auto;
+    }
+    
+    .tabbar {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin: 12px;
+    }
+    
+    .tabbar button {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .tabbar button.active {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .game-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .score-info {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+    
+    .score-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 15px;
+      border-radius: 15px;
+      text-align: center;
+      flex: 1;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .score-label {
+      font-size: 10px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .score-value {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    
+    #colorDisplay {
+      width: 100%;
+      height: 150px;
+      border-radius: 25px;
+      margin-bottom: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    #colorDisplay.pulse {
+      animation: pulse 0.5s ease;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .colorBtn {
+      height: 60px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .colorBtn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .colorBtn:active:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .colorBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .colorBtn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .colorBtn:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+    
+    .colorBtn.pressed {
+      animation: press 0.3s ease;
+    }
+    
+    @keyframes press {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.95); filter: brightness(1.3); }
+    }
+    
+    #message {
+      text-align: center;
+      font-size: 18px;
+      min-height: 30px;
+      font-weight: 600;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+    }
+    
+    .btn-control {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .restart-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .restart-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
 
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: #222; /* Simple dark background */
-            font-family: sans-serif;
-            color: #eee;
-            padding: 10px;
-            max-width: 390px;
-            margin: 0 auto;
-        }
+    .claim-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    }
+    
+    .claim-btn:hover {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+    }
 
-        .hidden {
-            display: none;
-        }
+    /* Leaderboard */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      text-align: left;
+    }
+    
+    thead {
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .center {
+      text-align: center;
+    }
 
-        .tabbar {
-            display: flex;
-            width: 100%;
-            margin-bottom: 10px;
-        }
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 600;
+      max-width: 360px;
+      width: calc(100% - 24px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 9999;
+    }
+    
+    .toast.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
 
-        .tabbar button {
-            flex: 1;
-            padding: 8px;
-            border: 1px solid #444;
-            background: #333;
-            color: #eee;
-            cursor: pointer;
-        }
+    .start-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .start-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
 
-        .tabbar button.active {
-            background: #555;
-            border-bottom: 1px solid #555;
-        }
+    .approve-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
 
-        .game-container {
-            background: #333; /* Simple container */
-            padding: 10px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .score-info {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-            gap: 5px;
-        }
-
-        .score-box {
-            background: #444;
-            padding: 5px;
-            text-align: center;
-            flex: 1;
-        }
-
-        .score-label {
-            font-size: 10px;
-            text-transform: uppercase;
-        }
-
-        .score-value {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        #colorDisplay {
-            width: 100%;
-            height: 80px; /* Reduced height */
-            margin-bottom: 10px;
-            border: 1px solid #777;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            font-weight: bold;
-            background: #000;
-        }
-
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .colorBtn {
-            height: 40px; /* Reduced button size */
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 12px;
-            color: #fff;
-        }
-        
-        /* Retaining basic disabled look for functionality */
-        .colorBtn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        #message {
-            text-align: center;
-            font-size: 14px;
-            min-height: 20px;
-            margin-bottom: 10px;
-        }
-
-        .btn-control {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .start-btn, .approve-btn, .restart-btn, .claim-btn {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #777;
-            background: #444;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        /* Simple color coding for better contrast */
-        .approve-btn { background: orange; border-color: #e67e22; }
-        .claim-btn { background: green; border-color: #2ecc71; }
-        .restart-btn { background: #555; border-color: #888; }
-
-
-        /* Leaderboard - Minimal Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            padding: 6px;
-            border-bottom: 1px solid #444;
-            font-size: 12px;
-            text-align: left;
-        }
-
-        thead {
-            background: #444;
-        }
-
-        .center {
-            text-align: center;
-        }
-
-        /* Toast - Minimal Styling */
-        .toast {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #111;
-            color: #fff;
-            border: 1px solid #555;
-            padding: 8px 12px;
-            font-weight: 600;
-            max-width: 360px;
-            width: calc(100% - 20px);
-            display: none;
-            z-index: 9999;
-        }
-        
-        .toast.show {
-            display: block;
-        }
-    </style>
+    .approve-btn:hover {
+      background: linear-gradient(135deg, #e67e22, #d35400);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
 
-    <div class="tabbar">
-        <button id="tabPlayBtn" class="active">Play</button>
-        <button id="tabLbBtn">Leaderboard</button>
-    </div>
+  <div class="tabbar">
+    <button id="tabPlayBtn" class="active">Play</button>
+    <button id="tabLbBtn">Leaderboard</button>
+  </div>
 
-    <section id="playTab">
-        <div class="game-container">
-            <h1>Simple Color Sequence</h1>
-            
-            <div class="score-info">
-                <div class="score-box">
-                    <div class="score-label">Round</div>
-                    <div class="score-value" id="roundDisplay">1</div>
-                </div>
-                <div class="score-box">
-                    <div class="score-label">Best</div>
-                    <div class="score-value" id="bestScore">0</div>
-                </div>
-            </div>
-            
-            <div id="colorDisplay">Get Ready...</div>
-            
-            <div class="buttons" id="buttonsContainer"></div>
-            
-            <div id="message"></div>
-            
-            <div class="btn-control">
-                <button class="start-btn" id="connectBtn">Connect Wallet</button>
-                <button class="approve-btn hidden" id="approveBtn">Approve BONK</button>
-                <button class="start-btn hidden" id="startBtn">Start Game</button>
-                <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
-                <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
-            </div>
-
+  <section id="playTab">
+    <div class="game-container">
+      <h1>Mind Color Sequence</h1>
+      
+      <div class="score-info">
+        <div class="score-box">
+          <div class="score-label">Round</div>
+          <div class="score-value" id="roundDisplay">1</div>
         </div>
-    </section>
+        <div class="score-box">
+          <div class="score-label">Best</div>
+          <div class="score-value" id="bestScore">0</div>
+        </div>
+      </div>
+      
+      <div id="colorDisplay">Get Ready...</div>
+      
+      <div class="buttons" id="buttonsContainer"></div>
+      
+      <div id="message"></div>
+      
+      <div class="btn-control">
+        <button class="start-btn" id="connectBtn">Connect Wallet</button>
+        <button class="approve-btn hidden" id="approveBtn">Approve BONK</button>
+        <button class="start-btn hidden" id="startBtn">Start Game</button>
+        <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
+        <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
+      </div>
 
-    <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 5px;">
-        <h3>Top 10 High Scores</h3>
-        <table>
-            <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
-            <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
-        </table>
-    </section>
+    </div>
+  </section>
 
-    <div id="toast" class="toast"></div>
+  <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
+    <h3>Top 10 High Scores</h3>
+    <table>
+      <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
+      <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
+    </table>
+  </section>
 
-    <script type="module">
-        import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-        import {
-            createConfig, connect, readContract, writeContract, getAccount, http, getPublicClient
-        } from 'https://esm.sh/@wagmi/core';
-        import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
-        import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
-        import { waitForTransactionReceipt } from 'https://esm.sh/viem';
+  <div id="toast" class="toast"></div>
 
-        /* ---------- Config ---------- */
-        const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';
-        const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
-        const ENTRY_FEE = 200000n; // 200,000 wei, assuming 18 decimals for BONK (adjust if BONK has different decimals)
-        const MAX_APPROVAL = 2n**256n - 1n; // Approving max amount to avoid re-approving
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    import {
+      createConfig, connect, readContract, writeContract, getAccount, http, getPublicClient
+    } from 'https://esm.sh/@wagmi/core';
+    import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
+    import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
+    import { waitForTransactionReceipt } from 'https://esm.sh/viem';
 
-        const ABI = [
-            {"inputs": [], "name": "startGame", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "nonpayable", "type": "function"},
-            {"inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}], "name": "endGame", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-            {"inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}], "name": "claim", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
-            {"inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}], "name": "getTopPlayers", "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}], "stateMutability": "view", "type": "function"}
-        ];
+    /* ---------- Config ---------- */
+    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';
+    const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
+    const ENTRY_FEE = 200000n; // 200,000 wei, assuming 18 decimals for BONK (adjust if BONK has different decimals)
+    const MAX_APPROVAL = 2n**256n - 1n; // Approving max amount to avoid re-approving
 
-        const ERC20_ABI = [
-            {"inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}], "name": "approve", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "nonpayable", "type": "function"},
-            {"inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}], "name": "allowance", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}
-        ];
+    const ABI = [
+      {"inputs": [], "name": "startGame", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}], "name": "endGame", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}], "name": "claim", "outputs": [], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}], "name": "getTopPlayers", "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}], "stateMutability": "view", "type": "function"}
+    ];
 
-        const config = createConfig({
-            chains: [arbitrum],
-            connectors: [farcasterMiniApp()], // Use farcasterMiniApp connector
-            transports: { [arbitrum.id]: http() }
+    const ERC20_ABI = [
+      {"inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}], "name": "approve", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}], "stateMutability": "nonpayable", "type": "function"},
+      {"inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}], "name": "allowance", "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}], "stateMutability": "view", "type": "function"}
+    ];
+
+    const config = createConfig({
+      chains: [arbitrum],
+      connectors: [farcasterMiniApp()], // Use farcasterMiniApp connector
+      transports: { [arbitrum.id]: http() }
+    });
+
+    const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
+
+    /* ---------- UI Refs ---------- */
+    const playTab = document.getElementById('playTab');
+    const leaderboardTab = document.getElementById('leaderboardTab');
+    const tabPlayBtn = document.getElementById('tabPlayBtn');
+    const tabLbBtn = document.getElementById('tabLbBtn');
+    const toastEl = document.getElementById('toast');
+    const claimBtn = document.getElementById('claimBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const startBtn = document.getElementById('startBtn');
+    const connectBtn = document.getElementById('connectBtn');
+    const approveBtn = document.getElementById('approveBtn'); // New ref
+    const colorDisplay = document.getElementById('colorDisplay');
+    const buttonsContainer = document.getElementById('buttonsContainer');
+    const message = document.getElementById('message');
+    const roundDisplay = document.getElementById('roundDisplay');
+    const bestScoreDisplay = document.getElementById('bestScore');
+
+    /* ---------- State ---------- */
+    let userAddress = null;
+    let currentGameId = null;
+    let isApproved = false;
+
+    // Helper functions
+    function showToast(html, ms = 3500) {
+      toastEl.innerHTML = html;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), ms);
+    }
+
+    function updateConnectButtons(connected, approved) {
+      if (connected) {
+        connectBtn.classList.add('hidden');
+        if (approved) {
+          approveBtn.classList.add('hidden');
+          startBtn.classList.remove('hidden');
+          message.innerText = "Ready to play! Press 'Start Game'";
+        } else {
+          startBtn.classList.add('hidden');
+          approveBtn.classList.remove('hidden');
+          message.innerText = "Approve BONK to pay the entry fee.";
+        }
+      } else {
+        connectBtn.classList.remove('hidden');
+        approveBtn.classList.add('hidden');
+        startBtn.classList.add('hidden');
+      }
+    }
+
+    async function checkAllowance() {
+      if (!userAddress) return false;
+      try {
+        const allowance = await readContract(config, {
+          address: BONK_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [userAddress, CONTRACT_ADDRESS]
         });
+        isApproved = allowance >= ENTRY_FEE;
+        return isApproved;
+      } catch (e) {
+        console.error('Allowance check failed:', e);
+        showToast('Failed to check BONK allowance.');
+        return false;
+      }
+    }
 
-        const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
+    async function handleApprove() {
+      if (!userAddress) {
+        showToast("Please connect your wallet first!");
+        return;
+      }
+      try {
+        approveBtn.disabled = true;
+        approveBtn.innerText = 'Approving...';
+        message.innerText = "Please confirm the transaction in your wallet.";
 
-        /* ---------- UI Refs ---------- */
-        const playTab = document.getElementById('playTab');
-        const leaderboardTab = document.getElementById('leaderboardTab');
-        const tabPlayBtn = document.getElementById('tabPlayBtn');
-        const tabLbBtn = document.getElementById('tabLbBtn');
-        const toastEl = document.getElementById('toast');
-        const claimBtn = document.getElementById('claimBtn');
-        const restartBtn = document.getElementById('restartBtn');
-        const startBtn = document.getElementById('startBtn');
-        const connectBtn = document.getElementById('connectBtn');
-        const approveBtn = document.getElementById('approveBtn');
-        const colorDisplay = document.getElementById('colorDisplay');
-        const buttonsContainer = document.getElementById('buttonsContainer');
-        const message = document.getElementById('message');
-        const roundDisplay = document.getElementById('roundDisplay');
-        const bestScoreDisplay = document.getElementById('bestScore');
-
-        /* ---------- State ---------- */
-        let userAddress = null;
-        let currentGameId = null;
-        let isApproved = false;
-
-        // Helper functions
-        function showToast(html, ms = 3500) {
-            toastEl.innerHTML = html;
-            toastEl.classList.add('show');
-            setTimeout(() => toastEl.classList.remove('show'), ms);
-        }
-
-        function updateConnectButtons(connected, approved) {
-            if (connected) {
-                connectBtn.classList.add('hidden');
-                if (approved) {
-                    approveBtn.classList.add('hidden');
-                    startBtn.classList.remove('hidden');
-                    message.innerText = "Ready to play! Press 'Start Game'";
-                } else {
-                    startBtn.classList.add('hidden');
-                    approveBtn.classList.remove('hidden');
-                    message.innerText = "Approve BONK to pay the entry fee.";
-                }
-            } else {
-                connectBtn.classList.remove('hidden');
-                approveBtn.classList.add('hidden');
-                startBtn.classList.add('hidden');
-            }
-        }
-
-        async function checkAllowance() {
-            if (!userAddress) return false;
-            try {
-                const allowance = await readContract(config, {
-                    address: BONK_ADDRESS,
-                    abi: ERC20_ABI,
-                    functionName: 'allowance',
-                    args: [userAddress, CONTRACT_ADDRESS]
-                });
-                isApproved = allowance >= ENTRY_FEE;
-                return isApproved;
-            } catch (e) {
-                console.error('Allowance check failed:', e);
-                showToast('Failed to check BONK allowance.');
-                return false;
-            }
-        }
-
-        async function handleApprove() {
-            if (!userAddress) {
-                showToast("Please connect your wallet first!");
-                return;
-            }
-            try {
-                approveBtn.disabled = true;
-                approveBtn.innerText = 'Approving...';
-                message.innerText = "Please confirm the transaction in your wallet.";
-
-                const { hash } = await writeContract(config, {
-                    address: BONK_ADDRESS,
-                    abi: ERC20_ABI,
-                    functionName: 'approve',
-                    args: [CONTRACT_ADDRESS, MAX_APPROVAL]
-                });
-                
-                await waitForTransactionReceipt(getPublicClient(config), { hash });
-
-                isApproved = true;
-                showToast(`BONK Approved! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #ffd166; text-decoration: underline;">View TX</a>`);
-                updateConnectButtons(true, true);
-            } catch (e) {
-                console.error('Approve failed:', e);
-                showToast(`Approval failed: ${e.shortMessage || 'Transaction rejected.'}`);
-                approveBtn.disabled = false;
-                approveBtn.innerText = 'Approve BONK';
-                message.innerText = "Approval failed. Try again.";
-            }
-        }
-
-        /* ---------- Initialize SDK and Wallet ---------- */
-        async function initWallet() {
-            await sdk.actions.ready({ disableNativeGestures: true }).catch(err => {
-                console.error("SDK ready error:", err);
-                showToast("Failed to initialize. Try reloading.");
-            });
-
-            try {
-                const account = await connect(config, { chainId: arbitrum.id });
-                userAddress = account.address;
-                if (userAddress) {
-                    showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-                    await checkAllowance();
-                    updateConnectButtons(true, isApproved);
-                } else {
-                    throw new Error("No address returned");
-                }
-            } catch (err) {
-                console.log("Auto-connect failed, showing connect button.");
-                updateConnectButtons(false, false);
-            }
-        }
-
-        connectBtn.onclick = async () => {
-            try {
-                connectBtn.disabled = true;
-                connectBtn.innerText = 'Connecting...';
-                message.innerText = "Connecting wallet...";
-
-                await connect(config, { connector: farcasterMiniApp(), chainId: arbitrum.id });
-
-                userAddress = getAccount(config)?.address;
-
-                if (userAddress) {
-                    showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-                    await checkAllowance();
-                    updateConnectButtons(true, isApproved);
-                } else {
-                    throw new Error("No address returned");
-                }
-            } catch (err) {
-                console.error("Wallet connect failed:", err);
-                showToast("Connect failed. Make sure you opened this in Warpcast.");
-                connectBtn.disabled = false;
-                connectBtn.innerText = 'Connect Wallet';
-                message.innerText = "Connection failed. Try again.";
-            }
-        };
+        const { hash } = await writeContract(config, {
+          address: BONK_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [CONTRACT_ADDRESS, MAX_APPROVAL]
+        });
         
-        approveBtn.onclick = handleApprove;
+        await waitForTransactionReceipt(getPublicClient(config), { hash });
 
-        claimBtn.onclick = async () => {
-            if (!currentGameId) {
-                showToast('No active game to claim. Play and win first!');
-                return;
-            }
-            try {
-                claimBtn.disabled = true;
-                claimBtn.innerText = 'Claiming...';
-                message.innerText = "Confirm the claim transaction in your wallet.";
+        isApproved = true;
+        showToast(`BONK Approved! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #ffd166; text-decoration: underline;">View TX</a>`);
+        updateConnectButtons(true, true);
+      } catch (e) {
+        console.error('Approve failed:', e);
+        showToast(`Approval failed: ${e.shortMessage || 'Transaction rejected.'}`);
+        approveBtn.disabled = false;
+        approveBtn.innerText = 'Approve BONK';
+        message.innerText = "Approval failed. Try again.";
+      }
+    }
 
-                const { hash } = await writeContract(config, {
-                    address: CONTRACT_ADDRESS,
-                    abi: ABI,
-                    functionName: 'claim',
-                    args: [BigInt(currentGameId)]
-                });
+    /* ---------- Initialize SDK and Wallet ---------- */
+    async function initWallet() {
+      await sdk.actions.ready({ disableNativeGestures: true }).catch(err => {
+        console.error("SDK ready error:", err);
+        showToast("Failed to initialize. Try reloading.");
+      });
 
-                await waitForTransactionReceipt(getPublicClient(config), { hash });
-
-                showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
-                claimBtn.classList.add('hidden');
-            } catch (e) {
-                console.error('Claim error:', e);
-                showToast(`Claim failed: ${e.shortMessage || 'Transaction rejected.'} Ensure you won (score >=5) and try again.`);
-            } finally {
-                claimBtn.disabled = false;
-                claimBtn.innerText = 'Claim 5k BONK';
-            }
-        };
-
-        /* ---------- Game Logic - UNTOUCHED ---------- */
-        const colors = [
-            {name: "red", hex: "#e74c3c"},
-            {name: "blue", hex: "#3498db"},
-            {name: "green", hex: "#2ecc71"},
-            {name: "yellow", hex: "#f39c12"},
-            {name: "purple", hex: "#9b59b6"}
-        ];
-
-        let sequence = [];
-        let userSequence = [];
-        let round = 1;
-        let displaying = false;
-        let bestScore = 0;
-        let buttonsEnabled = false;
-
-        if (localStorage.getItem('bestScore')) {
-            bestScore = parseInt(localStorage.getItem('bestScore'));
-            bestScoreDisplay.innerText = bestScore;
+      try {
+        const account = await connect(config, { chainId: arbitrum.id });
+        userAddress = account.address;
+        if (userAddress) {
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          await checkAllowance();
+          updateConnectButtons(true, isApproved);
+        } else {
+          throw new Error("No address returned");
         }
+      } catch (err) {
+        console.log("Auto-connect failed, showing connect button.");
+        updateConnectButtons(false, false);
+      }
+    }
 
-        colors.forEach(colorObj => {
-            const btn = document.createElement('button');
-            btn.classList.add('colorBtn');
-            btn.style.backgroundColor = colorObj.hex;
-            btn.innerText = colorObj.name.toUpperCase();
-            btn.dataset.color = colorObj.name;
-            btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
-            buttonsContainer.appendChild(btn);
+    connectBtn.onclick = async () => {
+      try {
+        connectBtn.disabled = true;
+        connectBtn.innerText = 'Connecting...';
+        message.innerText = "Connecting wallet...";
+
+        await connect(config, { connector: farcasterMiniApp(), chainId: arbitrum.id });
+
+        userAddress = getAccount(config)?.address;
+
+        if (userAddress) {
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          await checkAllowance();
+          updateConnectButtons(true, isApproved);
+        } else {
+          throw new Error("No address returned");
+        }
+      } catch (err) {
+        console.error("Wallet connect failed:", err);
+        showToast("Connect failed. Make sure you opened this in Warpcast.");
+        connectBtn.disabled = false;
+        connectBtn.innerText = 'Connect Wallet';
+        message.innerText = "Connection failed. Try again.";
+      }
+    };
+    
+    approveBtn.onclick = handleApprove;
+
+    claimBtn.onclick = async () => {
+      if (!currentGameId) {
+        showToast('No active game to claim. Play and win first!');
+        return;
+      }
+      try {
+        claimBtn.disabled = true;
+        claimBtn.innerText = 'Claiming...';
+        message.innerText = "Confirm the claim transaction in your wallet.";
+
+        const { hash } = await writeContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'claim',
+          args: [BigInt(currentGameId)]
         });
 
-        function updateButtons(enabled) {
-            buttonsEnabled = enabled;
-            document.querySelectorAll('.colorBtn').forEach(btn => {
-                btn.disabled = !enabled;
-                // Removed all button animation/transition classes
-            });
-        }
+        await waitForTransactionReceipt(getPublicClient(config), { hash });
 
-        function sleep(ms) { 
-            return new Promise(resolve => setTimeout(resolve, ms)); 
-        }
+        showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        claimBtn.classList.add('hidden');
+      } catch (e) {
+        console.error('Claim error:', e);
+        showToast(`Claim failed: ${e.shortMessage || 'Transaction rejected.'} Ensure you won (score >=5) and try again.`);
+      } finally {
+        claimBtn.disabled = false;
+        claimBtn.innerText = 'Claim 5k BONK';
+      }
+    };
 
-        async function displaySequence() {
-            displaying = true;
-            updateButtons(false);
-            colorDisplay.innerText = "Watch Carefully!";
-            message.innerText = "";
-            await sleep(800);
-            
-            for (let i = 0; i < sequence.length; i++) {
-                const colorObj = colors.find(c => c.name === sequence[i]);
-                colorDisplay.style.backgroundColor = colorObj.hex;
-                colorDisplay.innerText = colorObj.name.toUpperCase();
-                // Removed 'pulse' animation class
-                await sleep(700);
-                colorDisplay.style.backgroundColor = "#000"; // Simple black
-                colorDisplay.innerText = "";
-                await sleep(300);
+    /* ---------- Game Logic ---------- */
+    const colors = [
+      {name: "red", hex: "#e74c3c"},
+      {name: "blue", hex: "#3498db"},
+      {name: "green", hex: "#2ecc71"},
+      {name: "yellow", hex: "#f39c12"},
+      {name: "purple", hex: "#9b59b6"}
+    ];
+
+    let sequence = [];
+    let userSequence = [];
+    let round = 1;
+    let displaying = false;
+    let bestScore = 0;
+    let buttonsEnabled = false;
+
+    if (localStorage.getItem('bestScore')) {
+      bestScore = parseInt(localStorage.getItem('bestScore'));
+      bestScoreDisplay.innerText = bestScore;
+    }
+
+    colors.forEach(colorObj => {
+      const btn = document.createElement('button');
+      btn.classList.add('colorBtn');
+      btn.style.backgroundColor = colorObj.hex;
+      btn.innerText = colorObj.name.toUpperCase();
+      btn.dataset.color = colorObj.name;
+      btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
+      buttonsContainer.appendChild(btn);
+    });
+
+    function updateButtons(enabled) {
+      buttonsEnabled = enabled;
+      document.querySelectorAll('.colorBtn').forEach(btn => {
+        btn.disabled = !enabled;
+      });
+    }
+
+    function sleep(ms) { 
+      return new Promise(resolve => setTimeout(resolve, ms)); 
+    }
+
+    async function displaySequence() {
+      displaying = true;
+      updateButtons(false);
+      colorDisplay.innerText = "Watch Carefully!";
+      message.innerText = "";
+      await sleep(800);
+      
+      for (let i = 0; i < sequence.length; i++) {
+        const colorObj = colors.find(c => c.name === sequence[i]);
+        colorDisplay.style.backgroundColor = colorObj.hex;
+        colorDisplay.innerText = colorObj.name.toUpperCase();
+        colorDisplay.classList.add('pulse');
+        await sleep(700);
+        colorDisplay.classList.remove('pulse');
+        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        colorDisplay.innerText = "";
+        await sleep(300);
+      }
+      
+      displaying = false;
+      updateButtons(true);
+      colorDisplay.innerText = "Your Turn!";
+    }
+
+    function nextRound() {
+      userSequence = [];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      sequence.push(randomColor.name);
+      roundDisplay.innerText = round;
+      displaySequence();
+    }
+
+    async function initGame() {
+      if (!userAddress || !isApproved) {
+        showToast("Please connect wallet and approve BONK first!");
+        return;
+      }
+      
+      message.innerText = "Starting Game (Tx in wallet)...";
+      updateButtons(false);
+      startBtn.disabled = true;
+      
+      try {
+        const { hash } = await writeContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'startGame',
+          args: []
+        });
+        console.log('Start tx hash:', hash);
+
+        // Wait for the transaction to be mined
+        const receipt = await waitForTransactionReceipt(getPublicClient(config), { hash });
+        
+        const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
+        if (log) {
+          currentGameId = Number(BigInt(log.topics[2]));
+          console.log('Game ID:', currentGameId);
+          showToast(`Game Started! Tx: ${hash.slice(0, 6)}...`, 3000);
+          
+          message.innerText = "";
+          startBtn.classList.add('hidden');
+          restartBtn.classList.remove('hidden');
+          claimBtn.classList.add('hidden');
+          nextRound();
+        } else {
+          throw new Error("No GameStarted event found in transaction receipt.");
+        }
+      } catch (e) {
+        console.error('Init game error:', e);
+        showToast(`Start failed: ${e.shortMessage || 'Transaction failed.'}`);
+        message.innerText = "Failed to start. Try again.";
+        startBtn.disabled = false;
+      }
+    }
+
+    async function handleUserInput(colorName, btn) {
+      if (displaying || !buttonsEnabled) return;
+      
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 300);
+      
+      userSequence.push(colorName);
+      const currentIndex = userSequence.length - 1;
+      
+      if (userSequence[currentIndex] !== sequence[currentIndex]) {
+        // Game Over Logic
+        updateButtons(false);
+        colorDisplay.style.backgroundColor = "#e74c3c";
+        colorDisplay.innerText = "Wrong!";
+        message.innerText = `Game Over! You reached round ${round}`;
+        
+        if (round > bestScore) {
+          bestScore = round;
+          bestScoreDisplay.innerText = bestScore;
+          localStorage.setItem('bestScore', bestScore);
+          message.innerText += ` New Best: ${round}!`;
+        }
+        
+        // Post Game Logic
+        sequence = [];
+        setTimeout(async () => {
+          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+          colorDisplay.innerText = "Get Ready...";
+          message.innerText = "";
+          try {
+            if (currentGameId) {
+              // End game transaction
+              message.innerText = "Submitting score (Tx in wallet)...";
+              const { hash } = await writeContract(config, {
+                address: CONTRACT_ADDRESS,
+                abi: ABI,
+                functionName: 'endGame',
+                args: [BigInt(currentGameId), BigInt(round)]
+              });
+              await waitForTransactionReceipt(getPublicClient(config), { hash });
+              message.innerText = "";
+              console.log('End game tx sent for round:', round);
             }
-            
-            displaying = false;
-            updateButtons(true);
-            colorDisplay.innerText = "Your Turn!";
-        }
 
-        function nextRound() {
-            userSequence = [];
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            sequence.push(randomColor.name);
-            roundDisplay.innerText = round;
-            displaySequence();
-        }
-
-        async function initGame() {
-            if (!userAddress || !isApproved) {
-                showToast("Please connect wallet and approve BONK first!");
-                return;
+            if (round >= 5 && currentGameId) {
+              claimBtn.classList.remove('hidden');
+              showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
+            } else if (round < 5) {
+              showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
             }
-            
-            message.innerText = "Starting Game (Tx in wallet)...";
-            updateButtons(false);
-            startBtn.disabled = true;
-            
-            try {
-                const { hash } = await writeContract(config, {
-                    address: CONTRACT_ADDRESS,
-                    abi: ABI,
-                    functionName: 'startGame',
-                    args: []
-                });
-                console.log('Start tx hash:', hash);
+          } catch (e) {
+            console.error('End game error:', e);
+            showToast(`Score submission failed: ${e.shortMessage || 'Transaction failed.'}`);
+          }
+        }, 2500);
+        return;
+      }
+      
+      if (userSequence.length === sequence.length) {
+        // Correct Sequence Logic
+        updateButtons(false);
+        colorDisplay.style.backgroundColor = "#2ecc71";
+        colorDisplay.innerText = "Correct!";
+        round++;
+        message.innerText = `Great! Round ${round} incoming...`;
+        setTimeout(() => {
+          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+          colorDisplay.innerText = "";
+          nextRound();
+        }, 1200);
+      }
+    }
 
-                // Wait for the transaction to be mined
-                const receipt = await waitForTransactionReceipt(getPublicClient(config), { hash });
-                
-                const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
-                if (log) {
-                    currentGameId = Number(BigInt(log.topics[2]));
-                    console.log('Game ID:', currentGameId);
-                    showToast(`Game Started! Tx: ${hash.slice(0, 6)}...`, 3000);
-                    
-                    message.innerText = "";
-                    startBtn.classList.add('hidden');
-                    restartBtn.classList.remove('hidden');
-                    claimBtn.classList.add('hidden');
-                    nextRound();
-                } else {
-                    throw new Error("No GameStarted event found in transaction receipt.");
-                }
-            } catch (e) {
-                console.error('Init game error:', e);
-                showToast(`Start failed: ${e.shortMessage || 'Transaction failed.'}`);
-                message.innerText = "Failed to start. Try again.";
-                startBtn.disabled = false;
-            }
+    function restartGame() {
+      sequence = [];
+      userSequence = [];
+      round = 1;
+      displaying = false;
+      currentGameId = null;
+      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      colorDisplay.innerText = "Get Ready...";
+      message.innerText = "";
+      roundDisplay.innerText = "1";
+      updateButtons(false);
+      restartBtn.classList.add('hidden');
+      claimBtn.classList.add('hidden');
+      updateConnectButtons(!!userAddress, isApproved); // Show approve/start button
+    }
+
+    restartBtn.onclick = restartGame;
+    startBtn.onclick = initGame;
+
+    /* ---------- Leaderboard ---------- */
+    async function loadLeaderboard() {
+      const tbody = document.getElementById('leaderboardBody');
+      tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
+      try {
+        const [players, scores] = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'getTopPlayers',
+          args: [10n]
+        });
+        tbody.innerHTML = '';
+        if (!players || players.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
+          return;
         }
-
-        async function handleUserInput(colorName, btn) {
-            if (displaying || !buttonsEnabled) return;
-            
-            // Removed 'pressed' animation logic
-            
-            userSequence.push(colorName);
-            const currentIndex = userSequence.length - 1;
-            
-            if (userSequence[currentIndex] !== sequence[currentIndex]) {
-                // Game Over Logic
-                updateButtons(false);
-                colorDisplay.style.backgroundColor = "#e74c3c"; // Red for Wrong
-                colorDisplay.innerText = "Wrong! Game Over.";
-                message.innerText = `You reached round ${round}.`;
-                
-                if (round > bestScore) {
-                    bestScore = round;
-                    bestScoreDisplay.innerText = bestScore;
-                    localStorage.setItem('bestScore', bestScore);
-                    message.innerText += ` New Best: ${round}!`;
-                }
-                
-                // Post Game Logic
-                sequence = [];
-                setTimeout(async () => {
-                    colorDisplay.style.backgroundColor = "#000"; // Simple black
-                    colorDisplay.innerText = "Get Ready...";
-                    message.innerText = "";
-                    try {
-                        if (currentGameId) {
-                            // End game transaction
-                            message.innerText = "Submitting score (Tx in wallet)...";
-                            const { hash } = await writeContract(config, {
-                                address: CONTRACT_ADDRESS,
-                                abi: ABI,
-                                functionName: 'endGame',
-                                args: [BigInt(currentGameId), BigInt(round)]
-                            });
-                            await waitForTransactionReceipt(getPublicClient(config), { hash });
-                            message.innerText = "";
-                            console.log('End game tx sent for round:', round);
-                        }
-
-                        if (round >= 5 && currentGameId) {
-                            claimBtn.classList.remove('hidden');
-                            showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
-                        } else if (round < 5) {
-                            showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
-                        }
-                    } catch (e) {
-                        console.error('End game error:', e);
-                        showToast(`Score submission failed: ${e.shortMessage || 'Transaction failed.'}`);
-                    }
-                }, 2500);
-                return;
-            }
-            
-            if (userSequence.length === sequence.length) {
-                // Correct Sequence Logic
-                updateButtons(false);
-                colorDisplay.style.backgroundColor = "#2ecc71"; // Green for Correct
-                colorDisplay.innerText = "Correct!";
-                round++;
-                message.innerText = `Great! Round ${round} incoming...`;
-                setTimeout(() => {
-                    colorDisplay.style.backgroundColor = "#000"; // Simple black
-                    colorDisplay.innerText = "";
-                    nextRound();
-                }, 1200);
-            }
+        for (let i = 0; i < players.length; i++) {
+          const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
+          tbody.appendChild(tr);
         }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
+        console.error('Leaderboard load failed:', e);
+      }
+    }
 
-        function restartGame() {
-            sequence = [];
-            userSequence = [];
-            round = 1;
-            displaying = false;
-            currentGameId = null;
-            colorDisplay.style.backgroundColor = "#000";
-            colorDisplay.innerText = "Get Ready...";
-            message.innerText = "";
-            roundDisplay.innerText = "1";
-            updateButtons(false);
-            restartBtn.classList.add('hidden');
-            claimBtn.classList.add('hidden');
-            updateConnectButtons(!!userAddress, isApproved); // Show approve/start button
-        }
+    // Tab Bar Logic
+    tabPlayBtn.onclick = () => {
+      playTab.classList.remove('hidden');
+      leaderboardTab.classList.add('hidden');
+      tabPlayBtn.classList.add('active');
+      tabLbBtn.classList.remove('active');
+    };
 
-        restartBtn.onclick = restartGame;
-        startBtn.onclick = initGame;
+    tabLbBtn.onclick = () => {
+      leaderboardTab.classList.remove('hidden');
+      playTab.classList.add('hidden');
+      tabLbBtn.classList.add('active');
+      tabPlayBtn.classList.remove('active');
+      loadLeaderboard();
+    };
 
-        /* ---------- Leaderboard - UNTOUCHED ---------- */
-        async function loadLeaderboard() {
-            const tbody = document.getElementById('leaderboardBody');
-            tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
-            try {
-                const [players, scores] = await readContract(config, {
-                    address: CONTRACT_ADDRESS,
-                    abi: ABI,
-                    functionName: 'getTopPlayers',
-                    args: [10n]
-                });
-                tbody.innerHTML = '';
-                if (!players || players.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
-                    return;
-                }
-                for (let i = 0; i < players.length; i++) {
-                    const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
-                    tbody.appendChild(tr);
-                }
-            } catch (e) {
-                tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
-                console.error('Leaderboard load failed:', e);
-            }
-        }
-
-        // Tab Bar Logic
-        tabPlayBtn.onclick = () => {
-            playTab.classList.remove('hidden');
-            leaderboardTab.classList.add('hidden');
-            tabPlayBtn.classList.add('active');
-            tabLbBtn.classList.remove('active');
-        };
-
-        tabLbBtn.onclick = () => {
-            leaderboardTab.classList.remove('hidden');
-            playTab.classList.add('hidden');
-            tabLbBtn.classList.add('active');
-            tabPlayBtn.classList.remove('active');
-            loadLeaderboard();
-        };
-
-        // Initial setup
-        initWallet(); 
-        updateButtons(false); // Game buttons are disabled initially
-    </script>
+    // Initial setup
+    initWallet(); 
+    updateButtons(false); // Game buttons are disabled initially
+  </script>
 </body>
 </html>
