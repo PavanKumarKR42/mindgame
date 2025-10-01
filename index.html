@@ -338,7 +338,7 @@
   <!-- Play Tab -->
   <section id="playTab">
     <div class="game-container">
-      <h1>🎮 Mind Color Sequence</h1>
+      <h1>Mind Color Sequence</h1>
       
       <div class="score-info">
         <div class="score-box">
@@ -358,10 +358,10 @@
       <div id="message"></div>
       
       <div class="btn-control">
-        <button class="start-btn" id="connectBtn">🔗 Connect Wallet</button>
+        <button class="start-btn" id="connectBtn">Connect Wallet</button>
         <button class="start-btn hidden" id="startBtn">Start Game</button>
-        <button class="restart-btn hidden" id="restartBtn">🔄 Restart Game</button>
-        <button class="claim-btn hidden" id="claimBtn">🎉 Claim 5k BONK</button>
+        <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
+        <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
       </div>
 
     </div>
@@ -369,7 +369,7 @@
 
   <!-- Leaderboard Tab -->
   <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
-    <h3>🏆 Top 10 High Scores</h3>
+    <h3>Top 10 High Scores</h3>
     <table>
       <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
       <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
@@ -388,45 +388,10 @@
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
 
-const connectBtn = document.getElementById('connectBtn');
-
-sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-  console.log("✅ Farcaster MiniApp ready");
-
-  connectBtn.onclick = async () => {
-    try {
-      // Connect using Farcaster wallet on Arb
-      await connect(config, {
-        connector: farcasterMiniApp(),
-        chainId: arbitrum.id
-      });
-
-      // Get connected account
-      userAddress = getAccount(config)?.address;
-
-      if (userAddress) {
-        showToast(`✅ Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-        console.log("Wallet connected:", userAddress);
-
-        connectBtn.classList.add('hidden');
-        startBtn.classList.remove('hidden');
-        message.innerText = "Ready to play!";
-      } else {
-        showToast("❌ No wallet address returned.");
-      }
-    } catch (err) {
-      console.error("❌ Wallet connect failed:", err);
-      showToast("❌ Connect failed. Make sure you opened this Mini App in Warpcast.");
-    }
-  };
-});
-
-
-
     /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                         
     const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
-    const ENTRY_FEE = 200000n; // 2k BONK
+    const ENTRY_FEE = 200000n;
 
     const ABI = [
       {
@@ -486,33 +451,6 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       transport: http()
     });
 
-   
-
-    // Poll for userAddress
-    let userAddress = getAccount(config)?.address;
-    let pollInterval;
-    const pollTimeout = setTimeout(() => {
-      if (pollInterval) clearInterval(pollInterval);
-      console.log('Address poll timeout');
-      if (!userAddress) {
-        showToast('❌ Wallet connection timed out. Launch from Farcaster app.');
-        message.innerText = "Wallet connection failed. Please reload.";
-      }
-    }, 10000); // 10s timeout
-
-    pollInterval = setInterval(() => {
-      const newAddress = getAccount(config)?.address;
-      if (newAddress && !userAddress) {
-        userAddress = newAddress;
-        console.log('User address ready:', userAddress);
-        clearInterval(pollInterval);
-        clearTimeout(pollTimeout);
-        // Show start button once connected
-        startBtn.classList.remove('hidden');
-        message.innerText = "Ready to play!";
-      }
-    }, 500);
-
     const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
 
     /* ---------- UI Refs ---------- */
@@ -524,6 +462,16 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
     const claimBtn = document.getElementById('claimBtn');
     const restartBtn = document.getElementById('restartBtn');
     const startBtn = document.getElementById('startBtn');
+    const connectBtn = document.getElementById('connectBtn');
+    const colorDisplay = document.getElementById('colorDisplay');
+    const buttonsContainer = document.getElementById('buttonsContainer');
+    const message = document.getElementById('message');
+    const roundDisplay = document.getElementById('roundDisplay');
+    const bestScoreDisplay = document.getElementById('bestScore');
+
+    /* ---------- State ---------- */
+    let userAddress = null;
+    let currentGameId = null;
 
     tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
@@ -546,6 +494,48 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
+    /* ---------- Initialize SDK and Wallet ---------- */
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
+
+    connectBtn.onclick = async () => {
+      try {
+        connectBtn.disabled = true;
+        connectBtn.innerText = 'Connecting...';
+        message.innerText = "Connecting wallet...";
+
+        await connect(config, {
+          connector: farcasterMiniApp(),
+          chainId: arbitrum.id
+        });
+
+        userAddress = getAccount(config)?.address;
+
+        if (userAddress) {
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          console.log("Wallet connected:", userAddress);
+
+          connectBtn.classList.add('hidden');
+          startBtn.classList.remove('hidden');
+          message.innerText = "Ready to play!";
+        } else {
+          throw new Error("No address returned");
+        }
+      } catch (err) {
+        console.error("Wallet connect failed:", err);
+        showToast("Connect failed. Make sure you opened this in Warpcast.");
+        connectBtn.disabled = false;
+        connectBtn.innerText = 'Connect Wallet';
+        message.innerText = "Connection failed. Try again.";
+      }
+    };
+
     claimBtn.onclick = async () => {
       if (!currentGameId) {
         showToast('No active game to claim. Play and win first!');
@@ -560,15 +550,15 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
-        showToast(`🎉 Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
-        claimBtn.innerText = '🎉 Claim 5k BONK';
+        claimBtn.innerText = 'Claim 5k BONK';
       } catch (e) {
         console.error('Claim error:', e);
-        showToast('❌ Claim failed. Ensure you won (score >=5) and try again.');
+        showToast('Claim failed. Ensure you won (score >=5) and try again.');
         claimBtn.disabled = false;
-        claimBtn.innerText = '🎉 Claim 5k BONK';
+        claimBtn.innerText = 'Claim 5k BONK';
       }
     };
 
@@ -587,21 +577,12 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
     let displaying = false;
     let bestScore = 0;
     let buttonsEnabled = false;
-    let currentGameId = null;
 
-    const colorDisplay = document.getElementById('colorDisplay');
-    const buttonsContainer = document.getElementById('buttonsContainer');
-    const message = document.getElementById('message');
-    const roundDisplay = document.getElementById('roundDisplay');
-    const bestScoreDisplay = document.getElementById('bestScore');
-
-    // Load best score
     if (localStorage.getItem('bestScore')) {
       bestScore = parseInt(localStorage.getItem('bestScore'));
       bestScoreDisplay.innerText = bestScore;
     }
 
-    // Create buttons
     colors.forEach(colorObj => {
       const btn = document.createElement('button');
       btn.classList.add('colorBtn');
@@ -626,7 +607,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
     async function displaySequence() {
       displaying = true;
       updateButtons(false);
-      colorDisplay.innerText = "👀 Watch Carefully!";
+      colorDisplay.innerText = "Watch Carefully!";
       message.innerText = "";
       await sleep(800);
       
@@ -644,7 +625,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       
       displaying = false;
       updateButtons(true);
-      colorDisplay.innerText = "✨ Your Turn!";
+      colorDisplay.innerText = "Your Turn!";
     }
 
     function nextRound() {
@@ -656,8 +637,15 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
     }
 
     async function initGame() {
+      if (!userAddress) {
+        showToast("Please connect your wallet first!");
+        return;
+      }
+      
       message.innerText = "Starting Game...";
       updateButtons(false);
+      startBtn.disabled = true;
+      
       try {
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
@@ -682,12 +670,12 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       } catch (e) {
         console.error('Init error:', e);
         if (e.message.includes('transferFrom')) {
-          showToast('💡 Approve BONK spending in wallet first.');
+          showToast('Approve BONK spending in wallet first.');
         } else {
-          showToast(`❌ Start failed: ${e.shortMessage || e.message}`);
+          showToast(`Start failed: ${e.shortMessage || e.message}`);
         }
         message.innerText = "Failed to start. Try again.";
-        startBtn.textContent = "Try Starting Again";
+        startBtn.disabled = false;
       }
     }
 
@@ -703,14 +691,14 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       if (userSequence[currentIndex] !== sequence[currentIndex]) {
         updateButtons(false);
         colorDisplay.style.backgroundColor = "#e74c3c";
-        colorDisplay.innerText = "❌ Wrong!";
+        colorDisplay.innerText = "Wrong!";
         message.innerText = `Game Over! You reached round ${round}`;
         
         if (round > bestScore) {
           bestScore = round;
           bestScoreDisplay.innerText = bestScore;
           localStorage.setItem('bestScore', bestScore);
-          message.innerText += ` 🎉 New Best: ${round}!`;
+          message.innerText += ` New Best: ${round}!`;
         }
         
         sequence = [];
@@ -730,7 +718,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
             }
             if (round >= 5 && currentGameId) {
               claimBtn.classList.remove('hidden');
-              showToast(`🎉 You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
+              showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
             } else if (round < 5) {
               showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
             }
@@ -745,7 +733,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       if (userSequence.length === sequence.length) {
         updateButtons(false);
         colorDisplay.style.backgroundColor = "#2ecc71";
-        colorDisplay.innerText = "✅ Correct!";
+        colorDisplay.innerText = "Correct!";
         round++;
         message.innerText = `Great! Round ${round} incoming...`;
         setTimeout(() => {
@@ -770,7 +758,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       restartBtn.classList.add('hidden');
       claimBtn.classList.add('hidden');
       startBtn.classList.remove('hidden');
-      startBtn.textContent = "Start Game";
+      startBtn.disabled = false;
     }
 
     restartBtn.onclick = restartGame;
@@ -803,11 +791,12 @@ sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       }
     }
 
-    // Initial setup - ensure everything is hidden properly
+    // Initial setup
     claimBtn.classList.add('hidden');
     restartBtn.classList.add('hidden');
-    startBtn.classList.add('hidden'); // Hide until wallet connected
-    message.innerText = "Connecting wallet...";
+    startBtn.classList.add('hidden');
+    updateButtons(false);
+    message.innerText = "Connect your wallet to begin";
   </script>
 </body>
 </html>
