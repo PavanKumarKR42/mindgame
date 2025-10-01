@@ -1,0 +1,24 @@
+{
+  "frame": {
+    "name": "Brain Rust Free",
+    "version": "1",
+    "iconUrl": "https://mindgame-omega.vercel.app/icon.png",
+    "homeUrl": "https://mindgame-omega.vercel.app",
+    "imageUrl": "https://mindgame-omega.vercel.app/image.png",
+    "buttonTitle": "Test Memory!",
+    "splashImageUrl": "https://mindgame-omega.vercel.app/splash.png",
+    "splashBackgroundColor": "#6200EA",
+    "webhookUrl": "https://mindgame-omega.vercel.app/api/webhook",
+    "subtitle": "You memeory power brings you rewards.",
+    "primaryCategory": "games",
+    "description": "The Mind Color Sequence Game is a Simon-style memory and sequence recall game built as a Farcaster Mini App with on-chain integration on the Arbitrum network. It challenges users to remember and correctly repeat increasingly long color sequences to progress and earn a cryptocurrency reward.",
+    "tags": [
+      "games",
+      "nft",
+      "earn",
+      "arb",
+      "mind"
+    ],
+    "tagline": "Earn "
+}
+}

@@ -1,497 +1,497 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=390, initial-scale=1.0" />
-  <title>Mind Color Sequence Game</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=390, initial-scale=1.0" />
+  <title>Mind Color Sequence Game</title>
 
-    <meta name="fc:miniapp" content='{
-    "version":"1",
-    "imageUrl":"https://mindgame-omega.vercel.app/icon.png",
-    "button":{
-      "title":"Memory Game",
-      "action":{
-        "type":"launch_frame",
-        "name":"Mind Color Sequence",
-        "url":"https://mindgame-omega.vercel.app/",
-        "splashImageUrl":"https://mindgame-omega.vercel.app/splash.png",
-        "splashBackgroundColor":"#667eea"
-      }
-    }
-  }' />
+    <meta name="fc:miniapp" content='{
+    "version":"1",
+    "imageUrl":"https://mindgame-omega.vercel.app/icon.png",
+    "button":{
+      "title":"Memory Game",
+      "action":{
+        "type":"launch_frame",
+        "name":"Mind Color Sequence",
+        "url":"https://mindgame-omega.vercel.app/",
+        "splashImageUrl":"https://mindgame-omega.vercel.app/splash.png",
+        "splashBackgroundColor":"#667eea"
+      }
+    }
+  }' />
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      padding: 20px;
-      max-width: 390px;
-      margin: 0 auto;
-    }
-    
-    .tabbar {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-      margin: 12px;
-    }
-    
-    .tabbar button {
-      flex: 1;
-      padding: 10px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .tabbar button.active {
-      background: rgba(255, 255, 255, 0.3);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .hidden {
-      display: none;
-    }
-    
-    .game-container {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 30px;
-      padding: 20px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      width: 100%;
-    }
-    
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 24px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    
-    .score-info {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 20px;
-      gap: 10px;
-    }
-    
-    .score-box {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 10px 15px;
-      border-radius: 15px;
-      text-align: center;
-      flex: 1;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .score-label {
-      font-size: 10px;
-      opacity: 0.8;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .score-value {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-    
-    #colorDisplay {
-      width: 100%;
-      height: 150px;
-      border-radius: 25px;
-      margin-bottom: 20px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      font-weight: bold;
-      background: rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2);
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    }
-    
-    #colorDisplay.pulse {
-      animation: pulse 0.5s ease;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    
-    .colorBtn {
-      height: 60px;
-      border: none;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-      color: #fff;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .colorBtn:hover:not(:disabled) {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    }
-    
-    .colorBtn:active:not(:disabled) {
-      transform: translateY(-1px);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-    
-    .colorBtn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .colorBtn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.2);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .colorBtn:hover:not(:disabled)::before {
-      opacity: 1;
-    }
-    
-    .colorBtn.pressed {
-      animation: press 0.3s ease;
-    }
-    
-    @keyframes press {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(0.95); filter: brightness(1.3); }
-    }
-    
-    #message {
-      text-align: center;
-      font-size: 18px;
-      min-height: 30px;
-      font-weight: 600;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      margin-bottom: 20px;
-    }
-    
-    .btn-control {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    
-    .restart-btn {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 15px;
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .restart-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+   
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      padding: 20px;
+      max-width: 390px;
+      margin: 0 auto;
+    }
+   
+    .tabbar {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin: 12px;
+    }
+   
+    .tabbar button {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+   
+    .tabbar button.active {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+   
+    .hidden {
+      display: none;
+    }
+   
+    .game-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 100%;
+    }
+   
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+   
+    .score-info {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+   
+    .score-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 15px;
+      border-radius: 15px;
+      text-align: center;
+      flex: 1;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+   
+    .score-label {
+      font-size: 10px;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+   
+    .score-value {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+   
+    #colorDisplay {
+      width: 100%;
+      height: 150px;
+      border-radius: 25px;
+      margin-bottom: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+   
+    #colorDisplay.pulse {
+      animation: pulse 0.5s ease;
+    }
+   
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+   
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+   
+    .colorBtn {
+      height: 60px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+   
+    .colorBtn:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+   
+    .colorBtn:active:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+   
+    .colorBtn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+   
+    .colorBtn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+   
+    .colorBtn:hover:not(:disabled)::before {
+      opacity: 1;
+    }
+   
+    .colorBtn.pressed {
+      animation: press 0.3s ease;
+    }
+   
+    @keyframes press {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.95); filter: brightness(1.3); }
+    }
+   
+    #message {
+      text-align: center;
+      font-size: 18px;
+      min-height: 30px;
+      font-weight: 600;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      margin-bottom: 20px;
+    }
+   
+    .btn-control {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+   
+    .restart-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+   
+    .restart-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
 
-    .claim-btn {
-      flex: 1;
-      padding: 12px;
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      border-radius: 15px;
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
-    }
-    
-    .claim-btn:hover {
-      background: linear-gradient(135deg, #27ae60, #229954);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
-    }
+    .claim-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    }
+   
+    .claim-btn:hover {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+    }
 
-    /* Leaderboard */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-    }
-    
-    th, td {
-      padding: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 14px;
-      text-align: left;
-    }
-    
-    thead {
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .center {
-      text-align: center;
-    }
+    /* Leaderboard */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+   
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      text-align: left;
+    }
+   
+    thead {
+      background: rgba(0, 0, 0, 0.3);
+    }
+   
+    .center {
+      text-align: center;
+    }
 
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(8px);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 14px;
-      padding: 10px 14px;
-      font-weight: 600;
-      max-width: 360px;
-      width: calc(100% - 24px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-      display: none;
-      z-index: 9999;
-    }
-    
-    .toast.show {
-      display: block;
-      animation: fadeIn 0.25s ease;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translate(-50%, 10px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
-    }
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 14px;
+      padding: 10px 14px;
+      font-weight: 600;
+      max-width: 360px;
+      width: calc(100% - 24px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 9999;
+    }
+   
+    .toast.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+   
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
 
-    .start-btn {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.2);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 15px;
-      color: white;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .start-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-  </style>
+    .start-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+   
+    .start-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
 <body>
 
-  <div class="tabbar">
-    <button id="tabPlayBtn" class="active">Play</button>
-    <button id="tabLbBtn">Leaderboard</button>
-  </div>
+  <div class="tabbar">
+    <button id="tabPlayBtn" class="active">Play</button>
+    <button id="tabLbBtn">Leaderboard</button>
+  </div>
 
-    <section id="playTab">
-    <div class="game-container">
-      <h1>Mind Color Sequence</h1>
-      
-      <div class="score-info">
-        <div class="score-box">
-          <div class="score-label">Round</div>
-          <div class="score-value" id="roundDisplay">1</div>
-        </div>
-        <div class="score-box">
-          <div class="score-label">Best</div>
-          <div class="score-value" id="bestScore">0</div>
-        </div>
-      </div>
-      
-      <div id="colorDisplay">Get Ready...</div>
-      
-      <div class="buttons" id="buttonsContainer"></div>
-      
-      <div id="message"></div>
-      
-      <div class="btn-control">
-        <button class="start-btn" id="connectBtn">Connect Wallet</button>
+    <section id="playTab">
+    <div class="game-container">
+      <h1>Mind Color Sequence</h1>
+   
+      <div class="score-info">
+        <div class="score-box">
+         <div class="score-label">Round</div>
+         <div class="score-value" id="roundDisplay">1</div>
+        </div>
+        <div class="score-box">
+         <div class="score-label">Best</div>
+         <div class="score-value" id="bestScore">0</div>
+        </div>
+      </div>
+   
+      <div id="colorDisplay">Get Ready...</div>
+   
+      <div class="buttons" id="buttonsContainer"></div>
+   
+      <div id="message"></div>
+   
+      <div class="btn-control">
+        <button class="start-btn" id="connectBtn">Connect Wallet</button>
         <button class="start-btn hidden" id="approveBtn">Approve BONK (Gas Only)</button> 
-        <button class="start-btn hidden" id="startBtn">Start Game</button>
-        <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
-        <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
-      </div>
+        <button class="start-btn hidden" id="startBtn">Start Game</button>
+        <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
+        <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
+      </div>
 
-    </div>
-  </section>
+    </div>
+  </section>
 
-    <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
-    <h3>Top 10 High Scores</h3>
-    <table>
-      <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
-      <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
-    </table>
-  </section>
+    <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
+    <h3>Top 10 High Scores</h3>
+    <table>
+      <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
+      <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
+    </table>
+  </section>
 
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast"></div>
 
-  <script type="module">
-    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-    import {
-      createConfig, connect, readContract, writeContract, getAccount
-    } from 'https://esm.sh/@wagmi/core';
-    import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
-    import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
-    import { createPublicClient, http } from 'https://esm.sh/viem';
+  <script type="module">
+    import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
+    import {
+      createConfig, connect, readContract, writeContract, getAccount
+    } from 'https://esm.sh/@wagmi/core';
+    import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
+    import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
+    import { createPublicClient, http } from 'https://esm.sh/viem';
 
-    /* ---------- Config ---------- */
-    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                         
-    const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
-    const ENTRY_FEE = 200000n;
+    /* ---------- Config ---------- */
+    const CONTRACT_ADDRESS = '0x137584603dDb8f9590a17f2a89Fb6F34a7cd6A4f';                                      
+    const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
+    const ENTRY_FEE = 200000n;
     const APPROVAL_AMOUNT = 1000000000000n; // Approve a large amount to prevent re-approvals
 
-    const ABI = [
-      {
-        "inputs": [],
-        "name": "startGame",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}],
-        "name": "endGame",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}],
-        "name": "claim",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}],
-        "name": "getTopPlayers",
-        "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
-        "stateMutability": "view",
-        "type": "function"
-      }
-    ];
+    const ABI = [
+      {
+        "inputs": [],
+        "name": "startGame",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}, {"internalType": "uint256", "name": "score", "type": "uint256"}],
+        "name": "endGame",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "uint256", "name": "gameId", "type": "uint256"}],
+        "name": "claim",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "uint256", "name": "n", "type": "uint256"}],
+        "name": "getTopPlayers",
+        "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}, {"internalType": "uint256[]", "name": "", "type": "uint256[]"}],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
 
-    const ERC20_ABI = [
-      {
-        "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
-        "name": "approve",
-        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}],
-        "name": "allowance",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "view",
-        "type": "function"
-      }
-    ];
+    const ERC20_ABI = [
+      {
+        "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
+        "name": "approve",
+        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [{"internalType": "address", "name": "owner", "type": "address"}, {"internalType": "address", "name": "spender", "type": "address"}],
+        "name": "allowance",
+        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ];
 
-    const config = createConfig({
-      chains: [arbitrum],
-      transports: { [arbitrum.id]: http() }
-    });
+    const config = createConfig({
+      chains: [arbitrum],
+      transports: { [arbitrum.id]: http() }
+    });
 
-    const publicClient = createPublicClient({
-      chain: arbitrum,
-      transport: http()
-    });
+    const publicClient = createPublicClient({
+      chain: arbitrum,
+      transport: http()
+    });
 
-    const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
+    const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
 
-    /* ---------- UI Refs ---------- */
-    const playTab = document.getElementById('playTab');
-    const leaderboardTab = document.getElementById('leaderboardTab');
-    const tabPlayBtn = document.getElementById('tabPlayBtn');
-    const tabLbBtn = document.getElementById('tabLbBtn');
-    const toastEl = document.getElementById('toast');
-    const claimBtn = document.getElementById('claimBtn');
-    const restartBtn = document.getElementById('restartBtn');
-    const startBtn = document.getElementById('startBtn');
-    const connectBtn = document.getElementById('connectBtn');
+    /* ---------- UI Refs ---------- */
+    const playTab = document.getElementById('playTab');
+    const leaderboardTab = document.getElementById('leaderboardTab');
+    const tabPlayBtn = document.getElementById('tabPlayBtn');
+    const tabLbBtn = document.getElementById('tabLbBtn');
+    const toastEl = document.getElementById('toast');
+    const claimBtn = document.getElementById('claimBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const startBtn = document.getElementById('startBtn');
+    const connectBtn = document.getElementById('connectBtn');
     const approveBtn = document.getElementById('approveBtn'); // NEW REF
-    const colorDisplay = document.getElementById('colorDisplay');
-    const buttonsContainer = document.getElementById('buttonsContainer');
-    const message = document.getElementById('message');
-    const roundDisplay = document.getElementById('roundDisplay');
-    const bestScoreDisplay = document.getElementById('bestScore');
+    const colorDisplay = document.getElementById('colorDisplay');
+    const buttonsContainer = document.getElementById('buttonsContainer');
+    const message = document.getElementById('message');
+    const roundDisplay = document.getElementById('roundDisplay');
+    const bestScoreDisplay = document.getElementById('bestScore');
 
-    /* ---------- State ---------- */
-    let userAddress = null;
-    let currentGameId = null;
+    /* ---------- State ---------- */
+    let userAddress = null;
+    let currentGameId = null;
 
-    tabPlayBtn.onclick = () => {
-      playTab.classList.remove('hidden');
-      leaderboardTab.classList.add('hidden');
-      tabPlayBtn.classList.add('active');
-      tabLbBtn.classList.remove('active');
-    };
+    tabPlayBtn.onclick = () => {
+      playTab.classList.remove('hidden');
+      leaderboardTab.classList.add('hidden');
+      tabPlayBtn.classList.add('active');
+      tabLbBtn.classList.remove('active');
+    };
 
-    tabLbBtn.onclick = () => {
-      leaderboardTab.classList.remove('hidden');
-      playTab.classList.add('hidden');
-      tabLbBtn.classList.add('active');
-      tabPlayBtn.classList.remove('active');
-      loadLeaderboard();
-    };
+    tabLbBtn.onclick = () => {
+      leaderboardTab.classList.remove('hidden');
+      playTab.classList.add('hidden');
+      tabLbBtn.classList.add('active');
+      tabPlayBtn.classList.remove('active');
+      loadLeaderboard();
+    };
 
-    function showToast(html, ms = 3500) {
-      toastEl.innerHTML = html;
-      toastEl.classList.add('show');
-      setTimeout(() => toastEl.classList.remove('show'), ms);
-    }
+    function showToast(html, ms = 3500) {
+      toastEl.innerHTML = html;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), ms);
+    }
 
     /* ---------- Approval Logic ---------- */
     async function approveBonkSpending() {
@@ -549,317 +549,317 @@
         }
     }
 
-    /* ---------- Initialize SDK and Wallet ---------- */
-    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
+    /* ---------- Initialize SDK and Wallet ---------- */
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
-    connectBtn.onclick = async () => {
-      try {
-        connectBtn.disabled = true;
-        connectBtn.innerText = 'Connecting...';
-        message.innerText = "Connecting wallet...";
+    connectBtn.onclick = async () => {
+      try {
+        connectBtn.disabled = true;
+        connectBtn.innerText = 'Connecting...';
+        message.innerText = "Connecting wallet...";
 
-        await connect(config, {
-          connector: farcasterMiniApp(),
-          chainId: arbitrum.id
-        });
+        await connect(config, {
+          connector: farcasterMiniApp(),
+          chainId: arbitrum.id
+        });
 
-        userAddress = getAccount(config)?.address;
+        userAddress = getAccount(config)?.address;
 
-        if (userAddress) {
-          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-          console.log("Wallet connected:", userAddress);
+        if (userAddress) {
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          console.log("Wallet connected:", userAddress);
 
-          connectBtn.classList.add('hidden');
+          connectBtn.classList.add('hidden');
           // Show the new Approve button
-          approveBtn.classList.remove('hidden'); 
-          message.innerText = "Wallet connected. Please approve BONK spending (Gas Only).";
-        } else {
-          throw new Error("No address returned");
-        }
-      } catch (err) {
-        console.error("Wallet connect failed:", err);
-        showToast("Connect failed. Make sure you opened this in Warpcast.");
-        connectBtn.disabled = false;
-        connectBtn.innerText = 'Connect Wallet';
-        message.innerText = "Connection failed. Try again.";
-      }
-    };
+          approveBtn.classList.remove('hidden'); 
+          message.innerText = "Wallet connected. Please approve BONK spending (Gas Only).";
+        } else {
+          throw new Error("No address returned");
+        }
+      } catch (err) {
+        console.error("Wallet connect failed:", err);
+        showToast("Connect failed. Make sure you opened this in Warpcast.");
+        connectBtn.disabled = false;
+        connectBtn.innerText = 'Connect Wallet';
+        message.innerText = "Connection failed. Try again.";
+      }
+    };
 
     approveBtn.onclick = approveBonkSpending;
 
-    claimBtn.onclick = async () => {
-      if (!currentGameId) {
-        showToast('No active game to claim. Play and win first!');
-        return;
-      }
-      try {
-        claimBtn.disabled = true;
-        claimBtn.innerText = 'Claiming...';
-        const { hash } = await writeContract(config, {
-          address: CONTRACT_ADDRESS,
-          abi: ABI,
-          functionName: 'claim',
-          args: [BigInt(currentGameId)]
-        });
-        showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
-        claimBtn.classList.add('hidden');
-        claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 5k BONK';
-      } catch (e) {
-        console.error('Claim error:', e);
-        showToast('Claim failed. Ensure you won (score >=5) and try again.');
-        claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 5k BONK';
-      }
-    };
+    claimBtn.onclick = async () => {
+      if (!currentGameId) {
+        showToast('No active game to claim. Play and win first!');
+        return;
+      }
+      try {
+        claimBtn.disabled = true;
+        claimBtn.innerText = 'Claiming...';
+        const { hash } = await writeContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'claim',
+          args: [BigInt(currentGameId)]
+        });
+        showToast(`Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        claimBtn.classList.add('hidden');
+        claimBtn.disabled = false;
+        claimBtn.innerText = 'Claim 5k BONK';
+      } catch (e) {
+        console.error('Claim error:', e);
+        showToast('Claim failed. Ensure you won (score >=5) and try again.');
+        claimBtn.disabled = false;
+        claimBtn.innerText = 'Claim 5k BONK';
+      }
+    };
 
-    /* ---------- Game Logic ---------- */
-    const colors = [
-      {name: "red", hex: "#e74c3c"},
-      {name: "blue", hex: "#3498db"},
-      {name: "green", hex: "#2ecc71"},
-      {name: "yellow", hex: "#f39c12"},
-      {name: "purple", hex: "#9b59b6"}
-    ];
+    /* ---------- Game Logic ---------- */
+    const colors = [
+      {name: "red", hex: "#e74c3c"},
+      {name: "blue", hex: "#3498db"},
+      {name: "green", hex: "#2ecc71"},
+      {name: "yellow", hex: "#f39c12"},
+      {name: "purple", hex: "#9b59b6"}
+    ];
 
-    let sequence = [];
-    let userSequence = [];
-    let round = 1;
-    let displaying = false;
-    let bestScore = 0;
-    let buttonsEnabled = false;
+    let sequence = [];
+    let userSequence = [];
+    let round = 1;
+    let displaying = false;
+    let bestScore = 0;
+    let buttonsEnabled = false;
 
-    if (localStorage.getItem('bestScore')) {
-      bestScore = parseInt(localStorage.getItem('bestScore'));
-      bestScoreDisplay.innerText = bestScore;
-    }
+    if (localStorage.getItem('bestScore')) {
+      bestScore = parseInt(localStorage.getItem('bestScore'));
+      bestScoreDisplay.innerText = bestScore;
+    }
 
-    colors.forEach(colorObj => {
-      const btn = document.createElement('button');
-      btn.classList.add('colorBtn');
-      btn.style.backgroundColor = colorObj.hex;
-      btn.innerText = colorObj.name.toUpperCase();
-      btn.dataset.color = colorObj.name;
-      btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
-      buttonsContainer.appendChild(btn);
-    });
+    colors.forEach(colorObj => {
+      const btn = document.createElement('button');
+      btn.classList.add('colorBtn');
+      btn.style.backgroundColor = colorObj.hex;
+      btn.innerText = colorObj.name.toUpperCase();
+      btn.dataset.color = colorObj.name;
+      btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
+      buttonsContainer.appendChild(btn);
+    });
 
-    function updateButtons(enabled) {
-      buttonsEnabled = enabled;
-      document.querySelectorAll('.colorBtn').forEach(btn => {
-        btn.disabled = !enabled;
-      });
-    }
+    function updateButtons(enabled) {
+      buttonsEnabled = enabled;
+      document.querySelectorAll('.colorBtn').forEach(btn => {
+        btn.disabled = !enabled;
+      });
+    }
 
-    function sleep(ms) { 
-      return new Promise(resolve => setTimeout(resolve, ms)); 
-    }
+    function sleep(ms) { 
+      return new Promise(resolve => setTimeout(resolve, ms)); 
+    }
 
-    async function displaySequence() {
-      displaying = true;
-      updateButtons(false);
-      colorDisplay.innerText = "Watch Carefully!";
-      message.innerText = "";
-      await sleep(800);
-      
-      for (let i = 0; i < sequence.length; i++) {
-        const colorObj = colors.find(c => c.name === sequence[i]);
-        colorDisplay.style.backgroundColor = colorObj.hex;
-        colorDisplay.innerText = colorObj.name.toUpperCase();
-        colorDisplay.classList.add('pulse');
-        await sleep(700);
-        colorDisplay.classList.remove('pulse');
-        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-        colorDisplay.innerText = "";
-        await sleep(300);
-      }
-      
-      displaying = false;
-      updateButtons(true);
-      colorDisplay.innerText = "Your Turn!";
-    }
+    async function displaySequence() {
+      displaying = true;
+      updateButtons(false);
+      colorDisplay.innerText = "Watch Carefully!";
+      message.innerText = "";
+      await sleep(800);
+   
+      for (let i = 0; i < sequence.length; i++) {
+        const colorObj = colors.find(c => c.name === sequence[i]);
+        colorDisplay.style.backgroundColor = colorObj.hex;
+        colorDisplay.innerText = colorObj.name.toUpperCase();
+        colorDisplay.classList.add('pulse');
+        await sleep(700);
+        colorDisplay.classList.remove('pulse');
+        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        colorDisplay.innerText = "";
+        await sleep(300);
+      }
+   
+      displaying = false;
+      updateButtons(true);
+      colorDisplay.innerText = "Your Turn!";
+    }
 
-    function nextRound() {
-      userSequence = [];
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      sequence.push(randomColor.name);
-      roundDisplay.innerText = round;
-      displaySequence();
-    }
+    function nextRound() {
+      userSequence = [];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      sequence.push(randomColor.name);
+      roundDisplay.innerText = round;
+      displaySequence();
+    }
 
-    async function initGame() {
-      if (!userAddress) {
-        showToast("Please connect your wallet first!");
-        return;
-      }
+    async function initGame() {
+      if (!userAddress) {
+        showToast("Please connect your wallet first!");
+        return;
+      }
 
       // Crucial check: Ensure BONK is approved before starting
       if (!await approveBonkSpending()) {
         message.innerText = "Approval is required to start the game.";
         return;
       }
-      
-      message.innerText = "Starting Game...";
-      updateButtons(false);
-      startBtn.disabled = true;
-      
-      try {
-        const { hash } = await writeContract(config, {
-          address: CONTRACT_ADDRESS,
-          abi: ABI,
-          functionName: 'startGame',
-          args: []
-        });
-        console.log('Start tx hash:', hash);
-        const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
-        if (log) {
-          currentGameId = Number(BigInt(log.topics[2]));
-          console.log('Game ID:', currentGameId);
-          message.innerText = "";
-          startBtn.classList.add('hidden');
-          restartBtn.classList.remove('hidden');
-          claimBtn.classList.add('hidden');
-          nextRound();
-        } else {
-          throw new Error("No GameStarted event");
-        }
-      } catch (e) {
-        console.error('Init error:', e);
-        showToast(`Failed to start game: ${e.shortMessage || e.message}`);
-        message.innerText = "Failed to start. Please ensure you have approved BONK, and try again.";
-        startBtn.disabled = false;
+   
+      message.innerText = "Starting Game...";
+      updateButtons(false);
+      startBtn.disabled = true;
+   
+      try {
+        const { hash } = await writeContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'startGame',
+          args: []
+        });
+        console.log('Start tx hash:', hash);
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
+        if (log) {
+          currentGameId = Number(BigInt(log.topics[2]));
+          console.log('Game ID:', currentGameId);
+          message.innerText = "";
+          startBtn.classList.add('hidden');
+          restartBtn.classList.remove('hidden');
+          claimBtn.classList.add('hidden');
+          nextRound();
+        } else {
+          throw new Error("No GameStarted event");
+        }
+      } catch (e) {
+        console.error('Init error:', e);
+        showToast(`Failed to start game: ${e.shortMessage || e.message}`);
+        message.innerText = "Failed to start. Please ensure you have approved BONK, and try again.";
+        startBtn.disabled = false;
         startBtn.classList.remove('hidden');
         restartBtn.classList.add('hidden');
-      }
-    }
+      }
+    }
 
-    function handleUserInput(colorName, btn) {
-      if (displaying || !buttonsEnabled) return;
-      
-      btn.classList.add('pressed');
-      setTimeout(() => btn.classList.remove('pressed'), 300);
-      
-      userSequence.push(colorName);
-      const currentIndex = userSequence.length - 1;
-      
-      if (userSequence[currentIndex] !== sequence[currentIndex]) {
-        updateButtons(false);
-        colorDisplay.style.backgroundColor = "#e74c3c";
-        colorDisplay.innerText = "Wrong!";
-        message.innerText = `Game Over! You reached round ${round}`;
-        
-        if (round > bestScore) {
-          bestScore = round;
-          bestScoreDisplay.innerText = bestScore;
-          localStorage.setItem('bestScore', bestScore);
-          message.innerText += ` New Best: ${round}!`;
-        }
-        
-        sequence = [];
-        setTimeout(async () => {
-          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-          colorDisplay.innerText = "Get Ready...";
-          message.innerText = "";
-          try {
-            if (currentGameId) {
-              await writeContract(config, {
-                address: CONTRACT_ADDRESS,
-                abi: ABI,
-                functionName: 'endGame',
-                args: [BigInt(currentGameId), BigInt(round)]
-              });
-              console.log('End game tx sent for round:', round);
-            }
-            if (round >= 5 && currentGameId) {
-              claimBtn.classList.remove('hidden');
-              showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
-            } else if (round < 5) {
-              showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
-            }
-          } catch (e) {
-            console.error('End game error:', e);
-            showToast('Game saved locally, but blockchain update failed.');
-          }
-        }, 2500);
-        return;
-      }
-      
-      if (userSequence.length === sequence.length) {
-        updateButtons(false);
-        colorDisplay.style.backgroundColor = "#2ecc71";
-        colorDisplay.innerText = "Correct!";
-        round++;
-        message.innerText = `Great! Round ${round} incoming...`;
-        setTimeout(() => {
-          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-          colorDisplay.innerText = "";
-          nextRound();
-        }, 1200);
-      }
-    }
+    function handleUserInput(colorName, btn) {
+      if (displaying || !buttonsEnabled) return;
+   
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 300);
+   
+      userSequence.push(colorName);
+      const currentIndex = userSequence.length - 1;
+   
+      if (userSequence[currentIndex] !== sequence[currentIndex]) {
+        updateButtons(false);
+        colorDisplay.style.backgroundColor = "#e74c3c";
+        colorDisplay.innerText = "Wrong!";
+        message.innerText = `Game Over! You reached round ${round}`;
+   
+        if (round > bestScore) {
+          bestScore = round;
+          bestScoreDisplay.innerText = bestScore;
+          localStorage.setItem('bestScore', bestScore);
+          message.innerText += ` New Best: ${round}!`;
+        }
+   
+        sequence = [];
+        setTimeout(async () => {
+          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+          colorDisplay.innerText = "Get Ready...";
+          message.innerText = "";
+          try {
+            if (currentGameId) {
+              await writeContract(config, {
+                address: CONTRACT_ADDRESS,
+                abi: ABI,
+                functionName: 'endGame',
+                args: [BigInt(currentGameId), BigInt(round)]
+              });
+              console.log('End game tx sent for round:', round);
+            }
+            if (round >= 5 && currentGameId) {
+              claimBtn.classList.remove('hidden');
+              showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
+            } else if (round < 5) {
+              showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
+            }
+          } catch (e) {
+            console.error('End game error:', e);
+            showToast('Game saved locally, but blockchain update failed.');
+          }
+        }, 2500);
+        return;
+      }
+   
+      if (userSequence.length === sequence.length) {
+        updateButtons(false);
+        colorDisplay.style.backgroundColor = "#2ecc71";
+        colorDisplay.innerText = "Correct!";
+        round++;
+        message.innerText = `Great! Round ${round} incoming...`;
+        setTimeout(() => {
+          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+          colorDisplay.innerText = "";
+          nextRound();
+        }, 1200);
+      }
+    }
 
-    function restartGame() {
-      sequence = [];
-      userSequence = [];
-      round = 1;
-      displaying = false;
-      currentGameId = null;
-      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-      colorDisplay.innerText = "Get Ready...";
-      message.innerText = "";
-      roundDisplay.innerText = "1";
-      updateButtons(false);
-      restartBtn.classList.add('hidden');
-      claimBtn.classList.add('hidden');
-      startBtn.classList.remove('hidden');
-      startBtn.disabled = false;
-    }
+    function restartGame() {
+      sequence = [];
+      userSequence = [];
+      round = 1;
+      displaying = false;
+      currentGameId = null;
+      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      colorDisplay.innerText = "Get Ready...";
+      message.innerText = "";
+      roundDisplay.innerText = "1";
+      updateButtons(false);
+      restartBtn.classList.add('hidden');
+      claimBtn.classList.add('hidden');
+      startBtn.classList.remove('hidden');
+      startBtn.disabled = false;
+    }
 
-    restartBtn.onclick = restartGame;
-    startBtn.onclick = initGame;
+    restartBtn.onclick = restartGame;
+    startBtn.onclick = initGame;
 
-    /* ---------- Leaderboard ---------- */
-    async function loadLeaderboard() {
-      const tbody = document.getElementById('leaderboardBody');
-      tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
-      try {
-        const [players, scores] = await readContract(config, {
-          address: CONTRACT_ADDRESS,
-          abi: ABI,
-          functionName: 'getTopPlayers',
-          args: [10n]
-        });
-        tbody.innerHTML = '';
-        if (!players || players.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
-          return;
-        }
-        for (let i = 0; i < players.length; i++) {
-          const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
-          tbody.appendChild(tr);
-        }
-      } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
-      }
-    }
+    /* ---------- Leaderboard ---------- */
+    async function loadLeaderboard() {
+      const tbody = document.getElementById('leaderboardBody');
+      tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
+      try {
+        const [players, scores] = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'getTopPlayers',
+          args: [10n]
+        });
+        tbody.innerHTML = '';
+        if (!players || players.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
+          return;
+        }
+        for (let i = 0; i < players.length; i++) {
+          const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
+          tbody.appendChild(tr);
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
+      }
+    }
 
-    // Initial setup
-    claimBtn.classList.add('hidden');
-    restartBtn.classList.add('hidden');
-    startBtn.classList.add('hidden');
+    // Initial setup
+    claimBtn.classList.add('hidden');
+    restartBtn.classList.add('hidden');
+    startBtn.classList.add('hidden');
     approveBtn.classList.add('hidden'); // Ensure this is hidden initially
-    updateButtons(false);
-    message.innerText = "Connect your wallet to begin";
-  </script>
+    updateButtons(false);
+    message.innerText = "Connect your wallet to begin";
+  </script>
 </body>
 </html>
