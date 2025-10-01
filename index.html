@@ -390,7 +390,14 @@
     const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74';
     const ENTRY_FEE = 200000n;
     const APPROVAL_AMOUNT = 1000000000000n; // Approve a large amount to prevent re-approvals
-
+sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
     const ABI = [
       {
         "inputs": [],
@@ -550,14 +557,7 @@
     }
 
     /* ---------- Initialize SDK and Wallet ---------- */
-    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
+    
 
     connectBtn.onclick = async () => {
       try {
