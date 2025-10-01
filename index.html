@@ -237,6 +237,26 @@
       transform: translateY(-2px);
     }
 
+    .claim-btn {
+      flex: 1;
+      padding: 12px;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+    }
+    
+    .claim-btn:hover {
+      background: linear-gradient(135deg, #27ae60, #229954);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+    }
+
     /* Leaderboard */
     table {
       width: 100%;
@@ -257,61 +277,6 @@
     
     .center {
       text-align: center;
-    }
-
-    /* Modal */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    
-    .modal-content {
-      background: rgba(255, 255, 255, 0.95);
-      color: #000;
-      padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      max-width: 300px;
-      width: 90%;
-      pointer-events: auto;
-    }
-    
-    .modal h3 {
-      margin-bottom: 15px;
-      color: #333;
-    }
-    
-    .modal button {
-      width: 100%;
-      padding: 12px;
-      background: #2ecc71;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      pointer-events: auto;
-    }
-
-    .close-modal-btn {
-      width: 100%;
-      padding: 12px;
-      background: #e74c3c;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      pointer-events: auto;
-      margin-top: 10px;
     }
 
     /* Toast */
@@ -342,6 +307,24 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translate(-50%, 10px); }
       to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .start-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .start-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
     }
   </style>
 </head>
@@ -375,16 +358,9 @@
       <div id="message"></div>
       
       <div class="btn-control">
-        <button class="restart-btn" id="restartBtn">🔄 Restart Game</button>
-      </div>
-    </div>
-
-    <!-- Claim Modal -->
-    <div id="claimModal" class="modal hidden">
-      <div class="modal-content">
-        <h3>🎉 You Won! Claim 5k BONK</h3>
-        <button id="claimGameBtn">Claim Reward</button>
-        <button id="closeModalBtn" class="close-modal-btn">Close</button>
+        <button class="start-btn" id="startBtn">Start Game</button>
+        <button class="restart-btn hidden" id="restartBtn">🔄 Restart Game</button>
+        <button class="claim-btn hidden" id="claimBtn">🎉 Claim 5k BONK</button>
       </div>
     </div>
   </section>
@@ -475,30 +451,35 @@
       transport: http()
     });
 
-    let userAddress = null;
+    // Connect once
+    await connect(config, { connector: farcasterMiniApp() }).catch(() => {
+      console.log('Connect caught, continuing...');
+    });
 
-    const connectBtn = document.createElement('button');
-    connectBtn.classList.add('restart-btn');
-    connectBtn.id = 'connectBtn';
-    connectBtn.innerText = 'Connect Wallet';
-    document.querySelector('.btn-control').appendChild(connectBtn);
-
-    connectBtn.onclick = async () => {
-      try {
-        await connect(config, { connector: farcasterMiniApp() });
-        userAddress = getAccount(config)?.address;
-        if (userAddress) {
-          showToast('✅ Wallet connected!');
-          connectBtn.classList.add('hidden');
-          initGame();
-        } else {
-          showToast('❌ Connection failed. Try again.');
-        }
-      } catch (e) {
-        console.error('Connection error:', e);
-        showToast('❌ Connection failed. Try again.');
+    // Poll for userAddress
+    let userAddress = getAccount(config)?.address;
+    let pollInterval;
+    const pollTimeout = setTimeout(() => {
+      if (pollInterval) clearInterval(pollInterval);
+      console.log('Address poll timeout');
+      if (!userAddress) {
+        showToast('❌ Wallet connection timed out. Launch from Farcaster app.');
+        message.innerText = "Wallet connection failed. Please reload.";
       }
-    };
+    }, 10000); // 10s timeout
+
+    pollInterval = setInterval(() => {
+      const newAddress = getAccount(config)?.address;
+      if (newAddress && !userAddress) {
+        userAddress = newAddress;
+        console.log('User address ready:', userAddress);
+        clearInterval(pollInterval);
+        clearTimeout(pollTimeout);
+        // Show start button once connected
+        startBtn.classList.remove('hidden');
+        message.innerText = "Ready to play!";
+      }
+    }, 500);
 
     const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
 
@@ -508,10 +489,9 @@
     const tabPlayBtn = document.getElementById('tabPlayBtn');
     const tabLbBtn = document.getElementById('tabLbBtn');
     const toastEl = document.getElementById('toast');
-    const claimModal = document.getElementById('claimModal');
-    const claimGameBtn = document.getElementById('claimGameBtn');
+    const claimBtn = document.getElementById('claimBtn');
     const restartBtn = document.getElementById('restartBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
+    const startBtn = document.getElementById('startBtn');
 
     tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
@@ -534,33 +514,29 @@
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
-    // Add close modal on outside click
-    claimModal.onclick = (e) => {
-      if (e.target === claimModal) claimModal.classList.add('hidden');
-    };
-
-    closeModalBtn.onclick = () => {
-      claimModal.classList.add('hidden');
-    };
-
-    claimGameBtn.onclick = async () => {
+    claimBtn.onclick = async () => {
       if (!currentGameId) {
         showToast('No active game to claim. Play and win first!');
-        claimModal.classList.add('hidden');
         return;
       }
       try {
+        claimBtn.disabled = true;
+        claimBtn.innerText = 'Claiming...';
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
-        showToast(`🎉 Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}">view</a>`, 4500);
-        claimModal.classList.add('hidden');
+        showToast(`🎉 Claimed 5k BONK! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        claimBtn.classList.add('hidden');
+        claimBtn.disabled = false;
+        claimBtn.innerText = '🎉 Claim 5k BONK';
       } catch (e) {
         console.error('Claim error:', e);
         showToast('❌ Claim failed. Ensure you won (score >=5) and try again.');
+        claimBtn.disabled = false;
+        claimBtn.innerText = '🎉 Claim 5k BONK';
       }
     };
 
@@ -648,7 +624,7 @@
     }
 
     async function initGame() {
-      message.innerText = "Connecting & Starting Game...";
+      message.innerText = "Starting Game...";
       updateButtons(false);
       try {
         const { hash } = await writeContract(config, {
@@ -657,23 +633,29 @@
           functionName: 'startGame',
           args: []
         });
+        console.log('Start tx hash:', hash);
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         if (log) {
-          currentGameId = Number(log.topics[2]);
+          currentGameId = Number(BigInt(log.topics[2]));
+          console.log('Game ID:', currentGameId);
           message.innerText = "";
+          startBtn.classList.add('hidden');
+          restartBtn.classList.remove('hidden');
+          claimBtn.classList.add('hidden');
           nextRound();
         } else {
-          throw new Error("No game started event");
+          throw new Error("No GameStarted event");
         }
       } catch (e) {
-        console.error(e);
+        console.error('Init error:', e);
         if (e.message.includes('transferFrom')) {
-          showToast('💡 Please approve the contract to spend your BONK tokens first.');
+          showToast('💡 Approve BONK spending in wallet first.');
         } else {
-          showToast('❌ Failed to start game. Try again.');
+          showToast(`❌ Start failed: ${e.shortMessage || e.message}`);
         }
-        message.innerText = "Failed to start. Click restart.";
+        message.innerText = "Failed to start. Try again.";
+        startBtn.textContent = "Try Starting Again";
       }
     }
 
@@ -712,14 +694,18 @@
                 functionName: 'endGame',
                 args: [BigInt(currentGameId), BigInt(round)]
               });
+              console.log('End game tx sent for round:', round);
             }
-            if (round >= 5) {
-              showClaimPopup();
+            if (round >= 5 && currentGameId) {
+              claimBtn.classList.remove('hidden');
+              showToast(`🎉 You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
+            } else if (round < 5) {
+              showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
             }
           } catch (e) {
-            console.error('End game failed:', e);
+            console.error('End game error:', e);
+            showToast('Game saved locally, but blockchain update failed.');
           }
-          restartGame();
         }, 2500);
         return;
       }
@@ -749,17 +735,14 @@
       message.innerText = "";
       roundDisplay.innerText = "1";
       updateButtons(false);
-      setTimeout(initGame, 500);
-    }
-
-    function showClaimPopup() {
-      claimModal.classList.remove('hidden');
+      restartBtn.classList.add('hidden');
+      claimBtn.classList.add('hidden');
+      startBtn.classList.remove('hidden');
+      startBtn.textContent = "Start Game";
     }
 
     restartBtn.onclick = restartGame;
-
-    // Initial start
-    message.innerText = "Connect wallet to play.";
+    startBtn.onclick = initGame;
 
     /* ---------- Leaderboard ---------- */
     async function loadLeaderboard() {
@@ -787,6 +770,12 @@
         tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
       }
     }
+
+    // Initial setup - ensure everything is hidden properly
+    claimBtn.classList.add('hidden');
+    restartBtn.classList.add('hidden');
+    startBtn.classList.add('hidden'); // Hide until wallet connected
+    message.innerText = "Connecting wallet...";
   </script>
 </body>
 </html>
