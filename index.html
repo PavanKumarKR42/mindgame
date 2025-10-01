@@ -281,6 +281,7 @@
       text-align: center;
       max-width: 300px;
       width: 90%;
+      pointer-events: auto;
     }
     
     .modal h3 {
@@ -297,6 +298,7 @@
       border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
+      pointer-events: auto;
     }
 
     /* Toast */
@@ -327,6 +329,24 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translate(-50%, 10px); }
       to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .start-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .start-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
     }
   </style>
 </head>
@@ -360,7 +380,8 @@
       <div id="message"></div>
       
       <div class="btn-control">
-        <button class="restart-btn" id="restartBtn">🔄 Restart Game</button>
+        <button class="start-btn" id="startBtn">Start Game</button>
+        <button class="restart-btn hidden" id="restartBtn">🔄 Restart Game</button>
       </div>
     </div>
 
@@ -459,12 +480,12 @@
       transport: http()
     });
 
-    // Connect once, like reference
+    // Connect once
     await connect(config, { connector: farcasterMiniApp() }).catch(() => {
       console.log('Connect caught, continuing...');
     });
 
-    // Poll for userAddress like reference, but with timeout
+    // Poll for userAddress
     let userAddress = getAccount(config)?.address;
     let pollInterval;
     const pollTimeout = setTimeout(() => {
@@ -472,6 +493,7 @@
       console.log('Address poll timeout');
       if (!userAddress) {
         showToast('❌ Wallet connection timed out. Launch from Farcaster app.');
+        message.innerText = "Wallet connection failed. Please reload.";
       }
     }, 10000); // 10s timeout
 
@@ -482,10 +504,9 @@
         console.log('User address ready:', userAddress);
         clearInterval(pollInterval);
         clearTimeout(pollTimeout);
-        // Trigger init if ready
-        if (message.innerText.includes('Waiting')) {
-          initGame();
-        }
+        // Show start button once connected
+        startBtn.classList.remove('hidden');
+        message.innerText = "Ready to play!";
       }
     }, 500);
 
@@ -500,6 +521,7 @@
     const claimModal = document.getElementById('claimModal');
     const claimGameBtn = document.getElementById('claimGameBtn');
     const restartBtn = document.getElementById('restartBtn');
+    const startBtn = document.getElementById('startBtn');
 
     tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
@@ -632,12 +654,6 @@
     }
 
     async function initGame() {
-      if (!userAddress) {
-        showToast('⚠️ Waiting for wallet connection...');
-        message.innerText = "Connecting wallet...";
-        return;
-      }
-      
       message.innerText = "Starting Game...";
       updateButtons(false);
       try {
@@ -654,6 +670,8 @@
           currentGameId = Number(BigInt(log.topics[2]));
           console.log('Game ID:', currentGameId);
           message.innerText = "";
+          startBtn.classList.add('hidden');
+          restartBtn.classList.remove('hidden');
           nextRound();
         } else {
           throw new Error("No GameStarted event");
@@ -662,20 +680,16 @@
         console.error('Init error:', e);
         if (e.message.includes('transferFrom')) {
           showToast('💡 Approve BONK spending in wallet first.');
-        } else if (e.message.includes('ConnectorNotConnectedError')) {
-          showToast('🔄 Reconnecting wallet...');
         } else {
           showToast(`❌ Start failed: ${e.shortMessage || e.message}`);
         }
-        message.innerText = "Failed to start. Click restart.";
+        message.innerText = "Failed to start. Try again.";
+        startBtn.textContent = "Try Starting Again";
       }
     }
 
     function handleUserInput(colorName, btn) {
-      if (displaying || !buttonsEnabled || !userAddress) {
-        showToast('⚠️ Wallet not connected. Launch from Farcaster.');
-        return;
-      }
+      if (displaying || !buttonsEnabled) return;
       
       btn.classList.add('pressed');
       setTimeout(() => btn.classList.remove('pressed'), 300);
@@ -750,7 +764,9 @@
       message.innerText = "";
       roundDisplay.innerText = "1";
       updateButtons(false);
-      setTimeout(initGame, 500);
+      restartBtn.classList.add('hidden');
+      startBtn.classList.remove('hidden');
+      startBtn.textContent = "Start Game";
     }
 
     function showClaimPopup() {
@@ -759,18 +775,12 @@
     }
 
     restartBtn.onclick = restartGame;
-
-    // Initial start
-    setTimeout(initGame, 1500);
+    startBtn.onclick = initGame;
 
     /* ---------- Leaderboard ---------- */
     async function loadLeaderboard() {
       const tbody = document.getElementById('leaderboardBody');
       tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
-      if (!userAddress) {
-        tbody.innerHTML = '<tr><td colspan="3" class="center">Connect wallet to load.</td></tr>';
-        return;
-      }
       try {
         const [players, scores] = await readContract(config, {
           address: CONTRACT_ADDRESS,
@@ -793,6 +803,11 @@
         tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
       }
     }
+
+    // Initial setup
+    message.innerText = "Connecting wallet...";
+    restartBtn.classList.add('hidden');
+    claimModal.classList.add('hidden');
   </script>
 </body>
 </html>
