@@ -438,24 +438,25 @@
       displaySequence();
     }
 
-    /*       The corrected initGame function:
-      This version adds a crucial check for log.topics.length and log.topics[2]
-      before converting to BigInt, preventing the "cannot convert undefined to a BigInt" error. 
-    */
     async function initGame() {
       if (!userAddress) {
         showToast("Please connect your wallet first!");
         return;
       }
 
-     // STEP 1: If it's a paid game, check and approve BONK spending first.
+     // STEP 1: Check if this is a paid game (3rd play onwards) and if approval/BONK is needed.
      if (currentDailyPlays >= 2) {
          if (!await checkAndApproveBonkSpending()) {
            return; // Approval failed or user rejected
          }
+     } else if (currentDailyPlays === 1) {
+        // Specific message for the 2nd free game
+        message.innerText = `Starting final Free Game... Please confirm gas transaction.`;
      } else {
        message.innerText = `Starting Free Game... Please confirm gas transaction.`;
      }
+      
+      // STEP 2: Start Game transaction
       
       updateButtons(false);
       startBtn.disabled = true;
@@ -473,11 +474,9 @@
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         
-       // 🚀 FIX: Ensure log is found AND has at least 3 topics (0, 1, 2)
+       // 🚀 FIX: Robustly check for the log and the gameId topic (topics[2])
        if (log && log.topics.length > 2) {
-          // Extract gameId from the third topic (index 2)
-        currentGameId = Number(BigInt(log.topics[2])); 
-        
+        currentGameId = Number(BigInt(log.topics[2]));
         message.innerText = "Game started successfully! Watch for the sequence.";
         startBtn.classList.add('hidden');
         restartBtn.classList.remove('hidden');
@@ -488,19 +487,25 @@
          currentDailyPlays++;
          updateStartButtonText(currentDailyPlays);
         } else {
-          // Log not found, or topics are missing the gameId
-          throw new Error("Contract event not found or malformed log data.");
+          // The transaction confirmed, but the expected event was missing (likely reverted silently)
+          throw new Error("Transaction successfully sent but contract event log was not found. The transaction may have reverted on-chain (check etherscan).");
         }
 
       } catch (e) {
         console.error('Init error:', e);
-        // Handle common transaction errors
-        if (currentDailyPlays >= 2 && e.message && (e.message.includes('transferFrom failed') || e.message.includes('insufficient funds'))) {
-        showToast(`Start Failed: Check your BONK balance or allowance!`);
-        message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
-        } else if (e.message && e.message.includes('User rejected')) {
-            showToast(`Start Failed: User rejected the transaction.`);
-            message.innerText = "Transaction rejected by wallet.";
+        
+        // Handle common transaction errors and provide clearer feedback
+        if (e.message && e.message.includes('User rejected')) {
+        showToast(`Start Failed: User rejected the transaction.`);
+        message.innerText = "Transaction rejected by wallet.";
+        } else if (currentDailyPlays < 2 && e.message && (e.message.includes('revert') || e.message.includes('gas'))) {
+            // Free game failed. Could be contract logic or lack of gas (ETH).
+            showToast(`Start Failed: Insufficient gas (ETH) or contract limits reached.`);
+            message.innerText = `Free game failed. Ensure you have enough gas (ETH) for the transaction.`;
+        } else if (currentDailyPlays >= 2 && e.message && (e.message.includes('transferFrom failed') || e.message.includes('insufficient funds') || e.message.includes('revert'))) {
+            // Paid game failed. User must have run out of BONK or not approved enough.
+            showToast(`Start Failed: Check your BONK balance or allowance!`);
+            message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
         } else {
         showToast(`Start Failed: ${e.shortMessage || e.message}`);
         message.innerText = "Transaction failed. Please check your wallet and try again.";
@@ -509,6 +514,7 @@
        startBtn.disabled = false;
        startBtn.classList.remove('hidden');
        restartBtn.classList.add('hidden');
+       updateStartButtonText(currentDailyPlays);
       }
     }
 
@@ -629,9 +635,6 @@
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
       }
-
-
-
     }
 
     // Initial setup
