@@ -129,14 +129,7 @@
     const CONTRACT_ADDRESS = '0x1B8e5b48D9b29e42abD3b694f7Be7A2f91867997';
 
     const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
-     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
+
     const config = createConfig({
       chains: [arbitrum],
       transports: { [arbitrum.id]: http() }
@@ -231,7 +224,14 @@
     }
 
     /* ---------- Initialize SDK and Wallet ---------- */
-   
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
     connectBtn.onclick = async () => {
       try {
@@ -276,32 +276,19 @@
       try {
         claimBtn.disabled = true;
         claimBtn.innerText = 'Claiming...';
-        message.innerText = 'Processing claim transaction...';
-        
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
-        
-        showToast(`Claim TX sent! Waiting for confirmation...`);
-        message.innerText = 'Waiting for transaction confirmation...';
-        
-        await publicClient.waitForTransactionReceipt({ hash });
-        
-        showToast(`🎉 5k BONK claimed! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
-        message.innerText = '✅ Reward claimed successfully!';
-        
+        showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
-        
       } catch (e) {
         console.error('Claim error:', e);
-        let errMsg = e?.shortMessage || e?.message || "Unknown error";
-        showToast(`❌ Claim failed: ${errMsg}`, 5000);
-        message.innerText = `Claim failed: ${errMsg}`;
+        showToast('Claim failed. Ensure you won (score >=5) and try again.');
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
       }
@@ -544,59 +531,6 @@
         updateButtons(false);
         colorDisplay.style.backgroundColor = "#2ecc71";
         colorDisplay.innerText = "Correct!";
-        
-        // Check if player reached max score (7)
-        if (round >= 7) {
-          colorDisplay.innerText = "🎉 PERFECT SCORE!";
-          message.innerText = `🏆 You achieved the maximum score of 7!`;
-          
-          setTimeout(async () => {
-            colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-            colorDisplay.innerText = "Get Ready...";
-            
-            try {
-              if (currentGameId) {
-                showToast("Saving your winning score...");
-                message.innerText = `Submitting score 7 for game ${currentGameId}...`;
-                
-                const txResponse = await writeContract(config, {
-                  address: CONTRACT_ADDRESS,
-                  abi: ABI,
-                  functionName: 'endGame',
-                  args: [BigInt(currentGameId), BigInt(7)]
-                });
-                
-                const endHash = txResponse?.hash || txResponse;
-                if (endHash) {
-                  await publicClient.waitForTransactionReceipt({ hash: endHash });
-                  showToast("Perfect score submitted!");
-                  claimBtn.classList.remove('hidden');
-                  message.innerText = "🎉 Claim your reward!";
-                }
-              }
-            } catch (e) {
-              console.error('EndGame error:', e);
-              let errMsg = e?.shortMessage || e?.message || "Unknown error";
-              showToast(`⚠️ Failed to save score: ${errMsg}`);
-              message.innerText = `Could not save on-chain: ${errMsg}`;
-            }
-          }, 2500);
-          
-          // Reset game state but keep currentGameId for claiming
-          sequence = [];
-          userSequence = [];
-          displaying = false;
-          updateButtons(false);
-          
-          if (round > bestScore) {
-            bestScore = round;
-            bestScoreDisplay.innerText = bestScore;
-            localStorage.setItem('bestScore', bestScore);
-          }
-          
-          return;
-        }
-        
         round++;
         message.innerText = `✅ Great! Round ${round} incoming...`;
 
