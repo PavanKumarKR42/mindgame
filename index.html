@@ -465,17 +465,34 @@ async function initGame() {
   updateButtons(false);
   startBtn.disabled = true;
 
-  try {
-    // 1️⃣ Send TX
-    const { hash } = await writeContract(config, {
-      address: CONTRACT_ADDRESS,
-      abi: ABI,
-      functionName: 'startGame',
-      args: []
-    });
+let hash;
+try {
+  const tx = await writeContract(config, {
+    address: CONTRACT_ADDRESS,
+    abi: ABI,
+    functionName: 'startGame',
+    args: [],
+  });
 
-    showToast(`Game Start TX sent! Waiting for confirmation...`);
-    message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
+  // viem/wagmi may return tx.hash or full object
+  hash = tx?.hash || tx;
+} catch (err) {
+  showToast("❌ Failed to send transaction. Check your wallet.");
+  message.innerText = `🚨 TX send failed: ${err.shortMessage || err.message}`;
+  startBtn.disabled = false;
+  return;
+}
+
+if (!hash) {
+  showToast("❌ Transaction not sent (no hash returned)");
+  message.innerText = "Transaction failed to start — please retry.";
+  startBtn.disabled = false;
+  return;
+}
+
+showToast("📦 Transaction sent! Waiting for confirmation...");
+message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
+
 
     // 2️⃣ Wait for receipt
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
