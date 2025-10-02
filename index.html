@@ -531,6 +531,59 @@
         updateButtons(false);
         colorDisplay.style.backgroundColor = "#2ecc71";
         colorDisplay.innerText = "Correct!";
+        
+        // Check if player reached max score (7)
+        if (round >= 7) {
+          colorDisplay.innerText = "🎉 PERFECT SCORE!";
+          message.innerText = `🏆 You achieved the maximum score of 7!`;
+          
+          setTimeout(async () => {
+            colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+            colorDisplay.innerText = "Get Ready...";
+            
+            try {
+              if (currentGameId) {
+                showToast("Saving your winning score...");
+                message.innerText = `Submitting score 7 for game ${currentGameId}...`;
+                
+                const txResponse = await writeContract(config, {
+                  address: CONTRACT_ADDRESS,
+                  abi: ABI,
+                  functionName: 'endGame',
+                  args: [BigInt(currentGameId), BigInt(7)]
+                });
+                
+                const endHash = txResponse?.hash || txResponse;
+                if (endHash) {
+                  await publicClient.waitForTransactionReceipt({ hash: endHash });
+                  showToast("Perfect score submitted!");
+                  claimBtn.classList.remove('hidden');
+                  message.innerText = "🎉 Claim your reward!";
+                }
+              }
+            } catch (e) {
+              console.error('EndGame error:', e);
+              let errMsg = e?.shortMessage || e?.message || "Unknown error";
+              showToast(`⚠️ Failed to save score: ${errMsg}`);
+              message.innerText = `Could not save on-chain: ${errMsg}`;
+            }
+          }, 2500);
+          
+          // Reset game state but keep currentGameId for claiming
+          sequence = [];
+          userSequence = [];
+          displaying = false;
+          updateButtons(false);
+          
+          if (round > bestScore) {
+            bestScore = round;
+            bestScoreDisplay.innerText = bestScore;
+            localStorage.setItem('bestScore', bestScore);
+          }
+          
+          return;
+        }
+        
         round++;
         message.innerText = `✅ Great! Round ${round} incoming...`;
 
