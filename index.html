@@ -302,7 +302,7 @@
     }
 
     /* ---------- Initialize SDK and Wallet ---------- */
-    await sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       console.log("Farcaster MiniApp ready");
       message.innerText = "Ready to connect!";
     }).catch(err => {
@@ -445,7 +445,6 @@
       displaySequence();
     }
 
-import { decodeEventLog } from 'https://esm.sh/viem';
 
 async function initGame() {
   if (!userAddress) {
