@@ -302,7 +302,7 @@
     }
 
     /* ---------- Initialize SDK and Wallet ---------- */
-    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+    await sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       console.log("Farcaster MiniApp ready");
       message.innerText = "Ready to connect!";
     }).catch(err => {
