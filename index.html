@@ -461,38 +461,28 @@ async function initGame() {
   } else {
     message.innerText = `Starting Free Game... Please confirm gas transaction.`;
   }
-  
+
   updateButtons(false);
   startBtn.disabled = true;
 
-let hash;
-try {
-  const tx = await writeContract(config, {
-    address: CONTRACT_ADDRESS,
-    abi: ABI,
-    functionName: 'startGame',
-    args: [],
-  });
+  let hash;
+  try {
+    // 1️⃣ Send TX
+    const txResponse = await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: ABI,
+      functionName: 'startGame',
+      args: [],
+    });
 
-  // viem/wagmi may return tx.hash or full object
-  hash = tx?.hash || tx;
-} catch (err) {
-  showToast("❌ Failed to send transaction. Check your wallet.");
-  message.innerText = `🚨 TX send failed: ${err.shortMessage || err.message}`;
-  startBtn.disabled = false;
-  return;
-}
+    // Wagmi / Viem may return hash directly or a tx object
+    hash = txResponse?.hash || txResponse;
+    if (!hash) {
+      throw new Error("Transaction not sent (hash undefined)");
+    }
 
-if (!hash) {
-  showToast("❌ Transaction not sent (no hash returned)");
-  message.innerText = "Transaction failed to start — please retry.";
-  startBtn.disabled = false;
-  return;
-}
-
-showToast("📦 Transaction sent! Waiting for confirmation...");
-message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
-
+    showToast(`📦 Transaction sent! Waiting for confirmation...`);
+    message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
 
     // 2️⃣ Wait for receipt
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -509,7 +499,7 @@ message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmat
           topics: log.topics,
         });
 
-        // Display progress visibly (since no console in Farcaster)
+        // Display progress visibly in Farcaster
         message.innerText += `\n🧩 Event: ${decoded.eventName}`;
 
         if (decoded.eventName === "GameStarted") {
@@ -534,7 +524,7 @@ message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmat
     message.innerText = `✅ Game started!\nGame ID: ${currentGameId}\nWatch for the sequence...`;
     showToast(`Game started! Game ID: ${currentGameId}`);
 
-    // 5️⃣ Continue your game logic
+    // 5️⃣ Update UI
     startBtn.classList.add('hidden');
     restartBtn.classList.remove('hidden');
     claimBtn.classList.add('hidden');
@@ -544,10 +534,15 @@ message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmat
     nextRound();
 
   } catch (e) {
-    console.error('Init error:', e); // This is safe even in Farcaster
-    handleInitGameError(e);
+    console.error('Init error:', e);
+    let errMsg = e?.shortMessage || e?.message || "Unknown error";
+    showToast(`❌ Start Failed: ${errMsg}`);
+    message.innerText = `Transaction failed: ${errMsg}`;
+    startBtn.disabled = false;
+    updateStartButtonText(currentDailyPlays);
   }
 }
+
 
 async function handleUserInput(colorName, btn) {
   if (displaying || !buttonsEnabled) return;
