@@ -123,8 +123,6 @@
     import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
-
-    
     import { decodeEventLog } from 'https://esm.sh/viem';
 
     /* ---------- Config ---------- */
@@ -489,25 +487,40 @@
           try {
             if (currentGameId) {
               showToast("Saving your score on-chain...");
-              await writeContract(config, {
+              message.innerText = `Submitting score ${round} for game ${currentGameId}...`;
+              
+              const txResponse = await writeContract(config, {
                 address: CONTRACT_ADDRESS,
                 abi: ABI,
                 functionName: 'endGame',
                 args: [BigInt(currentGameId), BigInt(round)]
               });
-              showToast("Score submitted successfully!");
+              
+              const endHash = txResponse?.hash || txResponse;
+              if (endHash) {
+                showToast(`Score TX sent! Waiting for confirmation...`);
+                message.innerText = `Confirming score submission...`;
+                
+                await publicClient.waitForTransactionReceipt({ hash: endHash });
+                showToast("Score submitted successfully!");
+                message.innerText = "";
+              }
             }
 
             if (round >= 5 && currentGameId) {
               claimBtn.classList.remove('hidden');
               showToast(`🎉 You won! Click "Claim 5k BONK" to claim your reward!`, 4000);
+              message.innerText = "🎉 You qualified for a reward!";
             } else if (round < 5) {
               showToast(`Almost! You reached round ${round}. Try 5+ for a reward.`);
+              message.innerText = `Score ${round} saved. Try to reach 5+!`;
             }
 
           } catch (e) {
-            showToast('⚠️ Game saved locally, blockchain update failed.');
-            message.innerText = "Game over — could not save on-chain.";
+            console.error('EndGame error:', e);
+            let errMsg = e?.shortMessage || e?.message || "Unknown error";
+            showToast(`⚠️ Failed to save score: ${errMsg}`);
+            message.innerText = `Could not save on-chain: ${errMsg}`;
           }
         }, 2500);
 
