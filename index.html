@@ -127,6 +127,7 @@
 
     /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0x1B8e5b48D9b29e42abD3b694f7Be7A2f91867997';
+    const MAX_SCORE = 7; // Must match contract
 
     const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
@@ -161,6 +162,7 @@
     let currentGameId = null;
     let currentDailyPlays = 0;
     let maxDailyGames = 2;
+    let finalScore = 0; // Track the actual score submitted
 
     tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
@@ -273,6 +275,13 @@
         showToast('No active game to claim. Play and win first!');
         return;
       }
+      
+      // Check if score was exactly 7
+      if (finalScore !== MAX_SCORE) {
+        showToast(`Score must be exactly ${MAX_SCORE} to claim. You scored ${finalScore}.`);
+        return;
+      }
+      
       try {
         claimBtn.disabled = true;
         claimBtn.innerText = 'Claiming...';
@@ -283,12 +292,18 @@
           args: [BigInt(currentGameId)]
         });
         showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        
+        // Wait for confirmation
+        await publicClient.waitForTransactionReceipt({ hash });
+        showToast(`🎉 Reward claimed successfully!`, 4000);
+        
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
       } catch (e) {
         console.error('Claim error:', e);
-        showToast('Claim failed. Ensure you won (score >=5) and try again.');
+        let errMsg = e?.shortMessage || e?.message || 'Unknown error';
+        showToast(`Claim failed: ${errMsg}. Ensure score = ${MAX_SCORE} and not already claimed.`);
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
       }
@@ -440,6 +455,7 @@
         startBtn.classList.add('hidden');
         restartBtn.classList.remove('hidden');
         claimBtn.classList.add('hidden');
+        finalScore = 0; // Reset final score
 
         currentDailyPlays++;
         updateStartButtonText(currentDailyPlays);
@@ -465,81 +481,101 @@
       const currentIndex = userSequence.length - 1;
       
       if (userSequence[currentIndex] !== sequence[currentIndex]) {
-        updateButtons(false);
-        colorDisplay.style.backgroundColor = "#e74c3c";
-        colorDisplay.innerText = "Wrong!";
-        message.innerText = `💀 Game Over! You reached round ${round}`;
-
-        if (round > bestScore) {
-          bestScore = round;
-          bestScoreDisplay.innerText = bestScore;
-          localStorage.setItem('bestScore', bestScore);
-          message.innerText += ` 🎉 New Best: ${round}!`;
-        }
-
-        sequence = [];
-
-        setTimeout(async () => {
-          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-          colorDisplay.innerText = "Get Ready...";
-          message.innerText = "";
-
-          try {
-            if (currentGameId) {
-              showToast("Saving your score on-chain...");
-              message.innerText = `Submitting score ${round} for game ${currentGameId}...`;
-              
-              const txResponse = await writeContract(config, {
-                address: CONTRACT_ADDRESS,
-                abi: ABI,
-                functionName: 'endGame',
-                args: [BigInt(currentGameId), BigInt(round)]
-              });
-              
-              const endHash = txResponse?.hash || txResponse;
-              if (endHash) {
-                showToast(`Score TX sent! Waiting for confirmation...`);
-                message.innerText = `Confirming score submission...`;
-                
-                await publicClient.waitForTransactionReceipt({ hash: endHash });
-                showToast("Score submitted successfully!");
-                message.innerText = "";
-              }
-            }
-
-            if (round >= 5 && currentGameId) {
-              claimBtn.classList.remove('hidden');
-              showToast(`🎉 You won! Click "Claim 5k BONK" to claim your reward!`, 4000);
-              message.innerText = "🎉 You qualified for a reward!";
-            } else if (round < 5) {
-              showToast(`Almost! You reached round ${round}. Try 5+ for a reward.`);
-              message.innerText = `Score ${round} saved. Try to reach 5+!`;
-            }
-
-          } catch (e) {
-            console.error('EndGame error:', e);
-            let errMsg = e?.shortMessage || e?.message || "Unknown error";
-            showToast(`⚠️ Failed to save score: ${errMsg}`);
-            message.innerText = `Could not save on-chain: ${errMsg}`;
-          }
-        }, 2500);
-
+        // Wrong answer - game over
+        await handleGameEnd(false);
         return;
       }
 
       if (userSequence.length === sequence.length) {
-        updateButtons(false);
-        colorDisplay.style.backgroundColor = "#2ecc71";
-        colorDisplay.innerText = "Correct!";
-        round++;
-        message.innerText = `✅ Great! Round ${round} incoming...`;
+        // Correct sequence completed
+        if (round === MAX_SCORE) {
+          // Max score reached - win!
+          await handleGameEnd(true);
+        } else {
+          // Continue to next round
+          updateButtons(false);
+          colorDisplay.style.backgroundColor = "#2ecc71";
+          colorDisplay.innerText = "Correct!";
+          round++;
+          message.innerText = `✅ Great! Round ${round} incoming...`;
 
-        setTimeout(() => {
-          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-          colorDisplay.innerText = "";
-          nextRound();
-        }, 1200);
+          setTimeout(() => {
+            colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+            colorDisplay.innerText = "";
+            nextRound();
+          }, 1200);
+        }
       }
+    }
+
+    async function handleGameEnd(isWin) {
+      updateButtons(false);
+      
+      if (isWin) {
+        colorDisplay.style.backgroundColor = "#f39c12";
+        colorDisplay.innerText = "🎉 PERFECT!";
+        message.innerText = `🎉 Amazing! You reached max score ${MAX_SCORE}!`;
+      } else {
+        colorDisplay.style.backgroundColor = "#e74c3c";
+        colorDisplay.innerText = "Wrong!";
+        message.innerText = `💀 Game Over! You reached round ${round}`;
+      }
+
+      if (round > bestScore) {
+        bestScore = round;
+        bestScoreDisplay.innerText = bestScore;
+        localStorage.setItem('bestScore', bestScore);
+        message.innerText += ` 🎉 New Best: ${round}!`;
+      }
+
+      finalScore = round; // Store the actual score
+      sequence = [];
+
+      setTimeout(async () => {
+        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        colorDisplay.innerText = "Get Ready...";
+        message.innerText = "";
+
+        try {
+          if (currentGameId) {
+            showToast("Saving your score on-chain...");
+            message.innerText = `Submitting score ${finalScore} for game ${currentGameId}...`;
+            
+            const txResponse = await writeContract(config, {
+              address: CONTRACT_ADDRESS,
+              abi: ABI,
+              functionName: 'endGame',
+              args: [BigInt(currentGameId), BigInt(finalScore)]
+            });
+            
+            const endHash = txResponse?.hash || txResponse;
+            if (endHash) {
+              showToast(`Score TX sent! Waiting for confirmation...`);
+              message.innerText = `Confirming score submission...`;
+              
+              await publicClient.waitForTransactionReceipt({ hash: endHash });
+              showToast("Score submitted successfully!");
+              message.innerText = "";
+            }
+          }
+
+          // Only show claim button if score is EXACTLY MAX_SCORE (7)
+          if (finalScore === MAX_SCORE && currentGameId) {
+            claimBtn.classList.remove('hidden');
+            showToast(`🎉 Perfect score ${MAX_SCORE}! Click "Claim 5k BONK" to get your reward!`, 4000);
+            message.innerText = `🎉 You scored ${MAX_SCORE}/7! Claim your reward!`;
+          } else if (finalScore < MAX_SCORE) {
+            showToast(`Good try! You scored ${finalScore}. Reach ${MAX_SCORE} for a reward.`);
+            message.innerText = `Score ${finalScore} saved. Try to reach ${MAX_SCORE}!`;
+          }
+
+        } catch (e) {
+          console.error('EndGame error:', e);
+          let errMsg = e?.shortMessage || e?.message || "Unknown error";
+          showToast(`⚠️ Failed to save score: ${errMsg}`);
+          message.innerText = `Could not save on-chain: ${errMsg}`;
+        }
+      }, 2500);
     }
 
     function restartGame() {
@@ -548,6 +584,7 @@
       round = 1;
       displaying = false;
       currentGameId = null;
+      finalScore = 0;
       colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
       colorDisplay.innerText = "Get Ready...";
       message.innerText = "Ready for your next game!";
