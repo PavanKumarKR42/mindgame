@@ -21,7 +21,6 @@
   }' />
 
   <style>
-    /* (CSS remains the same) */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -75,7 +74,7 @@
     <button id="tabLbBtn">Leaderboard</button>
   </div>
 
-    <section id="playTab">
+  <section id="playTab">
     <div class="game-container">
       <h1>Mind Color Sequence</h1>
       
@@ -106,7 +105,7 @@
     </div>
   </section>
 
-    <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
+  <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
     <h3>Top 10 High Scores</h3>
     <table>
       <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
@@ -114,7 +113,7 @@
     </table>
   </section>
 
-    <div id="toast" class="toast"></div>
+  <div id="toast" class="toast"></div>
 
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
@@ -125,18 +124,14 @@
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
 
-    /* ---------- Config (Updated CA and Decimals) ---------- */
-    // !! CRITICAL UPDATE: NEW CONTRACT ADDRESS !!
+    /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0xAF09Bc1f0Be0C126EFc07A0e7917F86B8df712E3';
-    // BONK CA on Arbitrum (from initial search/context)
     const BONK_ADDRESS = '0x09199d9A5F4448D0848e4395D065e1ad9c4a1F74'; 
 
-    // Constants from the contract (200000 = 2000 * 10^2)
     const ENTRY_FEE_RAW = 200000n; 
     const BONK_DISPLAY_FEE = '2,000'; 
     const BONK_DECIMALS = 2n;
 
-    // Contract ABI (Provided in the prompt, simplified for client use)
     const ABI = [
       {"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
       {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},
@@ -160,7 +155,6 @@
       {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}
     ];
 
-    // Standard ERC20 ABI for allowance/approve
     const ERC20_ABI = [
       {
         "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, {"internalType": "uint256", "name": "amount", "type": "uint256"}],
@@ -188,7 +182,6 @@
       transport: http()
     });
 
-    // Topic for GameStarted(address indexed player, uint256 indexed gameId)
     const gameStartedTopic = '0x7b159dd5dab0d9e0d3cfbb7802cde7addd945c2e1704b0bb9b85c49b4e029f98';
 
     /* ---------- UI Refs ---------- */
@@ -233,87 +226,79 @@
       setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
-   /* Helper function to update the Start Button's text */
-   function updateStartButtonText(dailyPlays) {
-       if (dailyPlays < 2) {
-           startBtn.innerText = `Start Free Game (${dailyPlays + 1}/2)`;
-       } else {
-           startBtn.innerText = `Start Game (${BONK_DISPLAY_FEE} BONK)`;
-       }
-   }
+    function updateStartButtonText(dailyPlays) {
+      if (dailyPlays < 2) {
+        startBtn.innerText = `Start Free Game (${dailyPlays + 1}/2)`;
+      } else {
+        startBtn.innerText = `Start Game (${BONK_DISPLAY_FEE} BONK)`;
+      }
+    }
 
-   /* Fetches user's daily play count and updates the button */
-   async function fetchDailyPlays(address) {
-       try {
-           const count = await readContract(config, {
-               address: CONTRACT_ADDRESS,
-               abi: ABI,
-               functionName: 'dailyPlays',
-               args: [address]
-           });
-           currentDailyPlays = Number(count);
-           updateStartButtonText(currentDailyPlays);
-       } catch (e) {
-           console.error('Failed to fetch daily plays:', e);
-           currentDailyPlays = 0;
-           updateStartButtonText(currentDailyPlays);
-       }
-   }
+    async function fetchDailyPlays(address) {
+      try {
+        const count = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'dailyPlays',
+          args: [address]
+        });
+        currentDailyPlays = Number(count);
+        updateStartButtonText(currentDailyPlays);
+      } catch (e) {
+        console.error('Failed to fetch daily plays:', e);
+        currentDailyPlays = 0;
+        updateStartButtonText(currentDailyPlays);
+      }
+    }
 
-   /* Checks if BONK approval is needed and executes the approval transaction if required */
-   async function checkAndApproveBonkSpending() {
-       if (!userAddress || currentDailyPlays < 2) {
-           // Free game, no approval check needed
-           return true; 
-       }
+    async function checkAndApproveBonkSpending() {
+      if (!userAddress || currentDailyPlays < 2) {
+        return true; 
+      }
 
-       // Paid game logic
-       startBtn.disabled = true;
-       let originalText = startBtn.innerText;
-       startBtn.innerText = 'Checking Allowance...';
-       
-       try {
-           // Check current allowance against the single game fee
-           const allowance = await readContract(config, {
-               address: BONK_ADDRESS,
-               abi: ERC20_ABI,
-               functionName: 'allowance',
-               args: [userAddress, CONTRACT_ADDRESS]
-           });
+      startBtn.disabled = true;
+      let originalText = startBtn.innerText;
+      startBtn.innerText = 'Checking Allowance...';
+      
+      try {
+        const allowance = await readContract(config, {
+          address: BONK_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'allowance',
+          args: [userAddress, CONTRACT_ADDRESS]
+        });
 
-           if (allowance >= ENTRY_FEE_RAW) {
-               // Already approved
-               return true; 
-           }
+        if (allowance >= ENTRY_FEE_RAW) {
+          return true; 
+        }
 
-           // Request approval for the minimum fee (2,000 BONK)
-           startBtn.innerText = `Approve ${BONK_DISPLAY_FEE} BONK...`;
-           message.innerText = `Please approve BONK spending first (Gas Fee Only).`;
-           
-           const { hash } = await writeContract(config, {
-               address: BONK_ADDRESS,
-               abi: ERC20_ABI,
-               functionName: 'approve',
-               args: [CONTRACT_ADDRESS, ENTRY_FEE_RAW] // Use the raw entry fee amount
-           });
+        startBtn.innerText = `Approve ${BONK_DISPLAY_FEE} BONK...`;
+        message.innerText = `Please approve BONK spending first (Gas Fee Only).`;
+        
+        const { hash } = await writeContract(config, {
+          address: BONK_ADDRESS,
+          abi: ERC20_ABI,
+          functionName: 'approve',
+          args: [CONTRACT_ADDRESS, ENTRY_FEE_RAW]
+        });
 
-           showToast(`Approval TX sent! Waiting for confirmation...`);
-           await publicClient.waitForTransactionReceipt({ hash });
-           
-           showToast("BONK spending approved! Preparing game...");
-           message.innerText = "Approval successful! Now starting game...";
-           return true;
+        showToast(`Approval TX sent! Waiting for confirmation...`);
+        await publicClient.waitForTransactionReceipt({ hash });
+        
+        showToast("BONK spending approved! Preparing game...");
+        message.innerText = "Approval successful! Now starting game...";
+        return true;
 
-       } catch (e) {
-           console.error('BONK approval failed:', e);
-           showToast(`Approval failed: ${e.shortMessage || "User rejected/network error"}`);
-           message.innerText = "Approval failed. You must approve BONK to play paid games.";
-           return false;
-       } finally {
-           startBtn.disabled = false;
-           startBtn.innerText = originalText;
-       }
-   }
+      } catch (e) {
+        console.error('BONK approval failed:', e);
+        showToast(`Approval failed: ${e.shortMessage || "User rejected/network error"}`);
+        message.innerText = "Approval failed. You must approve BONK to play paid games.";
+        return false;
+      } finally {
+        startBtn.disabled = false;
+        startBtn.innerText = originalText;
+      }
+    }
 
     /* ---------- Initialize SDK and Wallet ---------- */
     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
@@ -332,24 +317,23 @@
         message.innerText = "Connecting wallet...";
 
         await connect(config, {
-        connector: farcasterMiniApp(),
-        chainId: arbitrum.id
+          connector: farcasterMiniApp(),
+          chainId: arbitrum.id
         });
 
         userAddress = getAccount(config)?.address;
 
         if (userAddress) {
-        showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
-        
-         // Fetch daily plays and update UI
-        await fetchDailyPlays(userAddress);
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          
+          await fetchDailyPlays(userAddress);
 
-        connectBtn.classList.add('hidden');
-        startBtn.classList.remove('hidden');
-        colorDisplay.innerText = "Get Ready...";
-        message.innerText = "Wallet connected. Ready to play!";
+          connectBtn.classList.add('hidden');
+          startBtn.classList.remove('hidden');
+          colorDisplay.innerText = "Get Ready...";
+          message.innerText = "Wallet connected. Ready to play!";
         } else {
-        throw new Error("No address returned");
+          throw new Error("No address returned");
         }
       } catch (err) {
         console.error("Wallet connect failed:", err);
@@ -369,10 +353,10 @@
         claimBtn.disabled = true;
         claimBtn.innerText = 'Claiming...';
         const { hash } = await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: ABI,
-        functionName: 'claim',
-        args: [BigInt(currentGameId)]
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'claim',
+          args: [BigInt(currentGameId)]
         });
         showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         claimBtn.classList.add('hidden');
@@ -386,7 +370,7 @@
       }
     };
 
-    /* ---------- Game Logic (Remains mostly the same) ---------- */
+    /* ---------- Game Logic ---------- */
     const colors = [
       {name: "red", hex: "#e74c3c"},
       {name: "blue", hex: "#3498db"},
@@ -466,78 +450,80 @@
         return;
       }
 
-     // STEP 1: Check if this is a paid game (3rd play onwards) and if approval/BONK is needed.
-     if (currentDailyPlays >= 2) {
-         if (!await checkAndApproveBonkSpending()) {
-           return; // Approval failed or user rejected
-         }
-     } else if (currentDailyPlays === 1) {
-        // Specific message for the 2nd free game
+      if (currentDailyPlays >= 2) {
+        if (!await checkAndApproveBonkSpending()) {
+          return;
+        }
+      } else if (currentDailyPlays === 1) {
         message.innerText = `Starting final Free Game... Please confirm gas transaction.`;
-     } else {
-       message.innerText = `Starting Free Game... Please confirm gas transaction.`;
-     }
-      
-      // STEP 2: Start Game transaction
+      } else {
+        message.innerText = `Starting Free Game... Please confirm gas transaction.`;
+      }
       
       updateButtons(false);
       startBtn.disabled = true;
       
       try {
         const { hash } = await writeContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: ABI,
-        functionName: 'startGame',
-        args: []
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'startGame',
+          args: []
         });
         
-       showToast(`Game Start TX sent! Waiting for confirmation...`);
+        showToast(`Game Start TX sent! Waiting for confirmation...`);
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        const log = receipt.logs.find(l => l.topics[0] === gameStartedTopic);
         
-       // 🚀 FIX: Robustly check for the log and the gameId topic (topics[2])
-       if (log && log.topics.length > 2) {
-        currentGameId = Number(BigInt(log.topics[2]));
-        message.innerText = "Game started successfully! Watch for the sequence.";
-        startBtn.classList.add('hidden');
-        restartBtn.classList.remove('hidden');
-        claimBtn.classList.add('hidden');
-        nextRound();
+        console.log('Receipt logs:', receipt.logs);
         
-         // Update local game count and button text
-         currentDailyPlays++;
-         updateStartButtonText(currentDailyPlays);
+        const log = receipt.logs.find(l => l.topics && l.topics[0] === gameStartedTopic);
+        
+        console.log('Found log:', log);
+        if (log) console.log('Log topics:', log.topics);
+        
+        if (log && log.topics && log.topics.length >= 3 && log.topics[2]) {
+          try {
+            currentGameId = Number(BigInt(log.topics[2]));
+            console.log('Extracted gameId:', currentGameId);
+            message.innerText = "Game started successfully! Watch for the sequence.";
+            startBtn.classList.add('hidden');
+            restartBtn.classList.remove('hidden');
+            claimBtn.classList.add('hidden');
+            nextRound();
+            
+            currentDailyPlays++;
+            updateStartButtonText(currentDailyPlays);
+          } catch (parseError) {
+            console.error('Failed to parse gameId from topics[2]:', log.topics[2], parseError);
+            throw new Error(`Could not parse game ID from transaction logs. Topics: ${JSON.stringify(log.topics)}`);
+          }
         } else {
-          // The transaction confirmed, but the expected event was missing (likely reverted silently)
-          throw new Error("Transaction successfully sent but contract event log was not found. The transaction may have reverted on-chain (check arbiscan).");
+          console.error('Transaction succeeded but GameStarted event not found. Receipt:', receipt);
+          throw new Error(`Transaction confirmed but GameStarted event not found. This usually means the transaction reverted. Check TX on Arbiscan: https://arbiscan.io/tx/${hash}`);
         }
 
       } catch (e) {
         console.error('Init error:', e);
         
-        // Handle common transaction errors and provide clearer feedback
         if (e.message && e.message.includes('User rejected')) {
-        showToast(`Start Failed: User rejected the transaction.`);
-        message.innerText = "Transaction rejected by wallet.";
+          showToast(`Start Failed: User rejected the transaction.`);
+          message.innerText = "Transaction rejected by wallet.";
         } else if (currentDailyPlays < 2 && e.message && (e.message.includes('revert') || e.message.includes('gas'))) {
-            // Free game failed. Could be contract logic or lack of gas (ETH).
-            showToast(`Start Failed: Insufficient gas (ETH) or contract limits reached.`);
-            message.innerText = `Free game failed. Ensure you have enough gas (ETH) for the transaction.`;
+          showToast(`Start Failed: Insufficient gas (ETH) or contract limits reached.`);
+          message.innerText = `Free game failed. Ensure you have enough gas (ETH) for the transaction.`;
         } else if (currentDailyPlays >= 2 && e.message && (e.message.includes('Payment failed') || e.message.includes('insufficient funds') || e.message.includes('revert'))) {
-            // Paid game failed. User must have run out of BONK or not approved enough.
-            // This error should now be clearer due to the smart contract fix!
-            showToast(`Start Failed: Check your BONK balance or allowance!`);
-            message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
+          showToast(`Start Failed: Check your BONK balance or allowance!`);
+          message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
         } else {
-        showToast(`Start Failed: ${e.shortMessage || e.message}`);
-        message.innerText = "Transaction failed. Please check your wallet and try again.";
+          showToast(`Start Failed: ${e.shortMessage || e.message}`);
+          message.innerText = "Transaction failed. Please check your wallet and try again.";
         }
         
-       startBtn.disabled = false;
-       startBtn.classList.remove('hidden');
-       restartBtn.classList.add('hidden');
-       updateStartButtonText(currentDailyPlays);
+        startBtn.disabled = false;
+        startBtn.classList.remove('hidden');
+        restartBtn.classList.add('hidden');
+        updateStartButtonText(currentDailyPlays);
       }
     }
 
@@ -621,13 +607,12 @@
       claimBtn.classList.add('hidden');
       startBtn.classList.remove('hidden');
       startBtn.disabled = false;
-     
-     // Re-fetch or rely on locally updated dailyPlays to set button text
-     if (userAddress) {
-         fetchDailyPlays(userAddress);
-     } else {
-         updateStartButtonText(currentDailyPlays);
-     }
+      
+      if (userAddress) {
+        fetchDailyPlays(userAddress);
+      } else {
+        updateStartButtonText(currentDailyPlays);
+      }
     }
 
     restartBtn.onclick = restartGame;
@@ -639,28 +624,27 @@
       tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
       try {
         const [players, scores] = await readContract(config, {
-        address: CONTRACT_ADDRESS,
-        abi: ABI,
-        functionName: 'getTopPlayers',
-        args: [10n]
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'getTopPlayers',
+          args: [10n]
         });
         tbody.innerHTML = '';
         if (!players || players.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
-        return;
+          tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
+          return;
         }
         for (let i = 0; i < players.length; i++) {
-        const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
-        tbody.appendChild(tr);
+          const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
+          tbody.appendChild(tr);
         }
       } catch (e) {
         tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
       }
     }
 
-    // Initial setup
     claimBtn.classList.add('hidden');
     restartBtn.classList.add('hidden');
     startBtn.classList.add('hidden');
