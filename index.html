@@ -276,19 +276,32 @@
       try {
         claimBtn.disabled = true;
         claimBtn.innerText = 'Claiming...';
+        message.innerText = 'Processing claim transaction...';
+        
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
-        showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        
+        showToast(`Claim TX sent! Waiting for confirmation...`);
+        message.innerText = 'Waiting for transaction confirmation...';
+        
+        await publicClient.waitForTransactionReceipt({ hash });
+        
+        showToast(`🎉 5k BONK claimed! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        message.innerText = '✅ Reward claimed successfully!';
+        
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
+        
       } catch (e) {
         console.error('Claim error:', e);
-        showToast('Claim failed. Ensure you won (score >=5) and try again.');
+        let errMsg = e?.shortMessage || e?.message || "Unknown error";
+        showToast(`❌ Claim failed: ${errMsg}`, 5000);
+        message.innerText = `Claim failed: ${errMsg}`;
         claimBtn.disabled = false;
         claimBtn.innerText = 'Claim 5k BONK';
       }
