@@ -123,6 +123,7 @@
     import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
+    import { decodeEventLog } from 'https://esm.sh/viem';
 
     /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0xAF09Bc1f0Be0C126EFc07A0e7917F86B8df712E3';
@@ -444,153 +445,173 @@
       displaySequence();
     }
 
-    async function initGame() {
-      if (!userAddress) {
-        showToast("Please connect your wallet first!");
-        return;
-      }
+import { decodeEventLog } from 'https://esm.sh/viem';
 
-      if (currentDailyPlays >= 2) {
-        if (!await checkAndApproveBonkSpending()) {
-          return;
-        }
-      } else if (currentDailyPlays === 1) {
-        message.innerText = `Starting final Free Game... Please confirm gas transaction.`;
-      } else {
-        message.innerText = `Starting Free Game... Please confirm gas transaction.`;
-      }
-      
-      updateButtons(false);
-      startBtn.disabled = true;
-      
+async function initGame() {
+  if (!userAddress) {
+    showToast("Please connect your wallet first!");
+    return;
+  }
+
+  if (currentDailyPlays >= 2) {
+    if (!await checkAndApproveBonkSpending()) {
+      return;
+    }
+  } else if (currentDailyPlays === 1) {
+    message.innerText = `Starting final Free Game... Please confirm gas transaction.`;
+  } else {
+    message.innerText = `Starting Free Game... Please confirm gas transaction.`;
+  }
+  
+  updateButtons(false);
+  startBtn.disabled = true;
+
+  try {
+    // 1️⃣ Send TX
+    const { hash } = await writeContract(config, {
+      address: CONTRACT_ADDRESS,
+      abi: ABI,
+      functionName: 'startGame',
+      args: []
+    });
+
+    showToast(`Game Start TX sent! Waiting for confirmation...`);
+    message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
+
+    // 2️⃣ Wait for receipt
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+    // 3️⃣ Decode logs safely
+    let currentGameId = null;
+    let found = false;
+
+    for (const log of receipt.logs) {
       try {
-        const { hash } = await writeContract(config, {
-          address: CONTRACT_ADDRESS,
+        const decoded = decodeEventLog({
           abi: ABI,
-          functionName: 'startGame',
-          args: []
+          data: log.data,
+          topics: log.topics,
         });
-        
-        showToast(`Game Start TX sent! Waiting for confirmation...`);
 
-        const receipt = await publicClient.waitForTransactionReceipt({ hash });
-        
-        console.log('Receipt logs:', receipt.logs);
-        
-        const log = receipt.logs.find(l => l.topics && l.topics[0] === gameStartedTopic);
-        
-        console.log('Found log:', log);
-        if (log) console.log('Log topics:', log.topics);
-        
-        if (log && log.topics && log.topics.length >= 3 && log.topics[2]) {
-          try {
-            currentGameId = Number(BigInt(log.topics[2]));
-            console.log('Extracted gameId:', currentGameId);
-            message.innerText = "Game started successfully! Watch for the sequence.";
-            startBtn.classList.add('hidden');
-            restartBtn.classList.remove('hidden');
-            claimBtn.classList.add('hidden');
-            nextRound();
-            
-            currentDailyPlays++;
-            updateStartButtonText(currentDailyPlays);
-          } catch (parseError) {
-            console.error('Failed to parse gameId from topics[2]:', log.topics[2], parseError);
-            throw new Error(`Could not parse game ID from transaction logs. Topics: ${JSON.stringify(log.topics)}`);
-          }
-        } else {
-          console.error('Transaction succeeded but GameStarted event not found. Receipt:', receipt);
-          throw new Error(`Transaction confirmed but GameStarted event not found. This usually means the transaction reverted. Check TX on Arbiscan: https://arbiscan.io/tx/${hash}`);
+        // Display progress visibly (since no console in Farcaster)
+        message.innerText += `\n🧩 Event: ${decoded.eventName}`;
+
+        if (decoded.eventName === "GameStarted") {
+          currentGameId = Number(decoded.args.gameId);
+          found = true;
+          break;
+        }
+      } catch (e) {
+        // ignore non-matching logs
+      }
+    }
+
+    if (!found || currentGameId === null) {
+      message.innerText += `\n❌ No GameStarted event found.\nCheck TX on Arbiscan:\nhttps://arbiscan.io/tx/${hash}`;
+      showToast("Transaction confirmed but GameStarted event missing.");
+      startBtn.disabled = false;
+      updateStartButtonText(currentDailyPlays);
+      return;
+    }
+
+    // 4️⃣ Success!
+    message.innerText = `✅ Game started!\nGame ID: ${currentGameId}\nWatch for the sequence...`;
+    showToast(`Game started! Game ID: ${currentGameId}`);
+
+    // 5️⃣ Continue your game logic
+    startBtn.classList.add('hidden');
+    restartBtn.classList.remove('hidden');
+    claimBtn.classList.add('hidden');
+
+    currentDailyPlays++;
+    updateStartButtonText(currentDailyPlays);
+    nextRound();
+
+  } catch (e) {
+    console.error('Init error:', e); // This is safe even in Farcaster
+    handleInitGameError(e);
+  }
+}
+
+async function handleUserInput(colorName, btn) {
+  if (displaying || !buttonsEnabled) return;
+  
+  // Visual press effect
+  btn.classList.add('pressed');
+  setTimeout(() => btn.classList.remove('pressed'), 300);
+  
+  userSequence.push(colorName);
+  const currentIndex = userSequence.length - 1;
+  
+  // ❌ Wrong input
+  if (userSequence[currentIndex] !== sequence[currentIndex]) {
+    updateButtons(false);
+    colorDisplay.style.backgroundColor = "#e74c3c";
+    colorDisplay.innerText = "Wrong!";
+    message.innerText = `💀 Game Over! You reached round ${round}`;
+
+    // 🏆 Update best score
+    if (round > bestScore) {
+      bestScore = round;
+      bestScoreDisplay.innerText = bestScore;
+      localStorage.setItem('bestScore', bestScore);
+      message.innerText += ` 🎉 New Best: ${round}!`;
+    }
+
+    // 🔄 Reset state
+    sequence = [];
+
+    setTimeout(async () => {
+      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      colorDisplay.innerText = "Get Ready...";
+      message.innerText = "";
+
+      // 🧠 Record the game on-chain
+      try {
+        if (currentGameId) {
+          showToast("Saving your score on-chain...");
+          await writeContract(config, {
+            address: CONTRACT_ADDRESS,
+            abi: ABI,
+            functionName: 'endGame',
+            args: [BigInt(currentGameId), BigInt(round)]
+          });
+          showToast("Score submitted successfully!");
+        }
+
+        // 🎁 If user qualified for reward
+        if (round >= 5 && currentGameId) {
+          claimBtn.classList.remove('hidden');
+          showToast(`🎉 You won! Click "Claim 5k BONK" to claim your reward!`, 4000);
+        } else if (round < 5) {
+          showToast(`Almost! You reached round ${round}. Try 5+ for a reward.`);
         }
 
       } catch (e) {
-        console.error('Init error:', e);
-        
-        if (e.message && e.message.includes('User rejected')) {
-          showToast(`Start Failed: User rejected the transaction.`);
-          message.innerText = "Transaction rejected by wallet.";
-        } else if (currentDailyPlays < 2 && e.message && (e.message.includes('revert') || e.message.includes('gas'))) {
-          showToast(`Start Failed: Insufficient gas (ETH) or contract limits reached.`);
-          message.innerText = `Free game failed. Ensure you have enough gas (ETH) for the transaction.`;
-        } else if (currentDailyPlays >= 2 && e.message && (e.message.includes('Payment failed') || e.message.includes('insufficient funds') || e.message.includes('revert'))) {
-          showToast(`Start Failed: Check your BONK balance or allowance!`);
-          message.innerText = `You need ${BONK_DISPLAY_FEE} BONK (and approval) to play now.`;
-        } else {
-          showToast(`Start Failed: ${e.shortMessage || e.message}`);
-          message.innerText = "Transaction failed. Please check your wallet and try again.";
-        }
-        
-        startBtn.disabled = false;
-        startBtn.classList.remove('hidden');
-        restartBtn.classList.add('hidden');
-        updateStartButtonText(currentDailyPlays);
+        showToast('⚠️ Game saved locally, blockchain update failed.');
+        message.innerText = "Game over — could not save on-chain.";
       }
-    }
+    }, 2500);
 
-    function handleUserInput(colorName, btn) {
-      if (displaying || !buttonsEnabled) return;
-      
-      btn.classList.add('pressed');
-      setTimeout(() => btn.classList.remove('pressed'), 300);
-      
-      userSequence.push(colorName);
-      const currentIndex = userSequence.length - 1;
-      
-      if (userSequence[currentIndex] !== sequence[currentIndex]) {
-        updateButtons(false);
-        colorDisplay.style.backgroundColor = "#e74c3c";
-        colorDisplay.innerText = "Wrong!";
-        message.innerText = `Game Over! You reached round ${round}`;
-        
-        if (round > bestScore) {
-          bestScore = round;
-          bestScoreDisplay.innerText = bestScore;
-          localStorage.setItem('bestScore', bestScore);
-          message.innerText += ` New Best: ${round}!`;
-        }
-        
-        sequence = [];
-        setTimeout(async () => {
-          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-          colorDisplay.innerText = "Get Ready...";
-          message.innerText = "";
-          try {
-            if (currentGameId) {
-              await writeContract(config, {
-                address: CONTRACT_ADDRESS,
-                abi: ABI,
-                functionName: 'endGame',
-                args: [BigInt(currentGameId), BigInt(round)]
-              });
-              console.log('End game tx sent for round:', round);
-            }
-            if (round >= 5 && currentGameId) {
-              claimBtn.classList.remove('hidden');
-              showToast(`You won! Click "Claim 5k BONK" button to claim your reward!`, 4000);
-            } else if (round < 5) {
-              showToast(`Close! Reached round ${round}. Try for 5+ to claim reward.`);
-            }
-          } catch (e) {
-            console.error('End game error:', e);
-            showToast('Game saved locally, but blockchain update failed.');
-          }
-        }, 2500);
-        return;
-      }
-      
-      if (userSequence.length === sequence.length) {
-        updateButtons(false);
-        colorDisplay.style.backgroundColor = "#2ecc71";
-        colorDisplay.innerText = "Correct!";
-        round++;
-        message.innerText = `Great! Round ${round} incoming...`;
-        setTimeout(() => {
-          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-          colorDisplay.innerText = "";
-          nextRound();
-        }, 1200);
-      }
-    }
+    return;
+  }
+
+  // ✅ Correct input
+  if (userSequence.length === sequence.length) {
+    updateButtons(false);
+    colorDisplay.style.backgroundColor = "#2ecc71";
+    colorDisplay.innerText = "Correct!";
+    round++;
+    message.innerText = `✅ Great! Round ${round} incoming...`;
+
+    setTimeout(() => {
+      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      colorDisplay.innerText = "";
+      nextRound();
+    }, 1200);
+  }
+}
+
 
     function restartGame() {
       sequence = [];
