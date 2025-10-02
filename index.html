@@ -99,7 +99,7 @@
         <button class="start-btn" id="connectBtn">Connect Wallet</button>
         <button class="start-btn hidden" id="startBtn">Start Free Game</button>
         <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
-        <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
+        <button class="claim-btn hidden" id="claimBtn">Claim 3k BONK</button>
       </div>
 
     </div>
@@ -126,10 +126,10 @@
     import { decodeEventLog } from 'https://esm.sh/viem';
 
     /* ---------- Config ---------- */
-    const CONTRACT_ADDRESS = '0x55B542A0DDbFB2Db0E209AbCdFDea4F8C5F6440E';
+    const CONTRACT_ADDRESS = '0x8e48a5c3e61c0904ee2fb18cf5882c3c58b874bd'; // FILL THIS
     const MAX_SCORE = 7; // Must match contract
 
-    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}]; // FILL THIS
 
     const config = createConfig({
       chains: [arbitrum],
@@ -161,8 +161,8 @@
     let userAddress = null;
     let currentGameId = null;
     let currentDailyPlays = 0;
-    let maxDailyGames = 2;
-    let finalScore = 0; // Track the actual score submitted
+    let maxDailyGames = 3; // Updated to 3
+    let finalScore = 0;
 
     tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
@@ -221,7 +221,7 @@
         maxDailyGames = Number(max);
       } catch (e) {
         console.error('Failed to fetch MAX_DAILY_GAMES:', e);
-        maxDailyGames = 2;
+        maxDailyGames = 3; // Default to 3
       }
     }
 
@@ -276,7 +276,6 @@
         return;
       }
       
-      // Check if score was exactly 7
       if (finalScore !== MAX_SCORE) {
         showToast(`Score must be exactly ${MAX_SCORE} to claim. You scored ${finalScore}.`);
         return;
@@ -284,6 +283,65 @@
       
       try {
         claimBtn.disabled = true;
+        claimBtn.innerText = 'Checking...';
+        
+        // Verify game state before claiming
+        const gameData = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'games',
+          args: [BigInt(currentGameId)]
+        });
+        
+        console.log('Game data:', gameData);
+        const [player, ended, score, claimed] = gameData;
+        
+        if (claimed) {
+          showToast('Reward already claimed for this game!');
+          claimBtn.classList.add('hidden');
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
+          return;
+        }
+        
+        if (!ended) {
+          showToast('Game not ended yet. Please wait.');
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
+          return;
+        }
+        
+        if (Number(score) !== MAX_SCORE) {
+          showToast(`Score is ${Number(score)}, must be exactly ${MAX_SCORE} to claim!`);
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
+          return;
+        }
+        
+        // Check contract BONK balance
+        const bonkAddress = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'bonkToken'
+        });
+        
+        const contractBalance = await readContract(config, {
+          address: bonkAddress,
+          abi: [{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}],
+          functionName: 'balanceOf',
+          args: [CONTRACT_ADDRESS]
+        });
+        
+        console.log('Contract BONK balance:', contractBalance.toString());
+        
+        const requiredReward = 3000000n; // 3000k = 3M with proper decimals
+        if (contractBalance < requiredReward) {
+          showToast('Contract has insufficient BONK tokens. Contact developer to refill!', 5000);
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
+          return;
+        }
+        
         claimBtn.innerText = 'Claiming...';
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
@@ -293,19 +351,29 @@
         });
         showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         
-        // Wait for confirmation
         await publicClient.waitForTransactionReceipt({ hash });
-        showToast(`🎉 Reward claimed successfully!`, 4000);
+        showToast(`Reward claimed successfully!`, 4000);
         
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 5k BONK';
+        claimBtn.innerText = 'Claim 3k BONK';
       } catch (e) {
         console.error('Claim error:', e);
         let errMsg = e?.shortMessage || e?.message || 'Unknown error';
-        showToast(`Claim failed: ${errMsg}. Ensure score = ${MAX_SCORE} and not already claimed.`);
+        
+        if (errMsg.includes('Already claimed')) {
+          showToast('Reward already claimed!');
+          claimBtn.classList.add('hidden');
+        } else if (errMsg.includes('Score not high enough')) {
+          showToast(`Score must be exactly ${MAX_SCORE}!`);
+        } else if (errMsg.includes('insufficient')) {
+          showToast('Contract has insufficient BONK. Contact developer!', 5000);
+        } else {
+          showToast(`Claim failed: ${errMsg}`);
+        }
+        
         claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 5k BONK';
+        claimBtn.innerText = 'Claim 3k BONK';
       }
     };
 
@@ -412,8 +480,8 @@
           throw new Error("Transaction not sent (hash undefined)");
         }
 
-        showToast(`📦 Transaction sent! Waiting for confirmation...`);
-        message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
+        showToast(`Transaction sent! Waiting for confirmation...`);
+        message.innerText = `Transaction sent! Waiting for confirmation...`;
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -428,8 +496,6 @@
               topics: log.topics,
             });
 
-            message.innerText += `\n🧩 Event: ${decoded.eventName}`;
-
             if (decoded.eventName === "GameStarted") {
               gameId = Number(decoded.args.gameId);
               currentGameId = gameId;
@@ -442,20 +508,20 @@
         }
 
         if (!found || currentGameId === null) {
-          message.innerText += `\n❌ No GameStarted event found.\nCheck TX on Arbiscan:\nhttps://arbiscan.io/tx/${hash}`;
+          message.innerText = `No GameStarted event found. Check TX: https://arbiscan.io/tx/${hash}`;
           showToast("Transaction confirmed but GameStarted event missing.");
           startBtn.disabled = false;
           updateStartButtonText(currentDailyPlays);
           return;
         }
 
-        message.innerText = `✅ Game started!\nGame ID: ${currentGameId}\nWatch for the sequence...`;
+        message.innerText = `Game started! Game ID: ${currentGameId}`;
         showToast(`Game started! Game ID: ${currentGameId}`);
 
         startBtn.classList.add('hidden');
         restartBtn.classList.remove('hidden');
         claimBtn.classList.add('hidden');
-        finalScore = 0; // Reset final score
+        finalScore = 0;
 
         currentDailyPlays++;
         updateStartButtonText(currentDailyPlays);
@@ -464,7 +530,7 @@
       } catch (e) {
         console.error('Init error:', e);
         let errMsg = e?.shortMessage || e?.message || "Unknown error";
-        showToast(`❌ Start Failed: ${errMsg}`);
+        showToast(`Start Failed: ${errMsg}`);
         message.innerText = `Transaction failed: ${errMsg}`;
         startBtn.disabled = false;
         updateStartButtonText(currentDailyPlays);
@@ -481,23 +547,19 @@
       const currentIndex = userSequence.length - 1;
       
       if (userSequence[currentIndex] !== sequence[currentIndex]) {
-        // Wrong answer - game over
         await handleGameEnd(false);
         return;
       }
 
       if (userSequence.length === sequence.length) {
-        // Correct sequence completed
         if (round === MAX_SCORE) {
-          // Max score reached - win!
           await handleGameEnd(true);
         } else {
-          // Continue to next round
           updateButtons(false);
           colorDisplay.style.backgroundColor = "#2ecc71";
           colorDisplay.innerText = "Correct!";
           round++;
-          message.innerText = `✅ Great! Round ${round} incoming...`;
+          message.innerText = `Great! Round ${round} incoming...`;
 
           setTimeout(() => {
             colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
@@ -513,22 +575,22 @@
       
       if (isWin) {
         colorDisplay.style.backgroundColor = "#f39c12";
-        colorDisplay.innerText = "🎉 PERFECT!";
-        message.innerText = `🎉 Amazing! You reached max score ${MAX_SCORE}!`;
+        colorDisplay.innerText = "PERFECT!";
+        message.innerText = `Amazing! You reached max score ${MAX_SCORE}!`;
       } else {
         colorDisplay.style.backgroundColor = "#e74c3c";
         colorDisplay.innerText = "Wrong!";
-        message.innerText = `💀 Game Over! You reached round ${round}`;
+        message.innerText = `Game Over! You reached round ${round}`;
       }
 
       if (round > bestScore) {
         bestScore = round;
         bestScoreDisplay.innerText = bestScore;
         localStorage.setItem('bestScore', bestScore);
-        message.innerText += ` 🎉 New Best: ${round}!`;
+        message.innerText += ` New Best: ${round}!`;
       }
 
-      finalScore = round; // Store the actual score
+      finalScore = round;
       sequence = [];
 
       setTimeout(async () => {
@@ -540,6 +602,12 @@
           if (currentGameId) {
             showToast("Saving your score on-chain...");
             message.innerText = `Submitting score ${finalScore} for game ${currentGameId}...`;
+            
+            console.log('Submitting endGame:', {
+              gameId: currentGameId,
+              score: finalScore,
+              scoreAsBigInt: BigInt(finalScore)
+            });
             
             const txResponse = await writeContract(config, {
               address: CONTRACT_ADDRESS,
@@ -555,15 +623,26 @@
               
               await publicClient.waitForTransactionReceipt({ hash: endHash });
               showToast("Score submitted successfully!");
-              message.innerText = "";
+              
+              // Verify what was actually stored
+              const gameData = await readContract(config, {
+                address: CONTRACT_ADDRESS,
+                abi: ABI,
+                functionName: 'games',
+                args: [BigInt(currentGameId)]
+              });
+              
+              const storedScore = Number(gameData[2]);
+              console.log('Stored score on-chain:', storedScore);
+              
+              message.innerText = `Score ${storedScore} saved on-chain!`;
             }
           }
 
-          // Only show claim button if score is EXACTLY MAX_SCORE (7)
           if (finalScore === MAX_SCORE && currentGameId) {
             claimBtn.classList.remove('hidden');
-            showToast(`🎉 Perfect score ${MAX_SCORE}! Click "Claim 5k BONK" to get your reward!`, 4000);
-            message.innerText = `🎉 You scored ${MAX_SCORE}/7! Claim your reward!`;
+            showToast(`Perfect score ${MAX_SCORE}! Click "Claim 3k BONK" to get your reward!`, 4000);
+            message.innerText = `You scored ${MAX_SCORE}/7! Claim your reward!`;
           } else if (finalScore < MAX_SCORE) {
             showToast(`Good try! You scored ${finalScore}. Reach ${MAX_SCORE} for a reward.`);
             message.innerText = `Score ${finalScore} saved. Try to reach ${MAX_SCORE}!`;
@@ -572,7 +651,7 @@
         } catch (e) {
           console.error('EndGame error:', e);
           let errMsg = e?.shortMessage || e?.message || "Unknown error";
-          showToast(`⚠️ Failed to save score: ${errMsg}`);
+          showToast(`Failed to save score: ${errMsg}`);
           message.innerText = `Could not save on-chain: ${errMsg}`;
         }
       }, 2500);
