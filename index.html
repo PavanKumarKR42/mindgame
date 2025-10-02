@@ -4,38 +4,71 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=390, initial-scale=1.0" />
   <title>Mind Color Sequence Game</title>
+
+    <meta name="fc:miniapp" content='{
+    "version":"1",
+    "imageUrl":"https://mindgame-omega.vercel.app/icon.png",
+    "button":{
+      "title":"Memory Game",
+      "action":{
+        "type":"launch_frame",
+        "name":"Mind Color Sequence",
+        "url":"https://mindgame-omega.vercel.app/",
+        "splashImageUrl":"https://mindgame-omega.vercel.app/splash.png",
+        "splashBackgroundColor":"#667eea"
+      }
+    }
+  }' />
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); font-family:sans-serif; color:#fff; padding:20px; max-width:390px; margin:0 auto; }
-    .tabbar { display:flex; gap:8px; width:100%; margin:12px; }
-    .tabbar button { flex:1; padding:10px; background: rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:8px; font-weight:700; cursor:pointer; transition:0.3s; }
-    .tabbar button.active { background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.5); }
-    .hidden { display:none; }
-    .game-container { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius:30px; padding:20px; box-shadow:0 8px 32px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.2); width:100%; }
-    h1 { text-align:center; margin-bottom:10px; font-size:24px; text-shadow:2px 2px 4px rgba(0,0,0,0.3); }
-    .score-info { display:flex; justify-content:space-around; margin-bottom:20px; gap:10px; }
-    .score-box { background: rgba(255,255,255,0.15); padding:10px 15px; border-radius:15px; text-align:center; flex:1; border:1px solid rgba(255,255,255,0.2); }
-    .score-label { font-size:10px; opacity:0.8; text-transform:uppercase; letter-spacing:1px; }
-    .score-value { font-size:20px; font-weight:bold; margin-top:5px; }
-    #colorDisplay { width:100%; height:150px; border-radius:25px; margin-bottom:20px; border:3px solid rgba(255,255,255,0.3); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:bold; background: rgba(0,0,0,0.3); transition:all 0.3s; box-shadow: inset 0 4px 20px rgba(0,0,0,0.2); text-shadow:2px 2px 4px rgba(0,0,0,0.5);}
-    .buttons { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px; }
-    .colorBtn { height:60px; border:none; border-radius:20px; cursor:pointer; font-weight:bold; font-size:14px; color:#fff; text-shadow:1px 1px 2px rgba(0,0,0,0.3); transition:0.2s; box-shadow:0 4px 15px rgba(0,0,0,0.3); position:relative; overflow:hidden;}
-    .colorBtn:disabled { opacity:0.5; cursor:not-allowed; }
-    .btn-control { display:flex; gap:10px; margin-top:10px; }
-    .restart-btn,.start-btn,.claim-btn { flex:1; padding:12px; border-radius:15px; font-size:14px; font-weight:bold; cursor:pointer; transition:0.3s; }
-    .restart-btn { background: rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.3); color:white; }
-    .start-btn { background: rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.3); color:white; }
-    .claim-btn { background: linear-gradient(135deg,#2ecc71,#27ae60); border:2px solid rgba(255,255,255,0.5); color:white; box-shadow:0 4px 15px rgba(46,204,113,0.4);}
-    table { width:100%; border-collapse:collapse; margin-top:12px; }
-    th,td { padding:8px; border-bottom:1px solid rgba(255,255,255,0.2); font-size:14px; text-align:left; }
-    thead { background: rgba(0,0,0,0.3); }
-    .center { text-align:center; }
-    .toast { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); background: rgba(255,255,255,0.12); backdrop-filter:blur(8px); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:14px; padding:10px 14px; font-weight:600; max-width:360px; width:calc(100% - 24px); display:none; z-index:9999; }
-    .toast.show { display:block; animation:fadeIn 0.25s ease; }
-    @keyframes fadeIn { from { opacity:0; transform:translate(-50%,10px);} to {opacity:1; transform:translate(-50%,0);} }
+    body {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff;
+      padding: 20px; max-width: 390px; margin: 0 auto;
+    }
+    .tabbar { display: flex; gap: 8px; width: 100%; margin: 12px; }
+    .tabbar button { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+    .tabbar button.active { background: rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.5); }
+    .hidden { display: none; }
+    .game-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 30px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; }
+    h1 { text-align: center; margin-bottom: 10px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
+    .score-info { display: flex; justify-content: space-around; margin-bottom: 20px; gap: 10px; }
+    .score-box { background: rgba(255, 255, 255, 0.15); padding: 10px 15px; border-radius: 15px; text-align: center; flex: 1; border: 1px solid rgba(255, 255, 255, 0.2); }
+    .score-label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+    .score-value { font-size: 20px; font-weight: bold; margin-top: 5px; }
+    #colorDisplay { width: 100%; height: 150px; border-radius: 25px; margin-bottom: 20px; border: 3px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: rgba(0, 0, 0, 0.3); transition: all 0.3s ease; box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+    #colorDisplay.pulse { animation: pulse 0.5s ease; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+    .colorBtn { height: 60px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; color: #fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
+    .colorBtn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
+    .colorBtn:active:not(:disabled) { transform: translateY(-1px); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
+    .colorBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .colorBtn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.2); opacity: 0; transition: opacity 0.3s ease; }
+    .colorBtn:hover:not(:disabled)::before { opacity: 1; }
+    .colorBtn.pressed { animation: press 0.3s ease; }
+    @keyframes press { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95); filter: brightness(1.3); } }
+    #message { text-align: center; font-size: 18px; min-height: 30px; font-weight: 600; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); margin-bottom: 20px; }
+    .btn-control { display: flex; gap: 10px; margin-top: 10px; }
+    .restart-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+    .restart-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+    .claim-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); }
+    .claim-btn:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 14px; text-align: left; }
+    thead { background: rgba(0, 0, 0, 0.3); }
+    .center { text-align: center; }
+    .toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 10px 14px; font-weight: 600; max-width: 360px; width: calc(100% - 24px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); display: none; z-index: 9999; }
+    .toast.show { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    .start-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+    .start-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
   </style>
 </head>
 <body>
+
   <div class="tabbar">
     <button id="tabPlayBtn" class="active">Play</button>
     <button id="tabLbBtn">Leaderboard</button>
@@ -44,6 +77,7 @@
   <section id="playTab">
     <div class="game-container">
       <h1>Mind Color Sequence</h1>
+      
       <div class="score-info">
         <div class="score-box">
           <div class="score-label">Round</div>
@@ -54,15 +88,20 @@
           <div class="score-value" id="bestScore">0</div>
         </div>
       </div>
+      
       <div id="colorDisplay">Connect Wallet to Begin</div>
+      
       <div class="buttons" id="buttonsContainer"></div>
+      
       <div id="message"></div>
+      
       <div class="btn-control">
         <button class="start-btn" id="connectBtn">Connect Wallet</button>
-        <button class="start-btn hidden" id="startBtn">Start Game</button>
+        <button class="start-btn hidden" id="startBtn">Start Free Game</button>
         <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
         <button class="claim-btn hidden" id="claimBtn">Claim 5k BONK</button>
       </div>
+
     </div>
   </section>
 
@@ -78,28 +117,30 @@
 
   <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
-    import { createConfig, connect, readContract, writeContract, getAccount } from 'https://esm.sh/@wagmi/core';
+    import {
+      createConfig, connect, readContract, writeContract, getAccount
+    } from 'https://esm.sh/@wagmi/core';
     import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
     import { decodeEventLog } from 'https://esm.sh/viem';
 
+    /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0x1B8e5b48D9b29e42abD3b694f7Be7A2f91867997';
-    const BONK_ADDRESS = '0x09199d9a5f4448d0848e4395d065e1ad9c4a1f74';
-    const REWARD = 500000n;
-    const MAX_SCORE = 7n;
 
     const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
-    const ERC20_ABI = [
-      {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
-      {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
-    ];
-    
-    sdk.actions.ready({disableNativeGestures:true});
 
-    const config = createConfig({ chains: [arbitrum], transports: { [arbitrum.id]: http() } });
-    const publicClient = createPublicClient({ chain: arbitrum, transport: http() });
+    const config = createConfig({
+      chains: [arbitrum],
+      transports: { [arbitrum.id]: http() }
+    });
 
+    const publicClient = createPublicClient({
+      chain: arbitrum,
+      transport: http()
+    });
+
+    /* ---------- UI Refs ---------- */
     const playTab = document.getElementById('playTab');
     const leaderboardTab = document.getElementById('leaderboardTab');
     const tabPlayBtn = document.getElementById('tabPlayBtn');
@@ -115,67 +156,435 @@
     const roundDisplay = document.getElementById('roundDisplay');
     const bestScoreDisplay = document.getElementById('bestScore');
 
+    /* ---------- State ---------- */
     let userAddress = null;
     let currentGameId = null;
-    let round = 1;
-    let sequence = [];
-    let userSequence = [];
-    let buttonsEnabled = false;
-    let bestScore = 0;
+    let currentDailyPlays = 0;
+    let maxDailyGames = 2;
 
-    tabPlayBtn.onclick = () => { playTab.classList.remove('hidden'); leaderboardTab.classList.add('hidden'); tabPlayBtn.classList.add('active'); tabLbBtn.classList.remove('active'); };
-    tabLbBtn.onclick = () => { leaderboardTab.classList.remove('hidden'); playTab.classList.add('hidden'); tabLbBtn.classList.add('active'); tabPlayBtn.classList.remove('active'); loadLeaderboard(); };
-    
-    function showToast(msg, ms=3500){toastEl.innerHTML=msg;toastEl.classList.add('show');setTimeout(()=>toastEl.classList.remove('show'),ms);}
-    
-    // Colors
-    const colors = [{name:"red",hex:"#e74c3c"},{name:"blue",hex:"#3498db"},{name:"green",hex:"#2ecc71"},{name:"yellow",hex:"#f39c12"},{name:"purple",hex:"#9b59b6"}];
-    colors.forEach(c=>{const b=document.createElement('button');b.classList.add('colorBtn');b.style.backgroundColor=c.hex;b.innerText=c.name.toUpperCase();b.dataset.color=c.name;b.onclick=()=>handleUserInput(c.name,b);buttonsContainer.appendChild(b);});
-
-    function updateButtons(enabled){buttonsEnabled=enabled;document.querySelectorAll('.colorBtn').forEach(b=>b.disabled=!enabled);}
-    
-    function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-    async function displaySequence(){updateButtons(false); colorDisplay.innerText="Watch!"; await sleep(800); for(let i=0;i<sequence.length;i++){let c=colors.find(x=>x.name===sequence[i]); colorDisplay.style.backgroundColor=c.hex;colorDisplay.innerText=c.name.toUpperCase(); await sleep(700); colorDisplay.style.backgroundColor="rgba(0,0,0,0.3)"; colorDisplay.innerText=""; await sleep(300);} updateButtons(true); colorDisplay.innerText="Your Turn!";}
-    function nextRound(){userSequence=[]; sequence.push(colors[Math.floor(Math.random()*colors.length)].name); roundDisplay.innerText=round; displaySequence();}
-
-    connectBtn.onclick=async()=>{
-      try{connectBtn.disabled=true; connectBtn.innerText='Connecting...'; await connect(config,{connector:farcasterMiniApp(),chainId:arbitrum.id}); userAddress=getAccount(config)?.address; if(userAddress){showToast(`Connected ${userAddress.slice(0,6)}…${userAddress.slice(-4)}`); connectBtn.classList.add('hidden'); startBtn.classList.remove('hidden'); colorDisplay.innerText="Get Ready..."; message.innerText="Wallet connected.";} else throw Error("No address");} catch(e){showToast("Connect failed"); connectBtn.disabled=false; connectBtn.innerText='Connect Wallet';}
+    tabPlayBtn.onclick = () => {
+      playTab.classList.remove('hidden');
+      leaderboardTab.classList.add('hidden');
+      tabPlayBtn.classList.add('active');
+      tabLbBtn.classList.remove('active');
     };
 
-    startBtn.onclick=async()=>{
-      if(!userAddress){showToast("Connect wallet first!"); return;}
-      startBtn.disabled=true;
-      try{
-        const tx=await writeContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'startGame',args:[]});
-        const hash=tx.hash||tx;
-        showToast("TX sent, waiting confirmation...");
-        const receipt=await publicClient.waitForTransactionReceipt({hash});
-        let found=false;
-        for(const log of receipt.logs){
-          try{const decoded=decodeEventLog({abi:ABI,data:log.data,topics:log.topics}); if(decoded.eventName==="GameStarted"){currentGameId=Number(decoded.args.gameId); found=true; break;}}catch(e){}
-        }
-        if(!found){showToast("GameStarted event missing"); startBtn.disabled=false; return;}
-        showToast("Game started!"); message.innerText=`Game ID: ${currentGameId}`; startBtn.classList.add('hidden'); restartBtn.classList.remove('hidden'); round=1; nextRound();
-      }catch(e){showToast("Start failed"); startBtn.disabled=false;}
+    tabLbBtn.onclick = () => {
+      leaderboardTab.classList.remove('hidden');
+      playTab.classList.add('hidden');
+      tabLbBtn.classList.add('active');
+      tabPlayBtn.classList.remove('active');
+      loadLeaderboard();
     };
 
-    async function handleUserInput(color,btn){
-      if(!buttonsEnabled) return; btn.classList.add('pressed'); setTimeout(()=>btn.classList.remove('pressed'),300);
-      userSequence.push(color);
-      const idx=userSequence.length-1;
-      if(userSequence[idx]!==sequence[idx]){updateButtons(false); colorDisplay.style.backgroundColor="#e74c3c"; colorDisplay.innerText="Wrong!"; message.innerText=`Game Over! Round ${round}`; if(round>bestScore){bestScore=round; bestScoreDisplay.innerText=bestScore;} sequence=[]; setTimeout(async()=>{
-        colorDisplay.style.backgroundColor="rgba(0,0,0,0.3)"; colorDisplay.innerText="Get Ready..."; message.innerText="";
-        if(currentGameId){await writeContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'endGame',args:[BigInt(currentGameId),BigInt(round)]}); if(round>=Number(MAX_SCORE)){claimBtn.classList.remove('hidden');}}},1500); return;}
-      if(userSequence.length===sequence.length){updateButtons(false); colorDisplay.style.backgroundColor="#2ecc71"; colorDisplay.innerText="Correct!"; round++; setTimeout(()=>{colorDisplay.style.backgroundColor="rgba(0,0,0,0.3)"; colorDisplay.innerText=""; nextRound();},1200);}
+    function showToast(html, ms = 3500) {
+      toastEl.innerHTML = html;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
-    restartBtn.onclick=()=>{sequence=[]; userSequence=[]; round=1; currentGameId=null; colorDisplay.style.backgroundColor="rgba(0,0,0,0.3)"; colorDisplay.innerText="Get Ready..."; message.innerText=""; roundDisplay.innerText="1"; updateButtons(false); restartBtn.classList.add('hidden'); claimBtn.classList.add('hidden'); startBtn.classList.remove('hidden'); startBtn.disabled=false;};
+    function updateStartButtonText(dailyPlays) {
+      if (dailyPlays < maxDailyGames) {
+        startBtn.innerText = `Start Free Game (${dailyPlays}/${maxDailyGames})`;
+      } else {
+        startBtn.innerText = `Daily Limit Reached`;
+        startBtn.disabled = true;
+      }
+    }
 
-    claimBtn.onclick=async()=>{if(!currentGameId){showToast("No game to claim"); return;} try{claimBtn.disabled=true; const {hash}=await writeContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'claim',args:[BigInt(currentGameId)]}); showToast(`Claim TX sent! <a href="https://arbiscan.io/tx/${hash}" target="_blank">View TX</a>`); claimBtn.classList.add('hidden'); claimBtn.disabled=false;}catch(e){showToast("Claim failed"); claimBtn.disabled=false;}};
+    async function fetchDailyPlays(address) {
+      try {
+        const count = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'dailyPlays',
+          args: [address]
+        });
+        currentDailyPlays = Number(count);
+        updateStartButtonText(currentDailyPlays);
+      } catch (e) {
+        console.error('Failed to fetch daily plays:', e);
+        currentDailyPlays = 0;
+        updateStartButtonText(currentDailyPlays);
+      }
+    }
 
-    async function loadLeaderboard() const tbody=document.getElementById('leaderboardBody'); tbody.innerHTML='<tr><td colspan="3" class="center">Loading…</td></tr>'; try{const [players,scores]=await readContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'getTopPlayers',args:[10n]}); tbody.innerHTML=''; if(!players||players.length===0){tbody.innerHTML='<tr><td colspan="3" class="center">No scores yet.</td></tr>'; return;} for(let i=0;i<players.length;i++){const short=`${players[i].slice(0,6)}…${players[i].slice(-4)}`; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${short}</td><td>${scores[i].toString()}</td>`; tbody.appendChild(tr);}}catch(e){tbody.innerHTML='<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';}
+    async function fetchMaxDailyGames() {
+      try {
+        const max = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'MAX_DAILY_GAMES'
+        });
+        maxDailyGames = Number(max);
+      } catch (e) {
+        console.error('Failed to fetch MAX_DAILY_GAMES:', e);
+        maxDailyGames = 2;
+      }
+    }
 
-    claimBtn.classList.add('hidden'); restartBtn.classList.add('hidden'); startBtn.classList.remove('hidden'); updateButtons(false);
+    /* ---------- Initialize SDK and Wallet ---------- */
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
+
+    connectBtn.onclick = async () => {
+      try {
+        connectBtn.disabled = true;
+        connectBtn.innerText = 'Connecting...';
+        message.innerText = "Connecting wallet...";
+
+        await connect(config, {
+          connector: farcasterMiniApp(),
+          chainId: arbitrum.id
+        });
+
+        userAddress = getAccount(config)?.address;
+
+        if (userAddress) {
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          
+          await fetchMaxDailyGames();
+          await fetchDailyPlays(userAddress);
+
+          connectBtn.classList.add('hidden');
+          startBtn.classList.remove('hidden');
+          colorDisplay.innerText = "Get Ready...";
+          message.innerText = "Wallet connected. Ready to play!";
+        } else {
+          throw new Error("No address returned");
+        }
+      } catch (err) {
+        console.error("Wallet connect failed:", err);
+        showToast("Connect failed. Make sure you opened this in Warpcast.");
+        connectBtn.disabled = false;
+        connectBtn.innerText = 'Connect Wallet';
+        message.innerText = "Connection failed. Try again.";
+      }
+    };
+
+    claimBtn.onclick = async () => {
+      if (!currentGameId) {
+        showToast('No active game to claim. Play and win first!');
+        return;
+      }
+      try {
+        claimBtn.disabled = true;
+        claimBtn.innerText = 'Claiming...';
+        const { hash } = await writeContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'claim',
+          args: [BigInt(currentGameId)]
+        });
+        showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        claimBtn.classList.add('hidden');
+        claimBtn.disabled = false;
+        claimBtn.innerText = 'Claim 5k BONK';
+      } catch (e) {
+        console.error('Claim error:', e);
+        showToast('Claim failed. Ensure you won (score >=5) and try again.');
+        claimBtn.disabled = false;
+        claimBtn.innerText = 'Claim 5k BONK';
+      }
+    };
+
+    /* ---------- Game Logic ---------- */
+    const colors = [
+      {name: "red", hex: "#e74c3c"},
+      {name: "blue", hex: "#3498db"},
+      {name: "green", hex: "#2ecc71"},
+      {name: "yellow", hex: "#f39c12"},
+      {name: "purple", hex: "#9b59b6"}
+    ];
+
+    let sequence = [];
+    let userSequence = [];
+    let round = 1;
+    let displaying = false;
+    let bestScore = 0;
+    let buttonsEnabled = false;
+
+    if (localStorage.getItem('bestScore')) {
+      bestScore = parseInt(localStorage.getItem('bestScore'));
+      bestScoreDisplay.innerText = bestScore;
+    }
+
+    colors.forEach(colorObj => {
+      const btn = document.createElement('button');
+      btn.classList.add('colorBtn');
+      btn.style.backgroundColor = colorObj.hex;
+      btn.innerText = colorObj.name.toUpperCase();
+      btn.dataset.color = colorObj.name;
+      btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
+      buttonsContainer.appendChild(btn);
+    });
+
+    function updateButtons(enabled) {
+      buttonsEnabled = enabled;
+      document.querySelectorAll('.colorBtn').forEach(btn => {
+        btn.disabled = !enabled;
+      });
+    }
+
+    function sleep(ms) { 
+      return new Promise(resolve => setTimeout(resolve, ms)); 
+    }
+
+    async function displaySequence() {
+      displaying = true;
+      updateButtons(false);
+      colorDisplay.innerText = "Watch Carefully!";
+      message.innerText = "";
+      await sleep(800);
+      
+      for (let i = 0; i < sequence.length; i++) {
+        const colorObj = colors.find(c => c.name === sequence[i]);
+        colorDisplay.style.backgroundColor = colorObj.hex;
+        colorDisplay.innerText = colorObj.name.toUpperCase();
+        colorDisplay.classList.add('pulse');
+        await sleep(700);
+        colorDisplay.classList.remove('pulse');
+        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        colorDisplay.innerText = "";
+        await sleep(300);
+      }
+      
+      displaying = false;
+      updateButtons(true);
+      colorDisplay.innerText = "Your Turn!";
+    }
+
+    function nextRound() {
+      userSequence = [];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      sequence.push(randomColor.name);
+      roundDisplay.innerText = round;
+      displaySequence();
+    }
+
+    async function initGame() {
+      if (!userAddress) {
+        showToast("Please connect your wallet first!");
+        return;
+      }
+
+      if (currentDailyPlays >= maxDailyGames) {
+        showToast("You've reached your daily game limit. Come back tomorrow!");
+        return;
+      }
+
+      message.innerText = `Starting Free Game... Please confirm gas transaction.`;
+      updateButtons(false);
+      startBtn.disabled = true;
+
+      let hash;
+      try {
+        const txResponse = await writeContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'startGame',
+          args: [],
+        });
+
+        hash = txResponse?.hash || txResponse;
+        if (!hash) {
+          throw new Error("Transaction not sent (hash undefined)");
+        }
+
+        showToast(`📦 Transaction sent! Waiting for confirmation...`);
+        message.innerText = `⏳ Transaction sent!\nHash: ${hash}\nWaiting for confirmation...`;
+
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+        let gameId = null;
+        let found = false;
+
+        for (const log of receipt.logs) {
+          try {
+            const decoded = decodeEventLog({
+              abi: ABI,
+              data: log.data,
+              topics: log.topics,
+            });
+
+            message.innerText += `\n🧩 Event: ${decoded.eventName}`;
+
+            if (decoded.eventName === "GameStarted") {
+              gameId = Number(decoded.args.gameId);
+              currentGameId = gameId;
+              found = true;
+              break;
+            }
+          } catch (e) {
+            // ignore non-matching logs
+          }
+        }
+
+        if (!found || currentGameId === null) {
+          message.innerText += `\n❌ No GameStarted event found.\nCheck TX on Arbiscan:\nhttps://arbiscan.io/tx/${hash}`;
+          showToast("Transaction confirmed but GameStarted event missing.");
+          startBtn.disabled = false;
+          updateStartButtonText(currentDailyPlays);
+          return;
+        }
+
+        message.innerText = `✅ Game started!\nGame ID: ${currentGameId}\nWatch for the sequence...`;
+        showToast(`Game started! Game ID: ${currentGameId}`);
+
+        startBtn.classList.add('hidden');
+        restartBtn.classList.remove('hidden');
+        claimBtn.classList.add('hidden');
+
+        currentDailyPlays++;
+        updateStartButtonText(currentDailyPlays);
+        nextRound();
+
+      } catch (e) {
+        console.error('Init error:', e);
+        let errMsg = e?.shortMessage || e?.message || "Unknown error";
+        showToast(`❌ Start Failed: ${errMsg}`);
+        message.innerText = `Transaction failed: ${errMsg}`;
+        startBtn.disabled = false;
+        updateStartButtonText(currentDailyPlays);
+      }
+    }
+
+    async function handleUserInput(colorName, btn) {
+      if (displaying || !buttonsEnabled) return;
+      
+      btn.classList.add('pressed');
+      setTimeout(() => btn.classList.remove('pressed'), 300);
+      
+      userSequence.push(colorName);
+      const currentIndex = userSequence.length - 1;
+      
+      if (userSequence[currentIndex] !== sequence[currentIndex]) {
+        updateButtons(false);
+        colorDisplay.style.backgroundColor = "#e74c3c";
+        colorDisplay.innerText = "Wrong!";
+        message.innerText = `💀 Game Over! You reached round ${round}`;
+
+        if (round > bestScore) {
+          bestScore = round;
+          bestScoreDisplay.innerText = bestScore;
+          localStorage.setItem('bestScore', bestScore);
+          message.innerText += ` 🎉 New Best: ${round}!`;
+        }
+
+        sequence = [];
+
+        setTimeout(async () => {
+          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+          colorDisplay.innerText = "Get Ready...";
+          message.innerText = "";
+
+          try {
+            if (currentGameId) {
+              showToast("Saving your score on-chain...");
+              await writeContract(config, {
+                address: CONTRACT_ADDRESS,
+                abi: ABI,
+                functionName: 'endGame',
+                args: [BigInt(currentGameId), BigInt(round)]
+              });
+              showToast("Score submitted successfully!");
+            }
+
+            if (round >= 5 && currentGameId) {
+              claimBtn.classList.remove('hidden');
+              showToast(`🎉 You won! Click "Claim 5k BONK" to claim your reward!`, 4000);
+            } else if (round < 5) {
+              showToast(`Almost! You reached round ${round}. Try 5+ for a reward.`);
+            }
+
+          } catch (e) {
+            showToast('⚠️ Game saved locally, blockchain update failed.');
+            message.innerText = "Game over — could not save on-chain.";
+          }
+        }, 2500);
+
+        return;
+      }
+
+      if (userSequence.length === sequence.length) {
+        updateButtons(false);
+        colorDisplay.style.backgroundColor = "#2ecc71";
+        colorDisplay.innerText = "Correct!";
+        round++;
+        message.innerText = `✅ Great! Round ${round} incoming...`;
+
+        setTimeout(() => {
+          colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+          colorDisplay.innerText = "";
+          nextRound();
+        }, 1200);
+      }
+    }
+
+    function restartGame() {
+      sequence = [];
+      userSequence = [];
+      round = 1;
+      displaying = false;
+      currentGameId = null;
+      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      colorDisplay.innerText = "Get Ready...";
+      message.innerText = "Ready for your next game!";
+      roundDisplay.innerText = "1";
+      updateButtons(false);
+      restartBtn.classList.add('hidden');
+      claimBtn.classList.add('hidden');
+      startBtn.classList.remove('hidden');
+      startBtn.disabled = false;
+      
+      if (userAddress) {
+        fetchDailyPlays(userAddress);
+      } else {
+        updateStartButtonText(currentDailyPlays);
+      }
+    }
+
+    restartBtn.onclick = restartGame;
+    startBtn.onclick = initGame;
+
+    /* ---------- Leaderboard ---------- */
+    async function loadLeaderboard() {
+      const tbody = document.getElementById('leaderboardBody');
+      tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
+      try {
+        const [players, scores] = await readContract(config, {
+          address: CONTRACT_ADDRESS,
+          abi: ABI,
+          functionName: 'getTopPlayers',
+          args: [10n]
+        });
+        tbody.innerHTML = '';
+        if (!players || players.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" class="center">No scores yet.</td></tr>';
+          return;
+        }
+        for (let i = 0; i < players.length; i++) {
+          const short = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${i + 1}</td><td>${short}</td><td>${scores[i].toString()}</td>`;
+          tbody.appendChild(tr);
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
+      }
+    }
+
+    claimBtn.classList.add('hidden');
+    restartBtn.classList.add('hidden');
+    startBtn.classList.add('hidden');
+    updateButtons(false);
+    message.innerText = "Connect your wallet to begin";
   </script>
 </body>
 </html>
