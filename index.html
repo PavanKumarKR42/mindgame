@@ -94,6 +94,8 @@
       {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
       {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
     ];
+    
+    sdk.actions.ready({disableNativeGestures:true});
 
     const config = createConfig({ chains: [arbitrum], transports: { [arbitrum.id]: http() } });
     const publicClient = createPublicClient({ chain: arbitrum, transport: http() });
@@ -171,7 +173,7 @@
 
     claimBtn.onclick=async()=>{if(!currentGameId){showToast("No game to claim"); return;} try{claimBtn.disabled=true; const {hash}=await writeContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'claim',args:[BigInt(currentGameId)]}); showToast(`Claim TX sent! <a href="https://arbiscan.io/tx/${hash}" target="_blank">View TX</a>`); claimBtn.classList.add('hidden'); claimBtn.disabled=false;}catch(e){showToast("Claim failed"); claimBtn.disabled=false;}};
 
-    async function loadLeaderboard(){const tbody=document.getElementById('leaderboardBody'); tbody.innerHTML='<tr><td colspan="3" class="center">Loading…</td></tr>'; try{const [players,scores]=await readContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'getTopPlayers',args:[10n]}); tbody.innerHTML=''; if(!players||players.length===0){tbody.innerHTML='<tr><td colspan="3" class="center">No scores yet.</td></tr>'; return;} for(let i=0;i<players.length;i++){const short=`${players[i].slice(0,6)}…${players[i].slice(-4)}`; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${short}</td><td>${scores[i].toString()}</td>`; tbody.appendChild(tr);}}catch(e){tbody.innerHTML='<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';}
+    async function loadLeaderboard() const tbody=document.getElementById('leaderboardBody'); tbody.innerHTML='<tr><td colspan="3" class="center">Loading…</td></tr>'; try{const [players,scores]=await readContract(config,{address:CONTRACT_ADDRESS,abi:ABI,functionName:'getTopPlayers',args:[10n]}); tbody.innerHTML=''; if(!players||players.length===0){tbody.innerHTML='<tr><td colspan="3" class="center">No scores yet.</td></tr>'; return;} for(let i=0;i<players.length;i++){const short=`${players[i].slice(0,6)}…${players[i].slice(-4)}`; const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${short}</td><td>${scores[i].toString()}</td>`; tbody.appendChild(tr);}}catch(e){tbody.innerHTML='<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';}
 
     claimBtn.classList.add('hidden'); restartBtn.classList.add('hidden'); startBtn.classList.remove('hidden'); updateButtons(false);
   </script>
