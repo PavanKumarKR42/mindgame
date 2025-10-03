@@ -25,46 +25,282 @@
     body {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff;
-      padding: 20px; max-width: 390px; margin: 0 auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #fff; padding: 20px; max-width: 390px; margin: 0 auto;
+      -webkit-tap-highlight-color: transparent;
     }
     .tabbar { display: flex; gap: 8px; width: 100%; margin: 12px; }
-    .tabbar button { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
-    .tabbar button.active { background: rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.5); }
-    .hidden { display: none; }
-    .game-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 30px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; }
-    h1 { text-align: center; margin-bottom: 10px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
-    .score-info { display: flex; justify-content: space-around; margin-bottom: 20px; gap: 10px; }
-    .score-box { background: rgba(255, 255, 255, 0.15); padding: 10px 15px; border-radius: 15px; text-align: center; flex: 1; border: 1px solid rgba(255, 255, 255, 0.2); }
-    .score-label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-    .score-value { font-size: 20px; font-weight: bold; margin-top: 5px; }
-    #colorDisplay { width: 100%; height: 150px; border-radius: 25px; margin-bottom: 20px; border: 3px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: rgba(0, 0, 0, 0.3); transition: all 0.3s ease; box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
-    #colorDisplay.pulse { animation: pulse 0.5s ease; }
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-    .colorBtn { height: 60px; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 14px; color: #fff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); transition: all 0.2s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden; }
-    .colorBtn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); }
-    .colorBtn:active:not(:disabled) { transform: translateY(-1px); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); }
-    .colorBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .colorBtn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.2); opacity: 0; transition: opacity 0.3s ease; }
+    .tabbar button { 
+      flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.15); 
+      border: 1px solid rgba(255, 255, 255, 0.25); color: #fff; 
+      border-radius: 12px; font-weight: 700; cursor: pointer; 
+      transition: all 0.25s ease; font-size: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .tabbar button.active { 
+      background: rgba(255, 255, 255, 0.35); 
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .hidden { display: none !important; }
+    .game-container { 
+      background: rgba(255, 255, 255, 0.12); 
+      backdrop-filter: blur(16px); 
+      border-radius: 28px; 
+      padding: 24px; 
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); 
+      border: 1px solid rgba(255, 255, 255, 0.25); 
+      width: 100%;
+      will-change: transform;
+    }
+    h1 { 
+      text-align: center; 
+      margin-bottom: 16px; 
+      font-size: 26px; 
+      font-weight: 800;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+      letter-spacing: -0.5px;
+    }
+    .score-info { 
+      display: flex; 
+      justify-content: center; 
+      margin-bottom: 20px; 
+      gap: 12px; 
+    }
+    .score-box { 
+      background: rgba(255, 255, 255, 0.18); 
+      padding: 12px 20px; 
+      border-radius: 16px; 
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      min-width: 80px;
+    }
+    .score-label { 
+      font-size: 11px; 
+      opacity: 0.85; 
+      text-transform: uppercase; 
+      letter-spacing: 1.2px;
+      font-weight: 600;
+    }
+    .score-value { 
+      font-size: 28px; 
+      font-weight: 800; 
+      margin-top: 4px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    #colorDisplay { 
+      width: 100%; 
+      height: 160px; 
+      border-radius: 24px; 
+      margin-bottom: 24px; 
+      border: 3px solid rgba(255, 255, 255, 0.35); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      font-size: 26px; 
+      font-weight: 800; 
+      background: rgba(0, 0, 0, 0.35); 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15); 
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+      will-change: transform, background-color;
+    }
+    #colorDisplay.pulse { 
+      animation: pulse 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    @keyframes pulse { 
+      0%, 100% { transform: scale(1); } 
+      50% { transform: scale(1.03); } 
+    }
+    .buttons { 
+      display: grid; 
+      grid-template-columns: repeat(3, 1fr); 
+      gap: 12px; 
+      margin-bottom: 20px;
+      grid-template-rows: auto auto;
+    }
+    .colorBtn { 
+      height: 70px; 
+      border: none; 
+      border-radius: 18px; 
+      cursor: pointer; 
+      font-weight: 800; 
+      font-size: 13px; 
+      color: #fff; 
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4); 
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); 
+      position: relative; 
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      will-change: transform;
+      touch-action: manipulation;
+    }
+    .colorBtn:nth-child(4) { grid-column: 1 / 2; }
+    .colorBtn:nth-child(5) { grid-column: 3 / 4; }
+    .colorBtn:hover:not(:disabled) { 
+      transform: translateY(-4px) scale(1.02); 
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35); 
+    }
+    .colorBtn:active:not(:disabled) { 
+      transform: translateY(-1px) scale(0.98); 
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); 
+    }
+    .colorBtn:disabled { 
+      opacity: 0.4; 
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    .colorBtn::before { 
+      content: ''; 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(255, 255, 255, 0.25); 
+      opacity: 0; 
+      transition: opacity 0.25s ease; 
+    }
     .colorBtn:hover:not(:disabled)::before { opacity: 1; }
-    .colorBtn.pressed { animation: press 0.3s ease; }
-    @keyframes press { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.95); filter: brightness(1.3); } }
-    #message { text-align: center; font-size: 18px; min-height: 30px; font-weight: 600; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); margin-bottom: 20px; }
-    .btn-control { display: flex; gap: 10px; margin-top: 10px; }
-    .restart-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-    .restart-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
-    .claim-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); }
-    .claim-btn:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); }
-    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 14px; text-align: left; }
-    thead { background: rgba(0, 0, 0, 0.3); }
+    .colorBtn.pressed { 
+      animation: press 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    @keyframes press { 
+      0%, 100% { transform: scale(1); } 
+      50% { transform: scale(0.92); filter: brightness(1.4); } 
+    }
+    #message { 
+      text-align: center; 
+      font-size: 16px; 
+      min-height: 24px; 
+      font-weight: 600; 
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); 
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .btn-control { 
+      display: flex; 
+      gap: 10px; 
+      margin-top: 12px; 
+    }
+    .restart-btn, .start-btn { 
+      flex: 1; 
+      padding: 14px; 
+      background: rgba(255, 255, 255, 0.22); 
+      border: 2px solid rgba(255, 255, 255, 0.35); 
+      border-radius: 16px; 
+      color: white; 
+      font-size: 15px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      touch-action: manipulation;
+    }
+    .restart-btn:hover, .start-btn:hover { 
+      background: rgba(255, 255, 255, 0.3); 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    }
+    .restart-btn:active, .start-btn:active {
+      transform: translateY(0);
+    }
+    .claim-btn { 
+      flex: 1; 
+      padding: 14px; 
+      background: linear-gradient(135deg, #2ecc71, #27ae60); 
+      border: 2px solid rgba(255, 255, 255, 0.5); 
+      border-radius: 16px; 
+      color: white; 
+      font-size: 15px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
+      box-shadow: 0 4px 16px rgba(46, 204, 113, 0.4);
+      touch-action: manipulation;
+    }
+    .claim-btn:hover { 
+      background: linear-gradient(135deg, #27ae60, #229954); 
+      transform: translateY(-2px); 
+      box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); 
+    }
+    .claim-btn:active {
+      transform: translateY(0);
+    }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    th, td { 
+      padding: 12px 8px; 
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15); 
+      font-size: 14px; 
+      text-align: left; 
+    }
+    thead { 
+      background: rgba(0, 0, 0, 0.25);
+    }
+    th {
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
     .center { text-align: center; }
-    .toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 10px 14px; font-weight: 600; max-width: 360px; width: calc(100% - 24px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); display: none; z-index: 9999; }
-    .toast.show { display: block; animation: fadeIn 0.25s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
-    .start-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
-    .start-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+    .toast { 
+      position: fixed; 
+      bottom: 20px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      background: rgba(255, 255, 255, 0.15); 
+      backdrop-filter: blur(12px); 
+      color: #fff; 
+      border: 1px solid rgba(255, 255, 255, 0.25); 
+      border-radius: 16px; 
+      padding: 12px 16px; 
+      font-weight: 600; 
+      max-width: 360px; 
+      width: calc(100% - 40px); 
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4); 
+      display: none; 
+      z-index: 9999;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .toast.show { 
+      display: block; 
+      animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    }
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translate(-50%, 20px); } 
+      to { opacity: 1; transform: translate(-50%, 0); } 
+    }
+    .leaderboard-container {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    .leaderboard-container h3 {
+      margin-bottom: 12px;
+      font-size: 22px;
+      font-weight: 800;
+      text-align: center;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -83,13 +319,9 @@
           <div class="score-label">Round</div>
           <div class="score-value" id="roundDisplay">1</div>
         </div>
-        <div class="score-box">
-          <div class="score-label">Best</div>
-          <div class="score-value" id="bestScore">0</div>
-        </div>
       </div>
       
-      <div id="colorDisplay">Connect Wallet to Begin</div>
+      <div id="colorDisplay">Get Ready!</div>
       
       <div class="buttons" id="buttonsContainer"></div>
       
@@ -106,11 +338,13 @@
   </section>
 
   <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
-    <h3>Top 10 High Scores</h3>
-    <table>
-      <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
-      <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
-    </table>
+    <div class="leaderboard-container">
+      <h3>Top 10 High Scores</h3>
+      <table>
+        <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
+        <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
+      </table>
+    </div>
   </section>
 
   <div id="toast" class="toast"></div>
@@ -126,10 +360,10 @@
     import { decodeEventLog } from 'https://esm.sh/viem';
 
     /* ---------- Config ---------- */
-    const CONTRACT_ADDRESS = '0x8e48a5c3e61c0904ee2fb18cf5882c3c58b874bd'; // FILL THIS
-    const MAX_SCORE = 7; // Must match contract
+    const CONTRACT_ADDRESS = '0x8e48a5c3e61c0904ee2fb18cf5882c3c58b874bd';
+    const MAX_SCORE = 7;
 
-    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}]; // FILL THIS
+    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userHighScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
     const config = createConfig({
       chains: [arbitrum],
@@ -155,13 +389,12 @@
     const buttonsContainer = document.getElementById('buttonsContainer');
     const message = document.getElementById('message');
     const roundDisplay = document.getElementById('roundDisplay');
-    const bestScoreDisplay = document.getElementById('bestScore');
 
     /* ---------- State ---------- */
     let userAddress = null;
     let currentGameId = null;
     let currentDailyPlays = 0;
-    let maxDailyGames = 3; // Updated to 3
+    let maxDailyGames = 3;
     let finalScore = 0;
 
     tabPlayBtn.onclick = () => {
@@ -196,10 +429,8 @@
 
    async function fetchDailyPlays(address) {
       try {
-        // Get current UTC day
         const currentDay = Math.floor(Date.now() / 1000 / 86400);
         
-        // Fetch lastDay from contract
         const lastDay = await readContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
@@ -207,7 +438,6 @@
           args: [address]
         });
         
-        // If it's a new day on-chain, daily plays should be reset
         if (Number(lastDay) < currentDay) {
           currentDailyPlays = 0;
         } else {
@@ -238,7 +468,7 @@
         maxDailyGames = Number(max);
       } catch (e) {
         console.error('Failed to fetch MAX_DAILY_GAMES:', e);
-        maxDailyGames = 3; // Default to 3
+        maxDailyGames = 3;
       }
     }
 
@@ -302,7 +532,6 @@
         claimBtn.disabled = true;
         claimBtn.innerText = 'Checking...';
         
-        // Verify game state before claiming
         const gameData = await readContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
@@ -335,7 +564,6 @@
           return;
         }
         
-        // Check contract BONK balance
         const bonkAddress = await readContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
@@ -351,7 +579,7 @@
         
         console.log('Contract BONK balance:', contractBalance.toString());
         
-        const requiredReward = 3000000n; // 3000k = 3M with proper decimals
+        const requiredReward = 3000000n;
         if (contractBalance < requiredReward) {
           showToast('Contract has insufficient BONK tokens. Contact developer to refill!', 5000);
           claimBtn.disabled = false;
@@ -407,13 +635,7 @@
     let userSequence = [];
     let round = 1;
     let displaying = false;
-    let bestScore = 0;
     let buttonsEnabled = false;
-
-    if (localStorage.getItem('bestScore')) {
-      bestScore = parseInt(localStorage.getItem('bestScore'));
-      bestScoreDisplay.innerText = bestScore;
-    }
 
     colors.forEach(colorObj => {
       const btn = document.createElement('button');
@@ -427,14 +649,13 @@
 
     function updateButtons(enabled) {
       buttonsEnabled = enabled;
-      document.querySelectorAll('.colorBtn').forEach(btn => {
+      const buttons = document.querySelectorAll('.colorBtn');
+      buttons.forEach(btn => {
         btn.disabled = !enabled;
       });
     }
 
-    function sleep(ms) { 
-      return new Promise(resolve => setTimeout(resolve, ms)); 
-    }
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
     async function displaySequence() {
       displaying = true;
@@ -450,7 +671,7 @@
         colorDisplay.classList.add('pulse');
         await sleep(700);
         colorDisplay.classList.remove('pulse');
-        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.35)";
         colorDisplay.innerText = "";
         await sleep(300);
       }
@@ -479,7 +700,7 @@
         return;
       }
 
-      message.innerText = `Starting Free Game... Please confirm gas transaction.`;
+      message.innerText = `Starting game...`;
       updateButtons(false);
       startBtn.disabled = true;
 
@@ -494,11 +715,11 @@
 
         hash = txResponse?.hash || txResponse;
         if (!hash) {
-          throw new Error("Transaction not sent (hash undefined)");
+          throw new Error("Transaction not sent");
         }
 
         showToast(`Transaction sent! Waiting for confirmation...`);
-        message.innerText = `Transaction sent! Waiting for confirmation...`;
+        message.innerText = `Confirming transaction...`;
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -525,15 +746,15 @@
         }
 
         if (!found || currentGameId === null) {
-          message.innerText = `No GameStarted event found. Check TX: https://arbiscan.io/tx/${hash}`;
+          message.innerText = `Transaction confirmed but event missing`;
           showToast("Transaction confirmed but GameStarted event missing.");
           startBtn.disabled = false;
           updateStartButtonText(currentDailyPlays);
           return;
         }
 
-        message.innerText = `Game started! Game ID: ${currentGameId}`;
-        showToast(`Game started! Game ID: ${currentGameId}`);
+        message.innerText = `Game started! ID: ${currentGameId}`;
+        showToast(`Game started! ID: ${currentGameId}`);
 
         startBtn.classList.add('hidden');
         restartBtn.classList.remove('hidden');
@@ -548,7 +769,7 @@
         console.error('Init error:', e);
         let errMsg = e?.shortMessage || e?.message || "Unknown error";
         showToast(`Start Failed: ${errMsg}`);
-        message.innerText = `Transaction failed: ${errMsg}`;
+        message.innerText = `Failed: ${errMsg}`;
         startBtn.disabled = false;
         updateStartButtonText(currentDailyPlays);
       }
@@ -579,7 +800,7 @@
           message.innerText = `Great! Round ${round} incoming...`;
 
           setTimeout(() => {
-            colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+            colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.35)";
             colorDisplay.innerText = "";
             nextRound();
           }, 1200);
@@ -600,31 +821,18 @@
         message.innerText = `Game Over! You reached round ${round}`;
       }
 
-      if (round > bestScore) {
-        bestScore = round;
-        bestScoreDisplay.innerText = bestScore;
-        localStorage.setItem('bestScore', bestScore);
-        message.innerText += ` New Best: ${round}!`;
-      }
-
       finalScore = round;
       sequence = [];
 
       setTimeout(async () => {
-        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+        colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.35)";
         colorDisplay.innerText = "Get Ready...";
         message.innerText = "";
 
         try {
           if (currentGameId) {
             showToast("Saving your score on-chain...");
-            message.innerText = `Submitting score ${finalScore} for game ${currentGameId}...`;
-            
-            console.log('Submitting endGame:', {
-              gameId: currentGameId,
-              score: finalScore,
-              scoreAsBigInt: BigInt(finalScore)
-            });
+            message.innerText = `Submitting score ${finalScore}...`;
             
             const txResponse = await writeContract(config, {
               address: CONTRACT_ADDRESS,
@@ -641,7 +849,6 @@
               await publicClient.waitForTransactionReceipt({ hash: endHash });
               showToast("Score submitted successfully!");
               
-              // Verify what was actually stored
               const gameData = await readContract(config, {
                 address: CONTRACT_ADDRESS,
                 abi: ABI,
@@ -650,15 +857,13 @@
               });
               
               const storedScore = Number(gameData[2]);
-              console.log('Stored score on-chain:', storedScore);
-              
               message.innerText = `Score ${storedScore} saved on-chain!`;
             }
           }
 
           if (finalScore === MAX_SCORE && currentGameId) {
             claimBtn.classList.remove('hidden');
-            showToast(`Perfect score ${MAX_SCORE}! Click "Claim 3k BONK" to get your reward!`, 4000);
+            showToast(`Perfect score ${MAX_SCORE}! Claim your reward!`, 4000);
             message.innerText = `You scored ${MAX_SCORE}/7! Claim your reward!`;
           } else if (finalScore < MAX_SCORE) {
             showToast(`Good try! You scored ${finalScore}. Reach ${MAX_SCORE} for a reward.`);
@@ -681,7 +886,7 @@
       displaying = false;
       currentGameId = null;
       finalScore = 0;
-      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
+      colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.35)";
       colorDisplay.innerText = "Get Ready...";
       message.innerText = "Ready for your next game!";
       roundDisplay.innerText = "1";
