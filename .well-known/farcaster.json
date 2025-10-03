@@ -10,7 +10,7 @@
     "splashBackgroundColor": "#6200EA",
     "webhookUrl": "https://mindgame-omega.vercel.app/api/webhook",
     "subtitle": "Test Memory!",
-    "description": "The Mind Color Sequence Game is a Simon-style memory and sequence recall game built as a Farcaster Mini App with on-chain integration on the Arbitrum network. It challenges users to remember and correctly repeat increasingly long color sequences to progress and earn a cryptocurrency reward.",
+    "description": "Mind Color Sequence is a Simon-style memory game on Arbitrum where players repeat color patterns to progress and earn crypto rewards.",
     "primaryCategory": "games",
     "tags": [
       "games",
