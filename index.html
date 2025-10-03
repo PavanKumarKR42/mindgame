@@ -194,15 +194,32 @@
       }
     }
 
-    async function fetchDailyPlays(address) {
+   async function fetchDailyPlays(address) {
       try {
-        const count = await readContract(config, {
+        // Get current UTC day
+        const currentDay = Math.floor(Date.now() / 1000 / 86400);
+        
+        // Fetch lastDay from contract
+        const lastDay = await readContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
-          functionName: 'dailyPlays',
+          functionName: 'lastDay',
           args: [address]
         });
-        currentDailyPlays = Number(count);
+        
+        // If it's a new day on-chain, daily plays should be reset
+        if (Number(lastDay) < currentDay) {
+          currentDailyPlays = 0;
+        } else {
+          const count = await readContract(config, {
+            address: CONTRACT_ADDRESS,
+            abi: ABI,
+            functionName: 'dailyPlays',
+            args: [address]
+          });
+          currentDailyPlays = Number(count);
+        }
+        
         updateStartButtonText(currentDailyPlays);
       } catch (e) {
         console.error('Failed to fetch daily plays:', e);
