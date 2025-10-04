@@ -82,6 +82,8 @@
     @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
     .start-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
     .start-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+    .confetti { position: fixed; width: 10px; height: 10px; background: #f39c12; position: fixed; animation: fall 3s linear forwards; z-index: 10000; }
+    @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
   </style>
 </head>
 <body>
@@ -203,9 +205,14 @@
     function updateStartButtonText(dailyPlays) {
       if (dailyPlays < maxDailyGames) {
         startBtn.innerText = `Start Free Game (${dailyPlays}/${maxDailyGames})`;
+        startBtn.disabled = false;
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
       } else {
-        startBtn.innerText = `Daily Limit Reached`;
         startBtn.disabled = true;
+        startTimer();
       }
     }
 
@@ -408,11 +415,101 @@
     const clickSound = new Audio('music.wav');
     clickSound.volume = 0.5;
 
+    const warnSound = new Audio('warn.wav');
+    warnSound.volume = 0.6;
+
+    const winSound = new Audio('win.wav');
+    winSound.volume = 0.7;
+
     function playClickSound() {
       clickSound.currentTime = 0;
       clickSound.play().catch(err => {
         console.log('Audio play failed:', err);
       });
+    }
+
+    function playWarnSound() {
+      warnSound.currentTime = 0;
+      warnSound.play().catch(err => {
+        console.log('Audio play failed:', err);
+      });
+    }
+
+    function playWinSound() {
+      winSound.currentTime = 0;
+      winSound.play().catch(err => {
+        console.log('Audio play failed:', err);
+      });
+    }
+
+    /* ---------- Confetti Effect ---------- */
+    function createConfetti() {
+      const confettiColors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#e91e63', '#00bcd4'];
+      const confettiCount = 100;
+
+      for (let i = 0; i < confettiCount; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.className = 'confetti';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+          confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+          confetti.style.animationDelay = '0s';
+          document.body.appendChild(confetti);
+
+          setTimeout(() => {
+            confetti.remove();
+          }, 4000);
+        }, i * 30);
+      }
+    }
+
+    /* ---------- Timer Countdown ---------- */
+    let timerInterval = null;
+
+    function getTimeUntilMidnightUTC() {
+      const now = new Date();
+      const midnight = new Date(Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate() + 1,
+        0, 0, 0, 0
+      ));
+      const diff = midnight - now;
+      
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      return { hours, minutes, seconds, total: diff };
+    }
+
+    function updateTimerDisplay() {
+      const { hours, minutes, seconds } = getTimeUntilMidnightUTC();
+      const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      startBtn.innerText = `Next game in ${formattedTime}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      
+      updateTimerDisplay();
+      timerInterval = setInterval(() => {
+        const { total } = getTimeUntilMidnightUTC();
+        
+        if (total <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          currentDailyPlays = 0;
+          startBtn.disabled = false;
+          updateStartButtonText(0);
+          if (userAddress) {
+            fetchDailyPlays(userAddress);
+          }
+        } else {
+          updateTimerDisplay();
+        }
+      }, 1000);
     }
 
     /* ---------- Game Logic ---------- */
@@ -615,10 +712,13 @@
       updateButtons(false);
       
       if (isWin) {
+        playWinSound();
+        createConfetti();
         colorDisplay.style.backgroundColor = "#f39c12";
         colorDisplay.innerText = "PERFECT!";
         message.innerText = `Amazing! You reached max score ${MAX_SCORE}!`;
       } else {
+        playWarnSound();
         colorDisplay.style.backgroundColor = "#e74c3c";
         colorDisplay.innerText = "Wrong!";
         message.innerText = `Game Over! You reached round ${round}`;
@@ -711,7 +811,6 @@
       restartBtn.classList.add('hidden');
       claimBtn.classList.add('hidden');
       startBtn.classList.remove('hidden');
-      startBtn.disabled = false;
       
       if (userAddress) {
         fetchDailyPlays(userAddress);
@@ -722,6 +821,12 @@
 
     restartBtn.onclick = restartGame;
     startBtn.onclick = initGame;
+
+    window.addEventListener('beforeunload', () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    });
 
     /* ---------- Neynar API Integration ---------- */
     async function fetchFarcasterUsersByAddresses(addresses) {
