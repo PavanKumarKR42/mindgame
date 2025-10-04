@@ -404,6 +404,17 @@
       }
     };
 
+    /* ---------- Audio Setup ---------- */
+    const clickSound = new Audio('music.wav');
+    clickSound.volume = 0.5;
+
+    function playClickSound() {
+      clickSound.currentTime = 0;
+      clickSound.play().catch(err => {
+        console.log('Audio play failed:', err);
+      });
+    }
+
     /* ---------- Game Logic ---------- */
     const colors = [
       {name: "red", hex: "#e74c3c"},
@@ -567,6 +578,8 @@
 
     async function handleUserInput(colorName, btn) {
       if (displaying || !buttonsEnabled) return;
+      
+      playClickSound();
       
       btn.classList.add('pressed');
       setTimeout(() => btn.classList.remove('pressed'), 300);
