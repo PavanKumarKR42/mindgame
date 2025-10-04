@@ -69,18 +69,19 @@
     .claim-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); }
     .claim-btn:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); }
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 14px; text-align: left; }
+    th, td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 14px; text-align: left; }
     thead { background: rgba(0, 0, 0, 0.3); }
     .center { text-align: center; }
-    .player-cell { display: flex; align-items: center; gap: 8px; }
-    .player-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.3); object-fit: cover; }
-    .player-username { font-weight: 600; }
+    .user-cell { display: flex; align-items: center; gap: 8px; }
+    .pfp { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.3); }
+    .user-info { display: flex; flex-direction: column; }
+    .username { font-weight: 600; font-size: 13px; }
+    .address { font-size: 10px; opacity: 0.7; }
     .toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 10px 14px; font-weight: 600; max-width: 360px; width: calc(100% - 24px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); display: none; z-index: 9999; }
     .toast.show { display: block; animation: fadeIn 0.25s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
     .start-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
     .start-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
-    h3 { margin-bottom: 8px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
   </style>
 </head>
 <body>
@@ -122,7 +123,7 @@
   <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
     <h3>Top 10 High Scores</h3>
     <table>
-      <thead><tr><th>Rank</th><th>Player</th><th>Score</th></tr></thead>
+      <thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead>
       <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
     </table>
   </section>
@@ -155,51 +156,6 @@
       chain: arbitrum,
       transport: http()
     });
-
-    /* ---------- Neynar API ---------- */
-    async function getFarcasterUserData(addresses) {
-      if (!addresses || addresses.length === 0) return [];
-      
-      try {
-        const uniqueAddresses = [...new Set(addresses)];
-        const addressList = uniqueAddresses.join(',');
-        const url = `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${addressList}`;
-        
-        const response = await fetch(url, {
-          headers: {
-            'accept': 'application/json',
-            'api_key': NEYNAR_API_KEY
-          }
-        });
-        
-        if (!response.ok) {
-          console.error('Neynar API error:', response.status);
-          return [];
-        }
-        
-        const data = await response.json();
-        
-        const userMap = {};
-        if (data && data[uniqueAddresses[0]]) {
-          uniqueAddresses.forEach(addr => {
-            const userData = data[addr];
-            if (userData && userData.length > 0) {
-              const user = userData[0];
-              userMap[addr.toLowerCase()] = {
-                username: user.username || 'Unknown',
-                pfp: user.pfp_url || '',
-                fid: user.fid
-              };
-            }
-          });
-        }
-        
-        return userMap;
-      } catch (error) {
-        console.error('Failed to fetch Farcaster data:', error);
-        return [];
-      }
-    }
 
     /* ---------- UI Refs ---------- */
     const playTab = document.getElementById('playTab');
@@ -464,6 +420,10 @@
     let bestScore = 0;
     let buttonsEnabled = false;
 
+    if (localStorage.getItem('bestScore')) {
+      bestScore = parseInt(localStorage.getItem('bestScore'));
+    }
+
     colors.forEach((colorObj, index) => {
       const btn = document.createElement('button');
       btn.classList.add('colorBtn');
@@ -653,6 +613,7 @@
 
       if (round > bestScore) {
         bestScore = round;
+        localStorage.setItem('bestScore', bestScore);
         message.innerText += ` New Best: ${round}!`;
       }
 
@@ -749,10 +710,41 @@
     restartBtn.onclick = restartGame;
     startBtn.onclick = initGame;
 
+    /* ---------- Neynar API Integration ---------- */
+    async function fetchFarcasterUsersByAddresses(addresses) {
+      if (!addresses || addresses.length === 0) return {};
+      
+      try {
+        const addressesParam = addresses.join(',');
+        const response = await fetch(
+          `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${addressesParam}`,
+          {
+            method: 'GET',
+            headers: {
+              'accept': 'application/json',
+              'api_key': NEYNAR_API_KEY
+            }
+          }
+        );
+
+        if (!response.ok) {
+          console.error('Neynar API error:', response.status);
+          return {};
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching Farcaster users:', error);
+        return {};
+      }
+    }
+
     /* ---------- Leaderboard ---------- */
     async function loadLeaderboard() {
       const tbody = document.getElementById('leaderboardBody');
       tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
+      
       try {
         const [players, scores] = await readContract(config, {
           address: CONTRACT_ADDRESS,
@@ -766,46 +758,63 @@
           return;
         }
 
-        const userData = await getFarcasterUserData(players);
+        const farcasterUsers = await fetchFarcasterUsersByAddresses(players);
         
         tbody.innerHTML = '';
         for (let i = 0; i < players.length; i++) {
           const address = players[i].toLowerCase();
-          const user = userData[address];
+          const users = farcasterUsers[address];
           
           const tr = document.createElement('tr');
-          
           const rankTd = document.createElement('td');
           rankTd.textContent = i + 1;
-          tr.appendChild(rankTd);
           
           const playerTd = document.createElement('td');
-          const playerCell = document.createElement('div');
-          playerCell.className = 'player-cell';
           
-          if (user && user.pfp) {
-            const avatar = document.createElement('img');
-            avatar.src = user.pfp;
-            avatar.alt = user.username;
-            avatar.className = 'player-avatar';
-            avatar.onerror = function() {
-              this.style.display = 'none';
+          if (users && users.length > 0) {
+            const user = users[0];
+            const pfpUrl = user.pfp_url || 'https://via.placeholder.com/32';
+            const username = user.username || 'Unknown';
+            const displayName = user.display_name || username;
+            
+            const userCell = document.createElement('div');
+            userCell.className = 'user-cell';
+            
+            const pfpImg = document.createElement('img');
+            pfpImg.src = pfpUrl;
+            pfpImg.alt = username;
+            pfpImg.className = 'pfp';
+            pfpImg.onerror = () => {
+              pfpImg.src = 'https://via.placeholder.com/32';
             };
-            playerCell.appendChild(avatar);
+            
+            const userInfo = document.createElement('div');
+            userInfo.className = 'user-info';
+            
+            const usernameDiv = document.createElement('div');
+            usernameDiv.className = 'username';
+            usernameDiv.textContent = `@${username}`;
+            
+            const addressDiv = document.createElement('div');
+            addressDiv.className = 'address';
+            addressDiv.textContent = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+            
+            userInfo.appendChild(usernameDiv);
+            userInfo.appendChild(addressDiv);
+            userCell.appendChild(pfpImg);
+            userCell.appendChild(userInfo);
+            playerTd.appendChild(userCell);
+          } else {
+            const shortAddress = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
+            playerTd.textContent = shortAddress;
           }
-          
-          const username = document.createElement('span');
-          username.className = 'player-username';
-          username.textContent = user ? `@${user.username}` : `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
-          playerCell.appendChild(username);
-          
-          playerTd.appendChild(playerCell);
-          tr.appendChild(playerTd);
           
           const scoreTd = document.createElement('td');
           scoreTd.textContent = scores[i].toString();
-          tr.appendChild(scoreTd);
           
+          tr.appendChild(rankTd);
+          tr.appendChild(playerTd);
+          tr.appendChild(scoreTd);
           tbody.appendChild(tr);
         }
       } catch (e) {
