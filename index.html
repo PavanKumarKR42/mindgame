@@ -10,7 +10,7 @@
     "imageUrl":"https://mindgame-omega.vercel.app/image.png",
     "splashImageUrl": "https://mindgame-omega.vercel.app/splash.png",
     "button":{
-      "title":"BRAIN.exe!",
+      "title":"BRAIN.EXE!",
       "action":{
         "type":"launch_frame",
         "name":"Mind Color Sequence",
@@ -748,9 +748,164 @@
         opacity: 0; 
       } 
     }
+
+    /* Rules Modal Styles */
+    .rules-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(10px);
+      z-index: 9998;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      animation: fadeInOverlay 0.4s ease forwards;
+    }
+
+    @keyframes fadeInOverlay {
+      to { opacity: 1; }
+    }
+
+    .rules-overlay.hidden {
+      display: none;
+    }
+
+    .rules-container {
+      background: rgba(10, 14, 39, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 32px 28px;
+      max-width: 450px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(50px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .rules-header {
+      margin-bottom: 24px;
+    }
+
+    .rules-title {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #8a2be2, #00bfff, #ff1493);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+    }
+
+    .rules-content {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .rules-content p {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .rules-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .rules-bullet {
+      color: #00bfff;
+      font-size: 20px;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+
+    .rules-text {
+      flex: 1;
+    }
+
+    .rules-text strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .rules-close-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #8a2be2, #00bfff);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 14px;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 24px;
+      box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+    }
+
+    .rules-close-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(138, 43, 226, 0.6);
+    }
   </style>
 </head>
 <body>
+
+  <!-- Rules Overlay -->
+  <div class="rules-overlay" id="rulesOverlay">
+    <div class="rules-container">
+      <div class="rules-header">
+        <h2 class="rules-title">Game Rules</h2>
+      </div>
+      
+      <div class="rules-content">
+        <p>
+          <span class="rules-bullet">•</span>
+          <span class="rules-text"><strong>You get 3 games per day.</strong> That's right, <strong>THREE.</strong> No more, no less. Don't waste 'em trying to be smart. Just play, loser 😎</span>
+        </p>
+        <p>
+          <span class="rules-bullet">•</span>
+          <span class="rules-text"><strong>Each game has 7 rounds.</strong> Think of it like 7 boss fights, except the bosses are your own bad decisions.</span>
+        </p>
+        <p>
+          <span class="rules-bullet">•</span>
+          <span class="rules-text"><strong>Reach Round 7 = YOU WIN LIFE.</strong> Congratulations, you absolute legend 🎉 You get <strong>3,000 $BONK tokens</strong> — enough to brag on Farcaster for at least 12 hours.</span>
+        </p>
+        <p>
+          <span class="rules-bullet">•</span>
+          <span class="rules-text"><strong>Don't make it to Round 7?</strong> Oof. Tough luck. Your score gets <strong>thrown onto the leaderboard</strong> so everyone can laugh — or cheer, if they're nice (they're not).</span>
+        </p>
+        <p>
+          <span class="rules-bullet">•</span>
+          <span class="rules-text"><strong>Leaderboard = Street Cred.</strong> More score = more flex. Less score = meme material.</span>
+        </p>
+      </div>
+      
+      <button class="rules-close-btn" id="gotItBtn">Got It! Let's Play 🚀</button>
+    </div>
+  </div>
 
   <div class="tabbar">
     <button id="tabPlayBtn" class="active">Play</button>
@@ -932,11 +1087,30 @@
     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       console.log("Farcaster MiniApp ready");
       message.innerText = "Ready to connect!";
+      
+      // Show rules on first visit
+      const hasSeenRules = localStorage.getItem('hasSeenRules');
+      if (!hasSeenRules) {
+        setTimeout(() => {
+          document.getElementById('rulesOverlay').classList.remove('hidden');
+        }, 300);
+      }
     }).catch(err => {
       console.error("SDK ready error:", err);
       message.innerText = "SDK initialization failed";
       showToast("Failed to initialize. Try reloading.");
     });
+
+    // Rules overlay controls
+    const rulesOverlay = document.getElementById('rulesOverlay');
+    const gotItBtn = document.getElementById('gotItBtn');
+
+    function closeRules() {
+      rulesOverlay.classList.add('hidden');
+      localStorage.setItem('hasSeenRules', 'true');
+    }
+
+    gotItBtn.onclick = closeRules;
 
     connectBtn.onclick = async () => {
       try {
