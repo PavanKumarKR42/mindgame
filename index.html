@@ -23,29 +23,28 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff;
-      padding: 8px; max-width: 390px; margin: 0 auto; overflow-x: hidden;
+      padding: 20px; max-width: 390px; margin: 0 auto;
     }
-    .tabbar { display: flex; gap: 8px; width: 100%; margin: 8px 0; }
-    .tabbar button { flex: 1; padding: 10px; background: linear-gradient(135deg, #FFD700, #FFA500); border: 3px solid #FF8C00; color: #000; border-radius: 12px; font-weight: 900; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4), inset 0 2px 0 rgba(255,255,255,0.3); }
-    .tabbar button.active { background: linear-gradient(135deg, #FF8C00, #FF6347); border-color: #FF4500; transform: scale(1.05); box-shadow: 0 6px 20px rgba(255, 69, 0, 0.6), inset 0 2px 0 rgba(255,255,255,0.3); }
-    .tabbar button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    .tabbar { display: flex; gap: 8px; width: 100%; margin: 12px; }
+    .tabbar button { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+    .tabbar button.active { background: rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.5); }
     .hidden { display: none; }
-    .game-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; }
-    h1 { text-align: center; margin-bottom: 8px; font-size: 22px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
-    .score-info { display: flex; justify-content: center; margin-bottom: 12px; }
-    .score-box { background: rgba(255, 255, 255, 0.15); padding: 8px 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
+    .game-container { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-radius: 30px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.2); width: 100%; }
+    h1 { text-align: center; margin-bottom: 10px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
+    .score-info { display: flex; justify-content: center; margin-bottom: 20px; }
+    .score-box { background: rgba(255, 255, 255, 0.15); padding: 10px 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
     .score-label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
-    .score-value { font-size: 18px; font-weight: bold; margin-top: 3px; }
-    #colorDisplay { width: 100%; height: 120px; border-radius: 20px; margin-bottom: 15px; border: 3px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; background: rgba(0, 0, 0, 0.3); transition: all 0.3s ease; box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+    .score-value { font-size: 20px; font-weight: bold; margin-top: 5px; }
+    #colorDisplay { width: 100%; height: 150px; border-radius: 25px; margin-bottom: 20px; border: 3px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: rgba(0, 0, 0, 0.3); transition: all 0.3s ease; box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
     #colorDisplay.pulse { animation: pulse 0.5s ease; }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-    .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 50px; position: relative; }
-    .bonk-token { position: absolute; width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 215, 0, 0.8); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2); top: 75px; left: 50%; transform: translateX(-50%); z-index: 10; animation: float 3s ease-in-out infinite; }
+    .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 60px; position: relative; }
+    .bonk-token { position: absolute; width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 215, 0, 0.8); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2); top: 85px; left: 50%; transform: translateX(-50%); z-index: 10; animation: float 3s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateX(-50%) translateY(0px); } 50% { transform: translateX(-50%) translateY(-10px); } }
-    .colorBtn { height: 65px; border: 3px solid; border-radius: 20px; cursor: pointer; font-weight: 900; font-size: 14px; color: #fff; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 -3px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2); position: relative; overflow: hidden; letter-spacing: 0.5px; }
+    .colorBtn { height: 70px; border: 3px solid; border-radius: 25px; cursor: pointer; font-weight: 900; font-size: 15px; color: #fff; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 -3px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2); position: relative; overflow: hidden; letter-spacing: 0.5px; }
     .colorBtn[data-color="red"] { border-color: #c0392b; box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6), inset 0 -3px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2), 0 0 15px rgba(231, 76, 60, 0.4); }
     .colorBtn[data-color="blue"] { border-color: #2980b9; box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6), inset 0 -3px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2), 0 0 15px rgba(52, 152, 219, 0.4); }
     .colorBtn[data-color="green"] { border-color: #27ae60; box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6), inset 0 -3px 8px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2), 0 0 15px rgba(46, 204, 113, 0.4); }
@@ -60,12 +59,12 @@
     .colorBtn.pressed { animation: press 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
     .colorBtn.purple-btn { grid-column: 3; grid-row: 2; }
     @keyframes press { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(0.92) rotate(-3deg); } 50% { transform: scale(0.95) rotate(2deg); filter: brightness(1.4) saturate(1.3); box-shadow: 0 0 30px currentColor; } 75% { transform: scale(0.92) rotate(-2deg); } 100% { transform: scale(1) rotate(0deg); } }
-    #message { text-align: center; font-size: 16px; min-height: 25px; font-weight: 600; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); margin-bottom: 15px; }
-    .btn-control { display: flex; gap: 8px; margin-top: 8px; }
-    .restart-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #FFD700, #FFA500); border: 3px solid #FF8C00; border-radius: 15px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); box-shadow: 0 4px 15px rgba(255, 165, 0, 0.5), inset 0 2px 0 rgba(255,255,255,0.3); }
-    .restart-btn:hover { background: linear-gradient(135deg, #FFA500, #FF8C00); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 165, 0, 0.7); }
-    .claim-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #FFD700, #FFFF00); border: 3px solid #FFD700; border-radius: 15px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.6), inset 0 2px 0 rgba(255,255,255,0.4); }
-    .claim-btn:hover { background: linear-gradient(135deg, #FFFF00, #FFD700); transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 25px rgba(255, 215, 0, 0.9), 0 0 20px rgba(255, 215, 0, 0.5); }
+    #message { text-align: center; font-size: 18px; min-height: 30px; font-weight: 600; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); margin-bottom: 20px; }
+    .btn-control { display: flex; gap: 10px; margin-top: 10px; }
+    .restart-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+    .restart-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
+    .claim-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #2ecc71, #27ae60); border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); }
+    .claim-btn:hover { background: linear-gradient(135deg, #27ae60, #229954); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6); }
     table { width: 100%; border-collapse: collapse; margin-top: 12px; }
     th, td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 14px; text-align: left; }
     thead { background: rgba(0, 0, 0, 0.3); }
@@ -73,21 +72,20 @@
     .toast { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(8px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 10px 14px; font-weight: 600; max-width: 360px; width: calc(100% - 24px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); display: none; z-index: 9999; }
     .toast.show { display: block; animation: fadeIn 0.25s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
-    .start-btn { flex: 1; padding: 12px; background: linear-gradient(135deg, #FFD700, #FFA500); border: 3px solid #FF8C00; border-radius: 15px; color: #000; font-size: 14px; font-weight: 900; cursor: pointer; transition: all 0.3s ease; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); box-shadow: 0 4px 15px rgba(255, 165, 0, 0.5), inset 0 2px 0 rgba(255,255,255,0.3); }
-    .start-btn:hover { background: linear-gradient(135deg, #FFA500, #FF8C00); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 165, 0, 0.7); }
-    h3 { text-align: center; margin-bottom: 10px; }
+    .start-btn { flex: 1; padding: 12px; background: rgba(255, 255, 255, 0.2); border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 15px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; }
+    .start-btn:hover { background: rgba(255, 255, 255, 0.3); transform: translateY(-2px); }
   </style>
 </head>
 <body>
 
   <div class="tabbar">
-    <button id="tabPlayBtn" class="active">🎮 Play</button>
-    <button id="tabLbBtn">🏆 Leaderboard</button>
+    <button id="tabPlayBtn" class="active">Play</button>
+    <button id="tabLbBtn">Leaderboard</button>
   </div>
 
   <section id="playTab">
     <div class="game-container">
-      <h1>🎯 Mind Color Sequence</h1>
+      <h1>Mind Color Sequence</h1>
       
       <div class="score-info">
         <div class="score-box">
@@ -105,17 +103,17 @@
       <div id="message"></div>
       
       <div class="btn-control">
-        <button class="start-btn" id="connectBtn">🔗 Connect Wallet</button>
-        <button class="start-btn hidden" id="startBtn">🎮 Start Free Game</button>
-        <button class="restart-btn hidden" id="restartBtn">🔄 Restart Game</button>
-        <button class="claim-btn hidden" id="claimBtn">💰 Claim 3k BONK</button>
+        <button class="start-btn" id="connectBtn">Connect Wallet</button>
+        <button class="start-btn hidden" id="startBtn">Start Free Game</button>
+        <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
+        <button class="claim-btn hidden" id="claimBtn">Claim 3k BONK</button>
       </div>
 
     </div>
   </section>
 
   <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
-    <h3>🏆 Top 10 High Scores</h3>
+    <h3>Top 10 High Scores</h3>
     <table>
       <thead><tr><th>#</th><th>Address</th><th>Score</th></tr></thead>
       <tbody id="leaderboardBody"><tr><td colspan="3" class="center">Loading…</td></tr></tbody>
@@ -134,6 +132,7 @@
     import { createPublicClient, http } from 'https://esm.sh/viem';
     import { decodeEventLog } from 'https://esm.sh/viem';
 
+    /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0xe54be4a16ec396d2c31812a3693af15281ee115a';
     const MAX_SCORE = 7;
 
@@ -149,6 +148,7 @@
       transport: http()
     });
 
+    /* ---------- UI Refs ---------- */
     const playTab = document.getElementById('playTab');
     const leaderboardTab = document.getElementById('leaderboardTab');
     const tabPlayBtn = document.getElementById('tabPlayBtn');
@@ -163,6 +163,7 @@
     const message = document.getElementById('message');
     const roundDisplay = document.getElementById('roundDisplay');
 
+    /* ---------- State ---------- */
     let userAddress = null;
     let currentGameId = null;
     let currentDailyPlays = 0;
@@ -192,9 +193,9 @@
 
     function updateStartButtonText(dailyPlays) {
       if (dailyPlays < maxDailyGames) {
-        startBtn.innerText = `🎮 Start Free Game (${dailyPlays}/${maxDailyGames})`;
+        startBtn.innerText = `Start Free Game (${dailyPlays}/${maxDailyGames})`;
       } else {
-        startBtn.innerText = `⏰ Daily Limit Reached`;
+        startBtn.innerText = `Daily Limit Reached`;
         startBtn.disabled = true;
       }
     }
@@ -244,6 +245,7 @@
       }
     }
 
+    /* ---------- Initialize SDK and Wallet ---------- */
     sdk.actions.ready({ disableNativeGestures: true }).then(() => {
       console.log("Farcaster MiniApp ready");
       message.innerText = "Ready to connect!";
@@ -256,7 +258,7 @@
     connectBtn.onclick = async () => {
       try {
         connectBtn.disabled = true;
-        connectBtn.innerText = '🔗 Connecting...';
+        connectBtn.innerText = 'Connecting...';
         message.innerText = "Connecting wallet...";
 
         await connect(config, {
@@ -267,7 +269,7 @@
         userAddress = getAccount(config)?.address;
 
         if (userAddress) {
-          showToast(`✅ Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
           
           await fetchMaxDailyGames();
           await fetchDailyPlays(userAddress);
@@ -281,27 +283,27 @@
         }
       } catch (err) {
         console.error("Wallet connect failed:", err);
-        showToast("❌ Connect failed. Make sure you opened this in Warpcast.");
+        showToast("Connect failed. Make sure you opened this in Warpcast.");
         connectBtn.disabled = false;
-        connectBtn.innerText = '🔗 Connect Wallet';
+        connectBtn.innerText = 'Connect Wallet';
         message.innerText = "Connection failed. Try again.";
       }
     };
 
     claimBtn.onclick = async () => {
       if (!currentGameId) {
-        showToast('❌ No active game to claim. Play and win first!');
+        showToast('No active game to claim. Play and win first!');
         return;
       }
       
       if (finalScore !== MAX_SCORE) {
-        showToast(`❌ Score must be exactly ${MAX_SCORE} to claim. You scored ${finalScore}.`);
+        showToast(`Score must be exactly ${MAX_SCORE} to claim. You scored ${finalScore}.`);
         return;
       }
       
       try {
         claimBtn.disabled = true;
-        claimBtn.innerText = '🔍 Checking...';
+        claimBtn.innerText = 'Checking...';
         
         const gameData = await readContract(config, {
           address: CONTRACT_ADDRESS,
@@ -314,24 +316,24 @@
         const [player, ended, score, claimed] = gameData;
         
         if (claimed) {
-          showToast('⚠️ Reward already claimed for this game!');
+          showToast('Reward already claimed for this game!');
           claimBtn.classList.add('hidden');
           claimBtn.disabled = false;
-          claimBtn.innerText = '💰 Claim 3k BONK';
+          claimBtn.innerText = 'Claim 3k BONK';
           return;
         }
         
         if (!ended) {
-          showToast('⏳ Game not ended yet. Please wait.');
+          showToast('Game not ended yet. Please wait.');
           claimBtn.disabled = false;
-          claimBtn.innerText = '💰 Claim 3k BONK';
+          claimBtn.innerText = 'Claim 3k BONK';
           return;
         }
         
         if (Number(score) !== MAX_SCORE) {
-          showToast(`❌ Score is ${Number(score)}, must be exactly ${MAX_SCORE} to claim!`);
+          showToast(`Score is ${Number(score)}, must be exactly ${MAX_SCORE} to claim!`);
           claimBtn.disabled = false;
-          claimBtn.innerText = '💰 Claim 3k BONK';
+          claimBtn.innerText = 'Claim 3k BONK';
           return;
         }
         
@@ -352,47 +354,48 @@
         
         const requiredReward = 3000000n;
         if (contractBalance < requiredReward) {
-          showToast('⚠️ Contract has insufficient BONK tokens. Contact developer to refill!', 5000);
+          showToast('Contract has insufficient BONK tokens. Contact developer to refill!', 5000);
           claimBtn.disabled = false;
-          claimBtn.innerText = '💰 Claim 3k BONK';
+          claimBtn.innerText = 'Claim 3k BONK';
           return;
         }
         
-        claimBtn.innerText = '💰 Claiming...';
+        claimBtn.innerText = 'Claiming...';
         const { hash } = await writeContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
-        showToast(`✅ Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #FFD700; text-decoration: underline;">View TX</a>`, 5000);
+        showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         
         await publicClient.waitForTransactionReceipt({ hash });
-        showToast(`🎉 Reward claimed successfully!`, 4000);
+        showToast(`Reward claimed successfully!`, 4000);
         
         claimBtn.classList.add('hidden');
         claimBtn.disabled = false;
-        claimBtn.innerText = '💰 Claim 3k BONK';
+        claimBtn.innerText = 'Claim 3k BONK';
       } catch (e) {
         console.error('Claim error:', e);
         let errMsg = e?.shortMessage || e?.message || 'Unknown error';
         
         if (errMsg.includes('Already claimed')) {
-          showToast('⚠️ Reward already claimed!');
+          showToast('Reward already claimed!');
           claimBtn.classList.add('hidden');
         } else if (errMsg.includes('Score not high enough')) {
-          showToast(`❌ Score must be exactly ${MAX_SCORE}!`);
+          showToast(`Score must be exactly ${MAX_SCORE}!`);
         } else if (errMsg.includes('insufficient')) {
-          showToast('⚠️ Contract has insufficient BONK. Contact developer!', 5000);
+          showToast('Contract has insufficient BONK. Contact developer!', 5000);
         } else {
-          showToast(`❌ Claim failed: ${errMsg}`);
+          showToast(`Claim failed: ${errMsg}`);
         }
         
         claimBtn.disabled = false;
-        claimBtn.innerText = '💰 Claim 3k BONK';
+        claimBtn.innerText = 'Claim 3k BONK';
       }
     };
 
+    /* ---------- Game Logic ---------- */
     const colors = [
       {name: "red", hex: "#e74c3c"},
       {name: "blue", hex: "#3498db"},
@@ -407,6 +410,10 @@
     let displaying = false;
     let bestScore = 0;
     let buttonsEnabled = false;
+
+    if (localStorage.getItem('bestScore')) {
+      bestScore = parseInt(localStorage.getItem('bestScore'));
+    }
 
     colors.forEach((colorObj, index) => {
       const btn = document.createElement('button');
@@ -466,16 +473,16 @@
 
     async function initGame() {
       if (!userAddress) {
-        showToast("❌ Please connect your wallet first!");
+        showToast("Please connect your wallet first!");
         return;
       }
 
       if (currentDailyPlays >= maxDailyGames) {
-        showToast("⏰ You've reached your daily game limit. Come back tomorrow!");
+        showToast("You've reached your daily game limit. Come back tomorrow!");
         return;
       }
 
-      message.innerText = `🎮 Starting Free Game... Please confirm gas transaction.`;
+      message.innerText = `Starting Free Game... Please confirm gas transaction.`;
       updateButtons(false);
       startBtn.disabled = true;
 
@@ -493,8 +500,8 @@
           throw new Error("Transaction not sent (hash undefined)");
         }
 
-        showToast(`✅ Transaction sent! Waiting for confirmation...`);
-        message.innerText = `⏳ Transaction sent! Waiting for confirmation...`;
+        showToast(`Transaction sent! Waiting for confirmation...`);
+        message.innerText = `Transaction sent! Waiting for confirmation...`;
 
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
@@ -520,15 +527,15 @@
         }
 
         if (!found || currentGameId === null) {
-          message.innerText = `⚠️ No GameStarted event found. Check TX: https://arbiscan.io/tx/${hash}`;
-          showToast("⚠️ Transaction confirmed but GameStarted event missing.");
+          message.innerText = `No GameStarted event found. Check TX: https://arbiscan.io/tx/${hash}`;
+          showToast("Transaction confirmed but GameStarted event missing.");
           startBtn.disabled = false;
           updateStartButtonText(currentDailyPlays);
           return;
         }
 
-        message.innerText = `🎮 Game started! Game ID: ${currentGameId}`;
-        showToast(`🎉 Game started! Game ID: ${currentGameId}`);
+        message.innerText = `Game started! Game ID: ${currentGameId}`;
+        showToast(`Game started! Game ID: ${currentGameId}`);
 
         startBtn.classList.add('hidden');
         restartBtn.classList.remove('hidden');
@@ -542,8 +549,8 @@
       } catch (e) {
         console.error('Init error:', e);
         let errMsg = e?.shortMessage || e?.message || "Unknown error";
-        showToast(`❌ Start Failed: ${errMsg}`);
-        message.innerText = `❌ Transaction failed: ${errMsg}`;
+        showToast(`Start Failed: ${errMsg}`);
+        message.innerText = `Transaction failed: ${errMsg}`;
         startBtn.disabled = false;
         updateStartButtonText(currentDailyPlays);
       }
@@ -569,9 +576,9 @@
         } else {
           updateButtons(false);
           colorDisplay.style.backgroundColor = "#2ecc71";
-          colorDisplay.innerText = "✅ Correct!";
+          colorDisplay.innerText = "Correct!";
           round++;
-          message.innerText = `🎯 Great! Round ${round} incoming...`;
+          message.innerText = `Great! Round ${round} incoming...`;
 
           setTimeout(() => {
             colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
@@ -587,17 +594,18 @@
       
       if (isWin) {
         colorDisplay.style.backgroundColor = "#f39c12";
-        colorDisplay.innerText = "🎉 PERFECT!";
-        message.innerText = `🏆 Amazing! You reached max score ${MAX_SCORE}!`;
+        colorDisplay.innerText = "PERFECT!";
+        message.innerText = `Amazing! You reached max score ${MAX_SCORE}!`;
       } else {
         colorDisplay.style.backgroundColor = "#e74c3c";
-        colorDisplay.innerText = "❌ Wrong!";
-        message.innerText = `💀 Game Over! You reached round ${round}`;
+        colorDisplay.innerText = "Wrong!";
+        message.innerText = `Game Over! You reached round ${round}`;
       }
 
       if (round > bestScore) {
         bestScore = round;
-        message.innerText += ` 🆕 New Best: ${round}!`;
+        localStorage.setItem('bestScore', bestScore);
+        message.innerText += ` New Best: ${round}!`;
       }
 
       finalScore = round;
@@ -610,8 +618,8 @@
 
         try {
           if (currentGameId) {
-            showToast("💾 Saving your score on-chain...");
-            message.innerText = `📝 Submitting score ${finalScore} for game ${currentGameId}...`;
+            showToast("Saving your score on-chain...");
+            message.innerText = `Submitting score ${finalScore} for game ${currentGameId}...`;
             
             console.log('Submitting endGame:', {
               gameId: currentGameId,
@@ -628,11 +636,11 @@
             
             const endHash = txResponse?.hash || txResponse;
             if (endHash) {
-              showToast(`✅ Score TX sent! Waiting for confirmation...`);
-              message.innerText = `⏳ Confirming score submission...`;
+              showToast(`Score TX sent! Waiting for confirmation...`);
+              message.innerText = `Confirming score submission...`;
               
               await publicClient.waitForTransactionReceipt({ hash: endHash });
-              showToast("✅ Score submitted successfully!");
+              showToast("Score submitted successfully!");
               
               const gameData = await readContract(config, {
                 address: CONTRACT_ADDRESS,
@@ -644,24 +652,24 @@
               const storedScore = Number(gameData[2]);
               console.log('Stored score on-chain:', storedScore);
               
-              message.innerText = `✅ Score ${storedScore} saved on-chain!`;
+              message.innerText = `Score ${storedScore} saved on-chain!`;
             }
           }
 
           if (finalScore === MAX_SCORE && currentGameId) {
             claimBtn.classList.remove('hidden');
-            showToast(`🎉 Perfect score ${MAX_SCORE}! Click "Claim 3k BONK" to get your reward!`, 4000);
-            message.innerText = `🏆 You scored ${MAX_SCORE}/7! Claim your reward!`;
+            showToast(`Perfect score ${MAX_SCORE}! Click "Claim 3k BONK" to get your reward!`, 4000);
+            message.innerText = `You scored ${MAX_SCORE}/7! Claim your reward!`;
           } else if (finalScore < MAX_SCORE) {
-            showToast(`👍 Good try! You scored ${finalScore}. Reach ${MAX_SCORE} for a reward.`);
-            message.innerText = `📊 Score ${finalScore} saved. Try to reach ${MAX_SCORE}!`;
+            showToast(`Good try! You scored ${finalScore}. Reach ${MAX_SCORE} for a reward.`);
+            message.innerText = `Score ${finalScore} saved. Try to reach ${MAX_SCORE}!`;
           }
 
         } catch (e) {
           console.error('EndGame error:', e);
           let errMsg = e?.shortMessage || e?.message || "Unknown error";
-          showToast(`❌ Failed to save score: ${errMsg}`);
-          message.innerText = `❌ Could not save on-chain: ${errMsg}`;
+          showToast(`Failed to save score: ${errMsg}`);
+          message.innerText = `Could not save on-chain: ${errMsg}`;
         }
       }, 2500);
     }
@@ -693,9 +701,10 @@
     restartBtn.onclick = restartGame;
     startBtn.onclick = initGame;
 
+    /* ---------- Leaderboard ---------- */
     async function loadLeaderboard() {
       const tbody = document.getElementById('leaderboardBody');
-      tbody.innerHTML = '<tr><td colspan="3" class="center">⏳ Loading…</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="3" class="center">Loading…</td></tr>';
       try {
         const [players, scores] = await readContract(config, {
           address: CONTRACT_ADDRESS,
@@ -715,7 +724,7 @@
           tbody.appendChild(tr);
         }
       } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="3" class="center">❌ Failed to load leaderboard.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="center">Failed to load leaderboard.</td></tr>';
       }
     }
 
