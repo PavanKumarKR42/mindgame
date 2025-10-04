@@ -796,13 +796,7 @@
           
           const username = document.createElement('span');
           username.className = 'player-username';
-          if (user && user.username) {
-            username.textContent = `@${user.username}`;
-          } else {
-            username.textContent = `${players[i].slice(0, 6)}…${players[i].slice(-4)}`;
-            username.style.fontSize = '12px';
-            username.style.opacity = '0.8';
-          }
+          username.textContent = user ? `@${user.username}` : '@unknown';
           playerCell.appendChild(username);
           
           playerTd.appendChild(playerCell);
