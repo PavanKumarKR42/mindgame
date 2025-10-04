@@ -25,16 +25,21 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
      button:focus { outline: none; }
     button:active { outline: none; }
+    html, body {
+      width: 100%;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
     body {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-height: 100vh; 
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
       background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
       background-size: 400% 400%;
       animation: gradientShift 15s ease infinite;
+      background-attachment: fixed;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff;
       padding: 20px; max-width: 390px; margin: 0 auto;
       position: relative;
-      overflow: hidden;
     }
     body::before {
       content: '';
@@ -48,7 +53,7 @@
         radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
     }
     body > * {
       position: relative;
@@ -59,11 +64,11 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    .tabbar { display: flex; gap: 8px; width: 100%; margin: 12px; }
+    .tabbar { display: flex; gap: 8px; width: 100%; margin: 12px 0; }
     .tabbar button { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
     .tabbar button.active { background: rgba(255, 255, 255, 0.35); border-color: rgba(255, 255, 255, 0.6); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); transform: translateY(-2px); }
     .hidden { display: none; }
-    .game-container { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border-radius: 30px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 60px rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); width: 100%; }
+    .game-container { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px); border-radius: 30px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 60px rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); width: 100%; margin-bottom: 20px; }
     h1 { text-align: center; margin-bottom: 10px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); }
     .score-info { display: flex; justify-content: center; margin-bottom: 20px; }
     .score-box { background: rgba(255, 255, 255, 0.15); padding: 10px 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
@@ -162,7 +167,7 @@
     </div>
   </section>
 
-  <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;">
+  <section id="leaderboardTab" class="hidden" style="width:100%;padding:0 12px;margin-bottom:20px;">
     <div class="leaderboard-header">
       <h3>🏆 Top Players 🏆</h3>
       <p>Compete for the highest score and claim your glory!</p>
