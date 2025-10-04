@@ -8,7 +8,7 @@
     "buttonTitle": "Test Memory!",
     "splashImageUrl": "https://mindgame-omega.vercel.app/splash.png",
     "splashBackgroundColor": "#ffd753",
-    "webhookUrl": "https://mindgame-omega.vercel.app/api/webhook",
+    "webhookUrl": "https://api.neynar.com/f/app/1a6c0738-43e3-4629-8d0c-305f05bf120c/event",
     "subtitle": "Test Memory!",
     "description": "Mind Color Sequence is a Simon-style memory game on Arbitrum where players repeat color patterns to progress and earn crypto rewards.",
     "primaryCategory": "games",
