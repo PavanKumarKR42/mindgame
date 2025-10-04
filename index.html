@@ -10,7 +10,7 @@
     "imageUrl":"https://mindgame-omega.vercel.app/image.png",
     "splashImageUrl": "https://mindgame-omega.vercel.app/splash.png",
     "button":{
-      "title":"Memory Game",
+      "title":"BRAIN.EXE!",
       "action":{
         "type":"launch_frame",
         "name":"Mind Color Sequence",
@@ -74,172 +74,9 @@
     .score-box { background: rgba(255, 255, 255, 0.15); padding: 10px 15px; border-radius: 15px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.2); }
     .score-label { font-size: 10px; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
     .score-value { font-size: 20px; font-weight: bold; margin-top: 5px; }
-    #colorDisplay { 
-      width: 100%; 
-      height: 150px; 
-      border-radius: 25px; 
-      margin-bottom: 20px; 
-      border: 3px solid rgba(255, 255, 255, 0.3); 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      font-size: 28px; 
-      font-weight: 900; 
-      background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2)); 
-      transition: all 0.3s ease; 
-      box-shadow: 
-        inset 0 4px 20px rgba(0, 0, 0, 0.3),
-        0 8px 30px rgba(0, 0, 0, 0.4),
-        0 0 40px rgba(255, 255, 255, 0.1); 
-      text-shadow: 
-        2px 2px 4px rgba(0, 0, 0, 0.8),
-        0 0 20px rgba(255, 255, 255, 0.3),
-        0 0 30px rgba(255, 255, 255, 0.2);
-      position: relative;
-      overflow: hidden;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    #colorDisplay::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: linear-gradient(
-        45deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-      );
-      animation: shimmer 3s infinite;
-    }
-    #colorDisplay::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: radial-gradient(
-        circle at 30% 30%,
-        rgba(255, 255, 255, 0.2) 0%,
-        transparent 60%
-      );
-      pointer-events: none;
-    }
-    @keyframes shimmer {
-      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-      100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-    }
-    #colorDisplay.pulse { 
-      animation: pulse 0.5s ease, glow 0.5s ease; 
-    }
-    @keyframes pulse { 
-      0%, 100% { transform: scale(1); } 
-      50% { transform: scale(1.05); } 
-    }
-    @keyframes glow {
-      0%, 100% { 
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 8px 30px rgba(0, 0, 0, 0.4),
-          0 0 40px rgba(255, 255, 255, 0.1);
-      }
-      50% { 
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 12px 40px rgba(0, 0, 0, 0.5),
-          0 0 60px currentColor,
-          0 0 80px currentColor;
-      }
-    }
-    #colorDisplay.loading {
-      background: linear-gradient(
-        90deg,
-        rgba(238, 119, 82, 0.3),
-        rgba(231, 60, 126, 0.3),
-        rgba(35, 166, 213, 0.3),
-        rgba(35, 213, 171, 0.3)
-      );
-      background-size: 300% 100%;
-      animation: loadingGradient 2s ease infinite;
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-    @keyframes loadingGradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    #colorDisplay.ready {
-      background: linear-gradient(
-        135deg,
-        rgba(46, 204, 113, 0.3),
-        rgba(52, 152, 219, 0.3)
-      );
-      animation: readyPulse 2s ease-in-out infinite;
-    }
-    @keyframes readyPulse {
-      0%, 100% { 
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 8px 30px rgba(0, 0, 0, 0.4),
-          0 0 30px rgba(46, 204, 113, 0.4);
-      }
-      50% { 
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 12px 40px rgba(0, 0, 0, 0.5),
-          0 0 50px rgba(46, 204, 113, 0.6);
-      }
-    }
-    #colorDisplay.watching {
-      background: linear-gradient(
-        135deg,
-        rgba(155, 89, 182, 0.3),
-        rgba(142, 68, 173, 0.3)
-      );
-      animation: watchPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes watchPulse {
-      0%, 100% { 
-        transform: scale(1);
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 8px 30px rgba(0, 0, 0, 0.4),
-          0 0 30px rgba(155, 89, 182, 0.5);
-      }
-      50% { 
-        transform: scale(1.02);
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 12px 40px rgba(0, 0, 0, 0.5),
-          0 0 50px rgba(155, 89, 182, 0.7);
-      }
-    }
-    #colorDisplay.your-turn {
-      background: linear-gradient(
-        135deg,
-        rgba(243, 156, 18, 0.3),
-        rgba(230, 126, 34, 0.3)
-      );
-      animation: yourTurnPulse 1s ease-in-out infinite;
-    }
-    @keyframes yourTurnPulse {
-      0%, 100% { 
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 8px 30px rgba(0, 0, 0, 0.4),
-          0 0 30px rgba(243, 156, 18, 0.5);
-      }
-      50% { 
-        box-shadow: 
-          inset 0 4px 20px rgba(0, 0, 0, 0.3),
-          0 12px 40px rgba(0, 0, 0, 0.5),
-          0 0 60px rgba(243, 156, 18, 0.8);
-      }
-    }
+    #colorDisplay { width: 100%; height: 150px; border-radius: 25px; margin-bottom: 20px; border: 3px solid rgba(255, 255, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; background: rgba(0, 0, 0, 0.3); transition: all 0.3s ease; box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.2); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); }
+    #colorDisplay.pulse { animation: pulse 0.5s ease; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     .buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 60px; position: relative; }
     .bonk-token { position: absolute; width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(255, 215, 0, 0.8); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 0 25px rgba(255, 215, 0, 0.5), 0 0 40px rgba(255, 215, 0, 0.2); top: 85px; left: 50%; transform: translateX(-50%); z-index: 10; animation: float 3s ease-in-out infinite; }
     @keyframes float { 0%, 100% { transform: translateX(-50%) translateY(0px); } 50% { transform: translateX(-50%) translateY(-10px); } }
@@ -472,17 +309,17 @@
       }
     }
 
-    /* ---------- Preload Audio Files ---------- */
-    clickSound.load();
-    warnSound.load();
-    winSound.load();
+    /* ---------- Initialize SDK and Wallet ---------- */
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
     connectBtn.onclick = async () => {
-      if (!sdkReady) {
-        showToast("SDK not ready yet. Please wait a moment...");
-        return;
-      }
-      
       try {
         connectBtn.disabled = true;
         connectBtn.innerText = 'Connecting...';
@@ -503,8 +340,7 @@
 
           connectBtn.classList.add('hidden');
           startBtn.classList.remove('hidden');
-          colorDisplay.className = 'ready';
-          colorDisplay.innerText = "🎯 Get Ready...";
+          colorDisplay.innerText = "Get Ready...";
           message.innerText = "Wallet connected. Ready to play!";
         } else {
           throw new Error("No address returned");
@@ -678,24 +514,6 @@
 
     /* ---------- Timer Countdown ---------- */
     let timerInterval = null;
-    let sdkReady = false;
-
-    /* ---------- Initialize SDK First ---------- */
-    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      sdkReady = true;
-      colorDisplay.className = 'ready';
-      colorDisplay.innerText = "🎯 Ready!";
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      sdkReady = false;
-      colorDisplay.className = '';
-      colorDisplay.style.backgroundColor = "#e74c3c";
-      colorDisplay.innerText = "⚠️ ERROR";
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
 
     function getTimeUntilMidnightUTC() {
       const now = new Date();
@@ -789,28 +607,25 @@
     async function displaySequence() {
       displaying = true;
       updateButtons(false);
-      colorDisplay.className = 'watching';
-      colorDisplay.innerText = "👀 Watch Carefully!";
+      colorDisplay.innerText = "Watch Carefully!";
       message.innerText = "";
       await sleep(800);
       
       for (let i = 0; i < sequence.length; i++) {
         const colorObj = colors.find(c => c.name === sequence[i]);
         colorDisplay.style.backgroundColor = colorObj.hex;
-        colorDisplay.className = 'pulse';
         colorDisplay.innerText = colorObj.name.toUpperCase();
+        colorDisplay.classList.add('pulse');
         await sleep(700);
         colorDisplay.classList.remove('pulse');
         colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-        colorDisplay.className = '';
         colorDisplay.innerText = "";
         await sleep(300);
       }
       
       displaying = false;
       updateButtons(true);
-      colorDisplay.className = 'your-turn';
-      colorDisplay.innerText = "🎮 Your Turn!";
+      colorDisplay.innerText = "Your Turn!";
     }
 
     function nextRound() {
@@ -928,14 +743,12 @@
         } else {
           updateButtons(false);
           colorDisplay.style.backgroundColor = "#2ecc71";
-          colorDisplay.className = '';
-          colorDisplay.innerText = "✅ Correct!";
+          colorDisplay.innerText = "Correct!";
           round++;
           message.innerText = `Great! Round ${round} incoming...`;
 
           setTimeout(() => {
             colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-            colorDisplay.className = '';
             colorDisplay.innerText = "";
             nextRound();
           }, 1200);
@@ -950,14 +763,12 @@
         playWinSound();
         createConfetti();
         colorDisplay.style.backgroundColor = "#f39c12";
-        colorDisplay.className = '';
-        colorDisplay.innerText = "🎉 PERFECT!";
+        colorDisplay.innerText = "PERFECT!";
         message.innerText = `Amazing! You reached max score ${MAX_SCORE}!`;
       } else {
         playWarnSound();
         colorDisplay.style.backgroundColor = "#e74c3c";
-        colorDisplay.className = '';
-        colorDisplay.innerText = "❌ Wrong!";
+        colorDisplay.innerText = "Wrong!";
         message.innerText = `Game Over! You reached round ${round}`;
       }
 
@@ -972,8 +783,7 @@
 
       setTimeout(async () => {
         colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-        colorDisplay.className = 'ready';
-        colorDisplay.innerText = "🎯 Get Ready...";
+        colorDisplay.innerText = "Get Ready...";
         message.innerText = "";
 
         try {
@@ -1042,8 +852,7 @@
       currentGameId = null;
       finalScore = 0;
       colorDisplay.style.backgroundColor = "rgba(0, 0, 0, 0.3)";
-      colorDisplay.className = 'ready';
-      colorDisplay.innerText = "🎯 Get Ready...";
+      colorDisplay.innerText = "Get Ready...";
       message.innerText = "Ready for your next game!";
       roundDisplay.innerText = "1";
       updateButtons(false);
@@ -1198,11 +1007,7 @@
     restartBtn.classList.add('hidden');
     startBtn.classList.add('hidden');
     updateButtons(false);
-    
-    // Show loading state immediately
-    message.innerText = "Initializing...";
-    colorDisplay.className = 'loading';
-    colorDisplay.innerText = "⚡ LOADING";
+    message.innerText = "Connect your wallet to begin";
   </script>
 </body>
 </html>
