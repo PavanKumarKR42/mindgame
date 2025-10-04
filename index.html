@@ -309,17 +309,17 @@
       }
     }
 
-    /* ---------- Initialize SDK and Wallet ---------- */
-    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
-      console.log("Farcaster MiniApp ready");
-      message.innerText = "Ready to connect!";
-    }).catch(err => {
-      console.error("SDK ready error:", err);
-      message.innerText = "SDK initialization failed";
-      showToast("Failed to initialize. Try reloading.");
-    });
+    /* ---------- Preload Audio Files ---------- */
+    clickSound.load();
+    warnSound.load();
+    winSound.load();
 
     connectBtn.onclick = async () => {
+      if (!sdkReady) {
+        showToast("SDK not ready yet. Please wait a moment...");
+        return;
+      }
+      
       try {
         connectBtn.disabled = true;
         connectBtn.innerText = 'Connecting...';
@@ -514,6 +514,19 @@
 
     /* ---------- Timer Countdown ---------- */
     let timerInterval = null;
+    let sdkReady = false;
+
+    /* ---------- Initialize SDK First ---------- */
+    sdk.actions.ready({ disableNativeGestures: true }).then(() => {
+      console.log("Farcaster MiniApp ready");
+      sdkReady = true;
+      message.innerText = "Ready to connect!";
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      sdkReady = false;
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
     function getTimeUntilMidnightUTC() {
       const now = new Date();
@@ -1007,7 +1020,10 @@
     restartBtn.classList.add('hidden');
     startBtn.classList.add('hidden');
     updateButtons(false);
-    message.innerText = "Connect your wallet to begin";
+    
+    // Show loading state immediately
+    message.innerText = "Initializing...";
+    colorDisplay.innerText = "LOADING";
   </script>
 </body>
 </html>
