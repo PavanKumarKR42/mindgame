@@ -1147,7 +1147,7 @@
       }
     };
 
-    claimBtn.onclick = async () => {
+claimBtn.onclick = async () => {
       if (!currentGameId) {
         showToast('No active game to claim. Play and win first!');
         return;
@@ -1175,8 +1175,6 @@
         if (claimed) {
           showToast('Reward already claimed for this game!');
           claimBtn.classList.add('hidden');
-          claimBtn.disabled = false;
-          claimBtn.innerText = 'Claim 3k BONK';
           return;
         }
         
@@ -1218,37 +1216,53 @@
         }
         
         claimBtn.innerText = 'Claiming...';
-        const { hash } = await writeContract(config, {
+        const txResponse = await writeContract(config, {
           address: CONTRACT_ADDRESS,
           abi: ABI,
           functionName: 'claim',
           args: [BigInt(currentGameId)]
         });
+        
+        const hash = txResponse?.hash || txResponse;
+        
+        if (!hash) {
+          throw new Error('Transaction failed - no hash returned');
+        }
+        
         showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        message.innerText = 'Waiting for confirmation...';
         
         await publicClient.waitForTransactionReceipt({ hash });
-        showToast(`Reward claimed successfully!`, 4000);
         
+        // Transaction confirmed - show success and hide button
+        showToast(`🎉 Reward claimed successfully! 3k BONK is yours!`, 4000);
+        message.innerText = `Successfully claimed 3k BONK tokens!`;
         claimBtn.classList.add('hidden');
-        claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 3k BONK';
+        
       } catch (e) {
         console.error('Claim error:', e);
         let errMsg = e?.shortMessage || e?.message || 'Unknown error';
         
-        if (errMsg.includes('Already claimed')) {
+        if (errMsg.includes('Already claimed') || errMsg.includes('already claimed')) {
           showToast('Reward already claimed!');
           claimBtn.classList.add('hidden');
         } else if (errMsg.includes('Score not high enough')) {
           showToast(`Score must be exactly ${MAX_SCORE}!`);
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
         } else if (errMsg.includes('insufficient')) {
           showToast('Contract has insufficient BONK. Contact developer!', 5000);
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
+        } else if (errMsg.includes('User rejected') || errMsg.includes('rejected')) {
+          showToast('Transaction cancelled by user');
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
         } else {
           showToast(`Claim failed: ${errMsg}`);
+          claimBtn.disabled = false;
+          claimBtn.innerText = 'Claim 3k BONK';
         }
-        
-        claimBtn.disabled = false;
-        claimBtn.innerText = 'Claim 3k BONK';
       }
     };
 
