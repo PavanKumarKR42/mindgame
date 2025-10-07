@@ -465,11 +465,13 @@
       color: rgba(255, 255, 255, 0.9);
     }
     
-    .btn-control { 
-      display: flex; 
-      gap: 12px; 
-      margin-top: 10px; 
-    }
+    .btn-control {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
     
     .restart-btn, .start-btn { 
       flex: 1; 
@@ -844,7 +846,7 @@
     .rules-text {
       flex: 1;
     }
-    .share-btn {
+.share-btn {
   width: 100%;
   padding: 14px 20px;
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
@@ -856,7 +858,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-  margin-top: 12px;
+  display: none; /* Use display: none instead of hidden class */
 }
 
 .share-btn:hover:not(:disabled) {
@@ -868,7 +870,6 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 .share-btn.hidden {
   display: none;
 }
