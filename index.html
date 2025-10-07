@@ -844,6 +844,34 @@
     .rules-text {
       flex: 1;
     }
+    .share-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  margin-top: 12px;
+}
+
+.share-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
+}
+
+.share-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.share-btn.hidden {
+  display: none;
+}
 
     .rules-text strong {
       color: #fff;
@@ -954,7 +982,7 @@
 
   <div id="toast" class="toast"></div>
 
-  <script type="module">
+ <script type="module">
     import { sdk } from 'https://esm.sh/@farcaster/miniapp-sdk';
     import {
       createConfig, connect, readContract, writeContract, getAccount
@@ -968,6 +996,7 @@
     const CONTRACT_ADDRESS = '0xe54be4a16ec396d2c31812a3693af15281ee115a';
     const MAX_SCORE = 7;
     const NEYNAR_API_KEY = '20FEAD29-CB14-438B-8309-868BA126B594';
+    const GAME_URL = 'https://mindgame-omega.vercel.app/'; // Replace with your actual game URL
 
     const ABI =[{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
@@ -988,6 +1017,7 @@
     const tabLbBtn = document.getElementById('tabLbBtn');
     const toastEl = document.getElementById('toast');
     const claimBtn = document.getElementById('claimBtn');
+    const shareBtn = document.getElementById('shareBtn');
     const restartBtn = document.getElementById('restartBtn');
     const startBtn = document.getElementById('startBtn');
     const connectBtn = document.getElementById('connectBtn');
@@ -1084,38 +1114,38 @@
     }
 
     /* ---------- Initialize SDK and Wallet ---------- */
+    sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
+      console.log("Farcaster MiniApp ready");
+      message.innerText = "Ready to connect!";
+      
+      // Show rules on first visit
+      const hasSeenRules = localStorage.getItem('hasSeenRules');
+      if (!hasSeenRules) {
+        setTimeout(() => {
+          document.getElementById('rulesOverlay').classList.remove('hidden');
+        }, 300);
+      }
 
-sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
-  console.log("Farcaster MiniApp ready");
-  message.innerText = "Ready to connect!";
-  
-  // Show rules on first visit
-  const hasSeenRules = localStorage.getItem('hasSeenRules');
-  if (!hasSeenRules) {
-    setTimeout(() => {
-      document.getElementById('rulesOverlay').classList.remove('hidden');
-    }, 300);
-  }
+      // Auto-prompt to add app (only once per session)
+      const hasPromptedAddApp = sessionStorage.getItem('hasPromptedAddApp');
+      if (!hasPromptedAddApp) {
+        try {
+          console.log('Auto-prompting add app...');
+          await sdk.actions.addMiniApp();
+          sessionStorage.setItem('hasPromptedAddApp', 'true');
+          console.log('App added successfully!');
+        } catch (error) {
+          console.log('Add app prompt dismissed or failed:', error.name);
+          sessionStorage.setItem('hasPromptedAddApp', 'true');
+        }
+      }
 
-  // Auto-prompt to add app (only once per session)
-  const hasPromptedAddApp = sessionStorage.getItem('hasPromptedAddApp');
-  if (!hasPromptedAddApp) {
-    try {
-      console.log('Auto-prompting add app...');
-      await sdk.actions.addMiniApp();
-      sessionStorage.setItem('hasPromptedAddApp', 'true');
-      console.log('App added successfully!');
-    } catch (error) {
-      console.log('Add app prompt dismissed or failed:', error.name);
-      sessionStorage.setItem('hasPromptedAddApp', 'true');
-    }
-  }
+    }).catch(err => {
+      console.error("SDK ready error:", err);
+      message.innerText = "SDK initialization failed";
+      showToast("Failed to initialize. Try reloading.");
+    });
 
-}).catch(err => {
-  console.error("SDK ready error:", err);
-  message.innerText = "SDK initialization failed";
-  showToast("Failed to initialize. Try reloading.");
-});
     // Rules overlay controls
     const rulesOverlay = document.getElementById('rulesOverlay');
     const gotItBtn = document.getElementById('gotItBtn');
@@ -1162,7 +1192,7 @@ sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
       }
     };
 
-claimBtn.onclick = async () => {
+    claimBtn.onclick = async () => {
       if (!currentGameId) {
         showToast('No active game to claim. Play and win first!');
         return;
@@ -1249,10 +1279,15 @@ claimBtn.onclick = async () => {
         
         await publicClient.waitForTransactionReceipt({ hash });
         
-        // Transaction confirmed - show success and hide button
+        // Transaction confirmed - show success and show share button
         showToast(`🎉 Reward claimed successfully! 3k BONK is yours!`, 4000);
         message.innerText = `Successfully claimed 3k BONK tokens!`;
         claimBtn.classList.add('hidden');
+        
+        // Show share button after successful claim
+        if (shareBtn) {
+          shareBtn.style.display = 'block';
+        }
         
       } catch (e) {
         console.error('Claim error:', e);
@@ -1280,6 +1315,31 @@ claimBtn.onclick = async () => {
         }
       }
     };
+
+    /* ---------- Share Button Handler ---------- */
+    if (shareBtn) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          shareBtn.disabled = true;
+          showToast('Opening cast composer...', 3000);
+          
+          await sdk.actions.composeCast({
+            text: `🎮 Just won 3,000 BONK tokens playing the memory game! 
+Can you beat my score? 🏆
+
+Built by @oce3n`,
+            embeds: [GAME_URL]
+          });
+          
+          showToast('Cast composer opened!', 3000);
+        } catch (error) {
+          console.error('Share error:', error);
+          showToast('Failed to open cast composer', 3000);
+        } finally {
+          shareBtn.disabled = false;
+        }
+      });
+    }
 
     /* ---------- Audio Setup ---------- */
     const clickSound = new Audio('music.wav');
@@ -1527,6 +1587,7 @@ claimBtn.onclick = async () => {
         startBtn.classList.add('hidden');
         restartBtn.classList.remove('hidden');
         claimBtn.classList.add('hidden');
+        if (shareBtn) shareBtn.style.display = 'none';
         finalScore = 0;
 
         currentDailyPlays++;
@@ -1680,6 +1741,7 @@ claimBtn.onclick = async () => {
       updateButtons(false);
       restartBtn.classList.add('hidden');
       claimBtn.classList.add('hidden');
+      if (shareBtn) shareBtn.style.display = 'none';
       startBtn.classList.remove('hidden');
       
       if (userAddress) {
@@ -1828,6 +1890,7 @@ claimBtn.onclick = async () => {
     claimBtn.classList.add('hidden');
     restartBtn.classList.add('hidden');
     startBtn.classList.add('hidden');
+    if (shareBtn) shareBtn.style.display = 'none';
     updateButtons(false);
     message.innerText = "Connect your wallet to begin";
   </script>
