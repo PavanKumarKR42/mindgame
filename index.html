@@ -86,53 +86,91 @@
       position: relative;
       z-index: 2;
     }
-    
-    .tabbar { 
-      display: flex; 
-      gap: 10px; 
-      width: 100%; 
-      margin: 12px 0 20px; 
-      background: rgba(255, 255, 255, 0.03);
-      padding: 6px;
-      border-radius: 16px;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    
-    .tabbar button { 
-      flex: 1; 
-      padding: 12px; 
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.5);
-      border-radius: 12px; 
-      font-weight: 700; 
-      font-size: 14px;
-      cursor: pointer; 
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .tabbar button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
+
+    /* Top Header Bar */
+    .top-header {
       width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(0, 191, 255, 0.4));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 0;
+    }
+
+    /* Toggle Button (Top Left) */
+    .toggle-btn {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .toggle-btn span {
+      width: 100%;
+      height: 3px;
+      background: #fff;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    /* User Profile (Top Right) */
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
       opacity: 0;
-      transition: opacity 0.4s ease;
+      pointer-events: none;
     }
-    
-    .tabbar button.active {
-      color: #fff;
-      text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
-    }
-    
-    .tabbar button.active::before {
+
+    .user-profile.show {
       opacity: 1;
+      pointer-events: auto;
+    }
+
+    .user-profile:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .user-profile-pfp {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid rgba(138, 43, 226, 0.5);
+      object-fit: cover;
+    }
+
+    .user-profile-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     
     .hidden { display: none; }
@@ -466,11 +504,11 @@
     }
     
     .btn-control {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
 
     
     .restart-btn, .start-btn { 
@@ -846,33 +884,35 @@
     .rules-text {
       flex: 1;
     }
-.share-btn {
-  width: 100%;
-  padding: 14px 20px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 800;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-  display: none; /* Use display: none instead of hidden class */
-}
 
-.share-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
-}
+    .share-btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+      display: none;
+    }
 
-.share-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.share-btn.hidden {
-  display: none;
-}
+    .share-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
+    }
+
+    .share-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .share-btn.hidden {
+      display: none;
+    }
 
     .rules-text strong {
       color: #fff;
@@ -897,6 +937,75 @@
     .rules-close-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(138, 43, 226, 0.6);
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 390px;
+      width: calc(100% - 40px);
+      background: rgba(10, 14, 39, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px 20px 0 0;
+      padding: 12px 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-btn {
+      flex: 1;
+      max-width: 150px;
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(0, 191, 255, 0.4));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      border-radius: 12px;
+      z-index: -1;
+    }
+
+    .nav-btn.active {
+      color: #fff;
+      text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+    }
+
+    .nav-btn.active::before {
+      opacity: 1;
+    }
+
+    .nav-btn:hover:not(.active) {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* Add padding to body to account for bottom nav */
+    body {
+      padding-bottom: 90px;
     }
   </style>
 </head>
@@ -936,9 +1045,18 @@
     </div>
   </div>
 
-  <div class="tabbar">
-    <button id="tabPlayBtn" class="active">Play</button>
-    <button id="tabLbBtn">Leaderboard</button>
+  <!-- Top Header -->
+  <div class="top-header">
+    <button class="toggle-btn" id="toggleBtn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="user-profile" id="userProfile">
+      <img src="https://via.placeholder.com/32" alt="Profile" class="user-profile-pfp" id="userProfilePfp">
+      <span class="user-profile-name" id="userProfileName">Guest</span>
+    </div>
   </div>
 
   <section id="playTab">
@@ -982,6 +1100,12 @@
     </table>
   </section>
 
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button id="navPlayBtn" class="nav-btn active">🎮 Play</button>
+    <button id="navLbBtn" class="nav-btn">🏆 Leaderboard</button>
+  </div>
+
   <div id="toast" class="toast"></div>
 
  <script type="module">
@@ -997,12 +1121,12 @@
     /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0xD65A46d6Bb6408B6825FF72FC6FE1EFE6E1A35a4';
     const MAX_SCORE = 7;
-    const NEYNAR_API_KEY = '20FEAD29-CB14-438B-8309-868BA126B594';
+    const NEYNAR_API_KEY = ''; // FILL YOUR KEY HERE
     const GAME_URL = 'https://mindgame-omega.vercel.app/';
     const BLOCK_EXPLORER_URL = 'https://basescan.org';
 
     // ADD YOUR ABI HERE
-    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    const ABI = [];
 
     const config = createConfig({
       chains: [base],
@@ -1017,8 +1141,12 @@
     /* ---------- UI Refs ---------- */
     const playTab = document.getElementById('playTab');
     const leaderboardTab = document.getElementById('leaderboardTab');
-    const tabPlayBtn = document.getElementById('tabPlayBtn');
-    const tabLbBtn = document.getElementById('tabLbBtn');
+    const navPlayBtn = document.getElementById('navPlayBtn');
+    const navLbBtn = document.getElementById('navLbBtn');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const userProfile = document.getElementById('userProfile');
+    const userProfilePfp = document.getElementById('userProfilePfp');
+    const userProfileName = document.getElementById('userProfileName');
     const toastEl = document.getElementById('toast');
     const claimBtn = document.getElementById('claimBtn');
     const shareBtn = document.getElementById('shareBtn');
@@ -1036,20 +1164,28 @@
     let currentDailyPlays = 0;
     let maxDailyGames = 3;
     let finalScore = 0;
+    let userFarcasterData = null;
 
-    tabPlayBtn.onclick = () => {
+    /* ---------- Navigation ---------- */
+    navPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
       leaderboardTab.classList.add('hidden');
-      tabPlayBtn.classList.add('active');
-      tabLbBtn.classList.remove('active');
+      navPlayBtn.classList.add('active');
+      navLbBtn.classList.remove('active');
     };
 
-    tabLbBtn.onclick = () => {
+    navLbBtn.onclick = () => {
       leaderboardTab.classList.remove('hidden');
       playTab.classList.add('hidden');
-      tabLbBtn.classList.add('active');
-      tabPlayBtn.classList.remove('active');
+      navLbBtn.classList.add('active');
+      navPlayBtn.classList.remove('active');
       loadLeaderboard();
+    };
+
+    /* ---------- Toggle Button (Menu) ---------- */
+    toggleBtn.onclick = () => {
+      // You can add menu functionality here
+      showToast('Menu functionality - coming soon!');
     };
 
     function showToast(html, ms = 3500) {
@@ -1117,6 +1253,56 @@
       }
     }
 
+    /* ---------- Fetch User Profile ---------- */
+    async function fetchUserProfile(address) {
+      if (!NEYNAR_API_KEY) {
+        console.log('No Neynar API key provided');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
+          {
+            method: 'GET',
+            headers: {
+              'accept': 'application/json',
+              'api_key': NEYNAR_API_KEY
+            }
+          }
+        );
+
+        if (!response.ok) {
+          console.error('Neynar API error:', response.status);
+          return;
+        }
+
+        const data = await response.json();
+        const users = data[address.toLowerCase()];
+        
+        if (users && users.length > 0) {
+          userFarcasterData = users[0];
+          updateUserProfile(userFarcasterData);
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    }
+
+    function updateUserProfile(userData) {
+      if (userData) {
+        userProfilePfp.src = userData.pfp_url || 'https://via.placeholder.com/32';
+        userProfilePfp.onerror = () => {
+          userProfilePfp.src = 'https://via.placeholder.com/32';
+        };
+        userProfileName.textContent = `@${userData.username || 'user'}`;
+        userProfile.classList.add('show');
+      } else if (userAddress) {
+        userProfileName.textContent = `${userAddress.slice(0, 6)}...`;
+        userProfile.classList.add('show');
+      }
+    }
+
     /* ---------- Initialize SDK and Wallet ---------- */
     sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
       console.log("Farcaster MiniApp ready");
@@ -1173,6 +1359,9 @@
 
         if (userAddress) {
           showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
+          
+          // Fetch user profile
+          await fetchUserProfile(userAddress);
           
           await fetchMaxDailyGames();
           await fetchDailyPlays(userAddress);
@@ -1466,9 +1655,8 @@ Built by @pavankumarkr. `,
       if (colorObj.name === 'purple') {
         btn.classList.add('purple-btn');
       }
-      btn.style.backgroundColor = colorObj.hex;
+      btn.setAttribute('data-color', colorObj.name);
       btn.innerText = colorObj.name.toUpperCase();
-      btn.dataset.color = colorObj.name;
       btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
       buttonsContainer.appendChild(btn);
     });
@@ -1761,6 +1949,11 @@ Built by @pavankumarkr. `,
     /* ---------- Neynar API Integration ---------- */
     async function fetchFarcasterUsersByAddresses(addresses) {
       if (!addresses || addresses.length === 0) return {};
+      
+      if (!NEYNAR_API_KEY) {
+        console.log('No Neynar API key provided');
+        return {};
+      }
       
       try {
         const addressesParam = addresses.join(',');
