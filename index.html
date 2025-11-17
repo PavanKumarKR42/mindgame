@@ -1121,7 +1121,7 @@
     /* ---------- Config ---------- */
     const CONTRACT_ADDRESS = '0xD65A46d6Bb6408B6825FF72FC6FE1EFE6E1A35a4';
     const MAX_SCORE = 7;
-    const NEYNAR_API_KEY = ''; // FILL YOUR KEY HERE
+    const NEYNAR_API_KEY = '20FEAD29-CB14-438B-8309-868BA126B594';
     const GAME_URL = 'https://mindgame-omega.vercel.app/';
     const BLOCK_EXPLORER_URL = 'https://basescan.org';
 
@@ -1141,12 +1141,8 @@
     /* ---------- UI Refs ---------- */
     const playTab = document.getElementById('playTab');
     const leaderboardTab = document.getElementById('leaderboardTab');
-    const navPlayBtn = document.getElementById('navPlayBtn');
-    const navLbBtn = document.getElementById('navLbBtn');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const userProfile = document.getElementById('userProfile');
-    const userProfilePfp = document.getElementById('userProfilePfp');
-    const userProfileName = document.getElementById('userProfileName');
+    const tabPlayBtn = document.getElementById('tabPlayBtn');
+    const tabLbBtn = document.getElementById('tabLbBtn');
     const toastEl = document.getElementById('toast');
     const claimBtn = document.getElementById('claimBtn');
     const shareBtn = document.getElementById('shareBtn');
@@ -1158,34 +1154,81 @@
     const message = document.getElementById('message');
     const roundDisplay = document.getElementById('roundDisplay');
 
+    /* ---------- Theme Toggle ---------- */
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('.theme-icon');
+    const body = document.body;
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+      body.classList.add('light-theme');
+      themeIcon.textContent = '☀️';
+    }
+
+    themeToggle.onclick = () => {
+      body.classList.toggle('light-theme');
+      const isLight = body.classList.contains('light-theme');
+      themeIcon.textContent = isLight ? '☀️' : '🌙';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    };
+
+    /* ---------- User Profile ---------- */
+    const userProfile = document.getElementById('userProfile');
+    const userPfp = document.getElementById('userPfp');
+    const userName = document.getElementById('userName');
+
+    async function loadUserProfile(address) {
+      try {
+        const response = await fetch(
+          `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
+          {
+            method: 'GET',
+            headers: {
+              'accept': 'application/json',
+              'api_key': NEYNAR_API_KEY
+            }
+          }
+        );
+
+        if (!response.ok) {
+          console.error('Failed to fetch user profile');
+          return;
+        }
+
+        const data = await response.json();
+        const users = data[address.toLowerCase()];
+        
+        if (users && users.length > 0) {
+          const user = users[0];
+          userPfp.src = user.pfp_url || 'https://via.placeholder.com/40';
+          userName.textContent = `@${user.username || 'unknown'}`;
+          userProfile.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      }
+    }
+
     /* ---------- State ---------- */
     let userAddress = null;
     let currentGameId = null;
     let currentDailyPlays = 0;
     let maxDailyGames = 3;
     let finalScore = 0;
-    let userFarcasterData = null;
 
-    /* ---------- Navigation ---------- */
-    navPlayBtn.onclick = () => {
+    tabPlayBtn.onclick = () => {
       playTab.classList.remove('hidden');
       leaderboardTab.classList.add('hidden');
-      navPlayBtn.classList.add('active');
-      navLbBtn.classList.remove('active');
+      tabPlayBtn.classList.add('active');
+      tabLbBtn.classList.remove('active');
     };
 
-    navLbBtn.onclick = () => {
+    tabLbBtn.onclick = () => {
       leaderboardTab.classList.remove('hidden');
       playTab.classList.add('hidden');
-      navLbBtn.classList.add('active');
-      navPlayBtn.classList.remove('active');
+      tabLbBtn.classList.add('active');
+      tabPlayBtn.classList.remove('active');
       loadLeaderboard();
-    };
-
-    /* ---------- Toggle Button (Menu) ---------- */
-    toggleBtn.onclick = () => {
-      // You can add menu functionality here
-      showToast('Menu functionality - coming soon!');
     };
 
     function showToast(html, ms = 3500) {
@@ -1253,56 +1296,6 @@
       }
     }
 
-    /* ---------- Fetch User Profile ---------- */
-    async function fetchUserProfile(address) {
-      if (!NEYNAR_API_KEY) {
-        console.log('No Neynar API key provided');
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
-          {
-            method: 'GET',
-            headers: {
-              'accept': 'application/json',
-              'api_key': NEYNAR_API_KEY
-            }
-          }
-        );
-
-        if (!response.ok) {
-          console.error('Neynar API error:', response.status);
-          return;
-        }
-
-        const data = await response.json();
-        const users = data[address.toLowerCase()];
-        
-        if (users && users.length > 0) {
-          userFarcasterData = users[0];
-          updateUserProfile(userFarcasterData);
-        }
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    }
-
-    function updateUserProfile(userData) {
-      if (userData) {
-        userProfilePfp.src = userData.pfp_url || 'https://via.placeholder.com/32';
-        userProfilePfp.onerror = () => {
-          userProfilePfp.src = 'https://via.placeholder.com/32';
-        };
-        userProfileName.textContent = `@${userData.username || 'user'}`;
-        userProfile.classList.add('show');
-      } else if (userAddress) {
-        userProfileName.textContent = `${userAddress.slice(0, 6)}...`;
-        userProfile.classList.add('show');
-      }
-    }
-
     /* ---------- Initialize SDK and Wallet ---------- */
     sdk.actions.ready({ disableNativeGestures: true }).then(async () => {
       console.log("Farcaster MiniApp ready");
@@ -1318,12 +1311,9 @@
       const hasPromptedAddApp = sessionStorage.getItem('hasPromptedAddApp');
       if (!hasPromptedAddApp) {
         try {
-          console.log('Auto-prompting add app...');
           await sdk.actions.addMiniApp();
           sessionStorage.setItem('hasPromptedAddApp', 'true');
-          console.log('App added successfully!');
         } catch (error) {
-          console.log('Add app prompt dismissed or failed:', error.name);
           sessionStorage.setItem('hasPromptedAddApp', 'true');
         }
       }
@@ -1360,11 +1350,9 @@
         if (userAddress) {
           showToast(`Connected: ${userAddress.slice(0, 6)}…${userAddress.slice(-4)}`);
           
-          // Fetch user profile
-          await fetchUserProfile(userAddress);
-          
           await fetchMaxDailyGames();
           await fetchDailyPlays(userAddress);
+          await loadUserProfile(userAddress);
 
           connectBtn.classList.add('hidden');
           startBtn.classList.remove('hidden');
@@ -1381,7 +1369,6 @@
         message.innerText = "Connection failed. Try again.";
       }
     };
-
     claimBtn.onclick = async () => {
       if (!currentGameId) {
         showToast('No active game to claim. Play and win first!');
