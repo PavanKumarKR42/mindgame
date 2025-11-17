@@ -86,91 +86,53 @@
       position: relative;
       z-index: 2;
     }
-
-    /* Top Header Bar */
-    .top-header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 0;
-    }
-
-    /* Toggle Button (Top Left) */
-    .toggle-btn {
-      width: 48px;
-      height: 48px;
-      background: rgba(255, 255, 255, 0.05);
+    
+    .tabbar { 
+      display: flex; 
+      gap: 10px; 
+      width: 100%; 
+      margin: 12px 0 20px; 
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px;
+      border-radius: 16px;
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      padding: 12px;
-      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
-
-    .toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
-    }
-
-    .toggle-btn span {
-      width: 100%;
-      height: 3px;
-      background: #fff;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
-
-    /* User Profile (Top Right) */
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 8px 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .user-profile.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .user-profile:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .user-profile-pfp {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 2px solid rgba(138, 43, 226, 0.5);
-      object-fit: cover;
-    }
-
-    .user-profile-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: #fff;
-      max-width: 100px;
+    
+    .tabbar button { 
+      flex: 1; 
+      padding: 12px; 
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      border-radius: 12px; 
+      font-weight: 700; 
+      font-size: 14px;
+      cursor: pointer; 
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    }
+    
+    .tabbar button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(0, 191, 255, 0.4));
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    .tabbar button.active {
+      color: #fff;
+      text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
+    }
+    
+    .tabbar button.active::before {
+      opacity: 1;
     }
     
     .hidden { display: none; }
@@ -504,11 +466,11 @@
     }
     
     .btn-control {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 100%;
-    }
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
 
     
     .restart-btn, .start-btn { 
@@ -884,35 +846,33 @@
     .rules-text {
       flex: 1;
     }
+.share-btn {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  display: none; /* Use display: none instead of hidden class */
+}
 
-    .share-btn {
-      width: 100%;
-      padding: 14px 20px;
-      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      font-weight: 800;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
-      display: none;
-    }
+.share-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
+}
 
-    .share-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
-    }
-
-    .share-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .share-btn.hidden {
-      display: none;
-    }
+.share-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.share-btn.hidden {
+  display: none;
+}
 
     .rules-text strong {
       color: #fff;
@@ -937,75 +897,6 @@
     .rules-close-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(138, 43, 226, 0.6);
-    }
-
-    /* Bottom Navigation Bar */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 390px;
-      width: calc(100% - 40px);
-      background: rgba(10, 14, 39, 0.95);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px 20px 0 0;
-      padding: 12px 20px;
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .nav-btn {
-      flex: 1;
-      max-width: 150px;
-      padding: 12px 20px;
-      background: transparent;
-      border: none;
-      color: rgba(255, 255, 255, 0.5);
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      border-radius: 12px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .nav-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(138, 43, 226, 0.4), rgba(0, 191, 255, 0.4));
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      border-radius: 12px;
-      z-index: -1;
-    }
-
-    .nav-btn.active {
-      color: #fff;
-      text-shadow: 0 0 20px rgba(138, 43, 226, 0.8);
-    }
-
-    .nav-btn.active::before {
-      opacity: 1;
-    }
-
-    .nav-btn:hover:not(.active) {
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    /* Add padding to body to account for bottom nav */
-    body {
-      padding-bottom: 90px;
     }
   </style>
 </head>
@@ -1045,18 +936,9 @@
     </div>
   </div>
 
-  <!-- Top Header -->
-  <div class="top-header">
-    <button class="toggle-btn" id="toggleBtn">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    
-    <div class="user-profile" id="userProfile">
-      <img src="https://via.placeholder.com/32" alt="Profile" class="user-profile-pfp" id="userProfilePfp">
-      <span class="user-profile-name" id="userProfileName">Guest</span>
-    </div>
+  <div class="tabbar">
+    <button id="tabPlayBtn" class="active">Play</button>
+    <button id="tabLbBtn">Leaderboard</button>
   </div>
 
   <section id="playTab">
@@ -1100,12 +982,6 @@
     </table>
   </section>
 
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <button id="navPlayBtn" class="nav-btn active">🎮 Play</button>
-    <button id="navLbBtn" class="nav-btn">🏆 Leaderboard</button>
-  </div>
-
   <div id="toast" class="toast"></div>
 
  <script type="module">
@@ -1126,7 +1002,7 @@
     const BLOCK_EXPLORER_URL = 'https://basescan.org';
 
     // ADD YOUR ABI HERE
-    const ABI = [];
+    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
     const config = createConfig({
       chains: [base],
@@ -1153,61 +1029,6 @@
     const buttonsContainer = document.getElementById('buttonsContainer');
     const message = document.getElementById('message');
     const roundDisplay = document.getElementById('roundDisplay');
-
-    /* ---------- Theme Toggle ---------- */
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('.theme-icon');
-    const body = document.body;
-
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'light') {
-      body.classList.add('light-theme');
-      themeIcon.textContent = '☀️';
-    }
-
-    themeToggle.onclick = () => {
-      body.classList.toggle('light-theme');
-      const isLight = body.classList.contains('light-theme');
-      themeIcon.textContent = isLight ? '☀️' : '🌙';
-      localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    };
-
-    /* ---------- User Profile ---------- */
-    const userProfile = document.getElementById('userProfile');
-    const userPfp = document.getElementById('userPfp');
-    const userName = document.getElementById('userName');
-
-    async function loadUserProfile(address) {
-      try {
-        const response = await fetch(
-          `https://api.neynar.com/v2/farcaster/user/bulk-by-address?addresses=${address}`,
-          {
-            method: 'GET',
-            headers: {
-              'accept': 'application/json',
-              'api_key': NEYNAR_API_KEY
-            }
-          }
-        );
-
-        if (!response.ok) {
-          console.error('Failed to fetch user profile');
-          return;
-        }
-
-        const data = await response.json();
-        const users = data[address.toLowerCase()];
-        
-        if (users && users.length > 0) {
-          const user = users[0];
-          userPfp.src = user.pfp_url || 'https://via.placeholder.com/40';
-          userName.textContent = `@${user.username || 'unknown'}`;
-          userProfile.classList.remove('hidden');
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-      }
-    }
 
     /* ---------- State ---------- */
     let userAddress = null;
@@ -1311,9 +1132,12 @@
       const hasPromptedAddApp = sessionStorage.getItem('hasPromptedAddApp');
       if (!hasPromptedAddApp) {
         try {
+          console.log('Auto-prompting add app...');
           await sdk.actions.addMiniApp();
           sessionStorage.setItem('hasPromptedAddApp', 'true');
+          console.log('App added successfully!');
         } catch (error) {
+          console.log('Add app prompt dismissed or failed:', error.name);
           sessionStorage.setItem('hasPromptedAddApp', 'true');
         }
       }
@@ -1352,7 +1176,6 @@
           
           await fetchMaxDailyGames();
           await fetchDailyPlays(userAddress);
-          await loadUserProfile(userAddress);
 
           connectBtn.classList.add('hidden');
           startBtn.classList.remove('hidden');
@@ -1369,6 +1192,7 @@
         message.innerText = "Connection failed. Try again.";
       }
     };
+
     claimBtn.onclick = async () => {
       if (!currentGameId) {
         showToast('No active game to claim. Play and win first!');
@@ -1642,8 +1466,9 @@ Built by @pavankumarkr. `,
       if (colorObj.name === 'purple') {
         btn.classList.add('purple-btn');
       }
-      btn.setAttribute('data-color', colorObj.name);
+      btn.style.backgroundColor = colorObj.hex;
       btn.innerText = colorObj.name.toUpperCase();
+      btn.dataset.color = colorObj.name;
       btn.addEventListener('click', () => handleUserInput(colorObj.name, btn));
       buttonsContainer.appendChild(btn);
     });
@@ -1936,11 +1761,6 @@ Built by @pavankumarkr. `,
     /* ---------- Neynar API Integration ---------- */
     async function fetchFarcasterUsersByAddresses(addresses) {
       if (!addresses || addresses.length === 0) return {};
-      
-      if (!NEYNAR_API_KEY) {
-        console.log('No Neynar API key provided');
-        return {};
-      }
       
       try {
         const addressesParam = addresses.join(',');
