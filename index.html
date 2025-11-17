@@ -21,7 +21,7 @@
     }
   }' />
 
-  <style>
+<style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     button:focus { outline: none; }
     button:active { outline: none; }
@@ -903,7 +903,7 @@
 <body>
 
   <!-- Rules Overlay -->
-  <div class="rules-overlay" id="rulesOverlay">
+  <div class="rules-overlay hidden" id="rulesOverlay">
     <div class="rules-container">
       <div class="rules-header">
         <h2 class="rules-title">Game Rules</h2>
@@ -965,8 +965,7 @@
         <button class="start-btn hidden" id="startBtn">Start Free Game</button>
         <button class="restart-btn hidden" id="restartBtn">Restart Game</button>
         <button class="claim-btn hidden" id="claimBtn">Claim 3k BONK</button>
-          <button class="share-btn hidden" id="shareBtn">🎉 Share Your Win on Farcaster</button>
-
+        <button class="share-btn hidden" id="shareBtn">🎉 Share Your Win on Farcaster</button>
       </div>
 
     </div>
@@ -990,26 +989,28 @@
     import {
       createConfig, connect, readContract, writeContract, getAccount
     } from 'https://esm.sh/@wagmi/core';
-    import { arbitrum } from 'https://esm.sh/@wagmi/core/chains';
+    import { base } from 'https://esm.sh/@wagmi/core/chains';
     import { farcasterMiniApp } from 'https://esm.sh/@farcaster/miniapp-wagmi-connector';
     import { createPublicClient, http } from 'https://esm.sh/viem';
     import { decodeEventLog } from 'https://esm.sh/viem';
 
     /* ---------- Config ---------- */
-    const CONTRACT_ADDRESS = '0xe54be4a16ec396d2c31812a3693af15281ee115a';
+    const CONTRACT_ADDRESS = '0xD65A46d6Bb6408B6825FF72FC6FE1EFE6E1A35a4';
     const MAX_SCORE = 7;
     const NEYNAR_API_KEY = '20FEAD29-CB14-438B-8309-868BA126B594';
-    const GAME_URL = 'https://mindgame-omega.vercel.app/'; // Replace with your actual game URL
+    const GAME_URL = 'https://mindgame-omega.vercel.app/';
+    const BLOCK_EXPLORER_URL = 'https://basescan.org';
 
-    const ABI =[{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+    // ADD YOUR ABI HERE
+    const ABI = [{"inputs":[{"internalType":"address","name":"_bonkToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"score","type":"uint256"}],"name":"GameEnded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"RewardClaimed","type":"event"},{"inputs":[],"name":"MAX_DAILY_GAMES","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SCORE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"allPlayers","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"bonkToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"dailyPlays","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint256","name":"score","type":"uint256"}],"name":"endGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"address","name":"player","type":"address"},{"internalType":"bool","name":"ended","type":"bool"},{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bool","name":"claimed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"n","type":"uint256"}],"name":"getTopPlayers","outputs":[{"internalType":"address[]","name":"","type":"address[]"},{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"lastDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextGameId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"startGame","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userTotalScore","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"}];
 
     const config = createConfig({
-      chains: [arbitrum],
-      transports: { [arbitrum.id]: http() }
+      chains: [base],
+      transports: { [base.id]: http() }
     });
 
     const publicClient = createPublicClient({
-      chain: arbitrum,
+      chain: base,
       transport: http()
     });
 
@@ -1121,7 +1122,6 @@
       console.log("Farcaster MiniApp ready");
       message.innerText = "Ready to connect!";
       
-      // Show rules on first visit
       const hasSeenRules = localStorage.getItem('hasSeenRules');
       if (!hasSeenRules) {
         setTimeout(() => {
@@ -1129,7 +1129,6 @@
         }, 300);
       }
 
-      // Auto-prompt to add app (only once per session)
       const hasPromptedAddApp = sessionStorage.getItem('hasPromptedAddApp');
       if (!hasPromptedAddApp) {
         try {
@@ -1149,7 +1148,6 @@
       showToast("Failed to initialize. Try reloading.");
     });
 
-    // Rules overlay controls
     const rulesOverlay = document.getElementById('rulesOverlay');
     const gotItBtn = document.getElementById('gotItBtn');
 
@@ -1168,7 +1166,7 @@
 
         await connect(config, {
           connector: farcasterMiniApp(),
-          chainId: arbitrum.id
+          chainId: base.id
         });
 
         userAddress = getAccount(config)?.address;
@@ -1277,17 +1275,15 @@
           throw new Error('Transaction failed - no hash returned');
         }
         
-        showToast(`Claim TX sent! <a target="_blank" href="https://arbiscan.io/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
+        showToast(`Claim TX sent! <a target="_blank" href="${BLOCK_EXPLORER_URL}/tx/${hash}" style="color: #2ecc71; text-decoration: underline;">View TX</a>`, 5000);
         message.innerText = 'Waiting for confirmation...';
         
         await publicClient.waitForTransactionReceipt({ hash });
         
-        // Transaction confirmed - show success and show share button
         showToast(`🎉 Reward claimed successfully! 3k BONK is yours!`, 4000);
         message.innerText = `Successfully claimed 3k BONK tokens!`;
         claimBtn.classList.add('hidden');
         
-        // Show share button after successful claim
         if (shareBtn) {
           shareBtn.style.display = 'block';
         }
@@ -1319,7 +1315,6 @@
       }
     };
 
-    /* ---------- Share Button Handler ---------- */
     if (shareBtn) {
       shareBtn.addEventListener('click', async () => {
         try {
@@ -1327,7 +1322,7 @@
           showToast('Opening cast composer...', 3000);
           
           await sdk.actions.composeCast({
-            text: `🎮 Just won 3,000 BONK tokens playing the memory game on @arbitrum! 
+            text: `🎮 Just won 3,000 BONK tokens playing the memory game on @base! 
 Can you beat my score? 🏆
 
 Built by @pavankumarkr. `,
@@ -1577,7 +1572,7 @@ Built by @pavankumarkr. `,
         }
 
         if (!found || currentGameId === null) {
-          message.innerText = `No GameStarted event found. Check TX: https://arbiscan.io/tx/${hash}`;
+          message.innerText = `No GameStarted event found. Check TX: ${BLOCK_EXPLORER_URL}/tx/${hash}`;
           showToast("Transaction confirmed but GameStarted event missing.");
           startBtn.disabled = false;
           updateStartButtonText(currentDailyPlays);
