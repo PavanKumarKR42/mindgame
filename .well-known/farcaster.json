@@ -1,11 +1,11 @@
 {
   "frame": {
-  "name": "BRAIN.exe!",
+  "name": "random game",
     "version": "1",
     "iconUrl": "https://mindgame-omega.vercel.app/splash.png",
     "homeUrl": "https://mindgame-omega.vercel.app",
     "imageUrl": "https://mindgame-omega.vercel.app/image.png",
-    "buttonTitle": "Test Memory!",
+    "buttonTitle": "random game!",
     "splashImageUrl": "https://mindgame-omega.vercel.app/splash.png",
     "splashBackgroundColor": "#ffd753",
     "webhookUrl": "https://api.neynar.com/f/app/1a6c0738-43e3-4629-8d0c-305f05bf120c/event",
